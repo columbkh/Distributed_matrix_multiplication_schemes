@@ -1,0 +1,50 @@
+Decoding 0: 2.519966
+---------------------------------------
+Uploading 0: 0.821662
+Downloading 0: 0.122796
+Server Computation 0:
+Server Nr. 1: 0.201476
+Server Nr. 2: 0.204494
+Server Nr. 3: 0.201175
+Server Nr. 4: 0.189478
+Server Nr. 5: 0.196943
+Server Nr. 6: 0.201171
+Server Nr. 7: 0.200743
+Server Nr. 8: 0.198195
+Server Nr. 9: 0.196932
+Server Nr. 10: 0.201124
+Server Nr. 11: 0.201597
+Server Nr. 12: 0.197906
+Server Nr. 13: 0.205924
+Server Nr. 14: 0.196602
+Server Nr. 15: 0.209214
+Server Nr. 16: 0.239179
+Server Nr. 17: 0.195990
+Server Nr. 18: 0.201974
+Average: 0.202229
+---------------------------------------
+Decoding 1: 2.230421
+---------------------------------------
+Uploading 1: 0.814050
+Downloading 1: 0.125213
+Server Computation 1:
+Server Nr. 1: 0.193873
+Server Nr. 2: 0.197179
+Server Nr. 3: 0.198735
+Server Nr. 4: 0.197942
+Server Nr. 5: 0.202117
+Server Nr. 6: 0.197463
+Server Nr. 7: 0.200725
+Server Nr. 8: 0.197026
+Server Nr. 9: 0.201029
+Server Nr. 10: 0.205549
+Server Nr. 11: 0.197681
+Server Nr. 12: 0.194151
+Server Nr. 13: 0.200461
+Server Nr. 14: 0.197344
+Server Nr. 15: 0.205947
+Server Nr. 16: 0.198012
+Server Nr. 17: 0.199311
+Server Nr. 18: 0.197310
+Average: 0.198992
+---------------------------------------
