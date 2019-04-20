@@ -82,6 +82,7 @@ function [gaspv, assv, scsv] = work_with_schemes(q, Field, matr_size, ordner)
   name = strcat(q_str, m_str);
   name = strcat(name, n_str);
   name = strcat(name, p_str);
+ # name = strcat(name, ".mat");
   gasp_addr = strcat("/gasp", name);
   ass_addr = strcat("/ass", name);
   scs_addr = strcat("/scs", name);
@@ -96,7 +97,7 @@ endfunction
 #work_with_schemes(q, Field, matr_size);
      
      
-function work_with_experiment(q, Field, start_matr_size, ordner, nomer)
+function work_with_experiment(q, Field, start_matr_size, ordner, nomer, coeff)
   matr_size = start_matr_size;
   gasp_dl = [];
   gasp_ul = [];
@@ -128,7 +129,7 @@ function work_with_experiment(q, Field, start_matr_size, ordner, nomer)
     scs_ul = [scs_ul, scsv(3)];
     scs_dec = [scs_dec, scsv(5)];
     scs_comp = [scs_comp, scsv(7)];
-    matr_size = matr_size * 2;
+    matr_size = ceil(matr_size * coeff);
   end
   
   x = matr;
@@ -189,8 +190,9 @@ Field = str2num(argv(){2});
 start_matr_size = str2num(argv(){3});
 ordner = argv(){4};    
 nomer = str2num(argv(){5});
+coeff = str2double(argv(){6});
      
-work_with_experiment(q, Field, start_matr_size, ordner, nomer)
+work_with_experiment(q, Field, start_matr_size, ordner, nomer, coeff)
      
      
      
