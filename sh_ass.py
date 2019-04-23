@@ -4,17 +4,18 @@ import random
 from mpi4py import MPI
 import time
 import sys
+import communicators
 
 def ass_m(N, l, r_a, r_b, k, rt, F, barrier, verific, together, A, B, m, n, p, q):
-    prev_comm = MPI.COMM_WORLD
-    if N+1 < prev_comm.Get_size():
-        instances = [i for i in range(N+1, prev_comm.Get_size())]
-        new_group = prev_comm.group.Excl(instances)
-        comm = prev_comm.Create(new_group)
-    else:
-        comm = prev_comm
+#    prev_comm = MPI.COMM_WORLD
+#    if N+1 < prev_comm.Get_size():
+#        instances = [i for i in range(N+1, prev_comm.Get_size())]
+#        new_group = prev_comm.group.Excl(instances)
+#        comm = prev_comm.Create(new_group)
+#    else:
+#        comm = prev_comm
         
-    if prev_comm.rank == 0: 
+    if communicators.prev_comm.rank == 0:
      #   dec_start = time.time()
   
 	Ap = np.split(A, r_a)
@@ -55,9 +56,9 @@ def ass_m(N, l, r_a, r_b, k, rt, F, barrier, verific, together, A, B, m, n, p, q
         if together:
 		    ul_start = time.time()
 		    for i in range(N):
-			    reqA[i] = comm.Isend([Aenc[i], MPI.INT], dest=i+1, tag=15)
-			    reqB[i] = comm.Isend([Benc[i], MPI.INT], dest=i+1, tag=29)
-			    reqC[i] = comm.Irecv([Rdict[i], MPI.INT], source=i+1, tag=42)
+			    reqA[i] = communicators.comm.Isend([Aenc[i], MPI.INT], dest=i+1, tag=15)
+			    reqB[i] = communicators.comm.Isend([Benc[i], MPI.INT], dest=i+1, tag=29)
+			    reqC[i] = communicators.comm.Irecv([Rdict[i], MPI.INT], source=i+1, tag=42)
 			
 		
 		    MPI.Request.Waitall(reqA)
@@ -65,7 +66,7 @@ def ass_m(N, l, r_a, r_b, k, rt, F, barrier, verific, together, A, B, m, n, p, q
 
         
                     if barrier:
-			    comm.Barrier()
+			    communicators.comm.Barrier()
 	
 	            dl_start = time.time()
         
@@ -87,9 +88,9 @@ def ass_m(N, l, r_a, r_b, k, rt, F, barrier, verific, together, A, B, m, n, p, q
 	    	    reqAB = [None] * 2 * N
 		    for i in range(N):
 			    ul_start[i] = time.time()
-			    reqAB[i] = comm.Isend([Aenc[i], MPI.INT], dest=i+1, tag=15)
-			    reqAB[i + N] = comm.Isend([Benc[i], MPI.INT], dest=i+1, tag=29)
-			    reqC[i] = comm.Irecv([Rdict[i], MPI.INT], source=i+1, tag=42)
+			    reqAB[i] = communicators.comm.Isend([Aenc[i], MPI.INT], dest=i+1, tag=15)
+			    reqAB[i + N] = communicators.comm.Isend([Benc[i], MPI.INT], dest=i+1, tag=29)
+			    reqC[i] = communicators.comm.Irecv([Rdict[i], MPI.INT], source=i+1, tag=42)
 			
 		    lsst = []
 		    lst = []
@@ -98,7 +99,7 @@ def ass_m(N, l, r_a, r_b, k, rt, F, barrier, verific, together, A, B, m, n, p, q
 		    	j = MPI.Request.Waitany(reqAB)
 			
 		    if barrier:
-			    comm.Barrier()
+			    communicators.comm.Barrier()
 			
 		    dl_start = time.time()
 		
@@ -132,12 +133,12 @@ def ass_m(N, l, r_a, r_b, k, rt, F, barrier, verific, together, A, B, m, n, p, q
        # dec = dec_firstpart + dec_secondpart
     
         if barrier:
-		    comm.Barrier()
+		    communicators.comm.Barrier()
 	
 	for i in range(N):	
-		    serv_comp[i] = comm.recv(source=i+1, tag=64)
+		    serv_comp[i] = communicators.comm.recv(source=i+1, tag=64)
 	for i in range(N):	
-		    ul_stop[i] = comm.recv(source=i+1, tag=70)
+		    ul_stop[i] = communicators.comm.recv(source=i+1, tag=70)
 		
 	if together:
 		    ul_stop_latest = max(ul_stop)
@@ -157,6 +158,12 @@ def ass_m(N, l, r_a, r_b, k, rt, F, barrier, verific, together, A, B, m, n, p, q
     
                     print ([np.array_equal(final_res[i], Cver[i]) for i in range(len(Cver))])
 
+	if barrier:
+		communicators.comm.Barrier()
+
+#        comm.Free()
+#        new_group.Free()
+
         return dec, dl, ul, serv_comp
 
            
@@ -165,19 +172,19 @@ def ass_m(N, l, r_a, r_b, k, rt, F, barrier, verific, together, A, B, m, n, p, q
 
 
 def ass_sl(N, l, r_a, r_b, k, rt, F, barrier, verific, together, m, n, p, q):
-    prev_comm = MPI.COMM_WORLD
-    if N+1 < prev_comm.Get_size():
-        instances = [i for i in range(N+1, prev_comm.Get_size())]
-        new_group = prev_comm.group.Excl(instances)
-        comm = prev_comm.Create(new_group)
-    else:
-        comm = prev_comm
+#    prev_comm = MPI.COMM_WORLD
+#    if N+1 < prev_comm.Get_size():
+#        instances = [i for i in range(N+1, prev_comm.Get_size())]
+#        new_group = prev_comm.group.Excl(instances)
+#        comm = prev_comm.Create(new_group)
+#    else:
+#        comm = prev_comm
           
-    if prev_comm.rank > 0 and prev_comm.rank < N+1:
+    if communicators.prev_comm.rank > 0 and communicators.prev_comm.rank < N+1:
 	Ai = np.empty_like(np.matrix([[0]*n for i in range(m/r_a)]))
         Bi = np.empty_like(np.matrix([[0]*n for i in range(p/r_b)]))
-        rA = comm.Irecv(Ai, source=0, tag=15)
-        rB = comm.Irecv(Bi, source=0, tag=29)
+        rA = communicators.comm.Irecv(Ai, source=0, tag=15)
+        rB = communicators.comm.Irecv(Bi, source=0, tag=29)
 
         rA.wait()
         rB.wait()
@@ -191,17 +198,22 @@ def ass_sl(N, l, r_a, r_b, k, rt, F, barrier, verific, together, m, n, p, q):
         servcomp = servcomp_done - servcomp_start
     
         if barrier:
-		    comm.Barrier()
+		    communicators.comm.Barrier()
     
-        sC = comm.Isend(Ci, dest=0, tag=42)
+        sC = communicators.comm.Isend(Ci, dest=0, tag=42)
         sC.Wait()
 
     
         if barrier:
-		    comm.Barrier()
+		    communicators.comm.Barrier()
 		
-	sSrv = comm.send(servcomp, dest=0, tag=64)
-	sUpl = comm.send(servcomp_start, dest=0, tag=70)
+	sSrv = communicators.comm.send(servcomp, dest=0, tag=64)
+	sUpl = communicators.comm.send(servcomp_start, dest=0, tag=70)
+
+	if barrier:
+		communicators.comm.Barrier()
+
+#
 
 
 

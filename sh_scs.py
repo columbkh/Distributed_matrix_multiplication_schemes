@@ -1,25 +1,14 @@
 from tools import *
 import argparse
 import random
-from mpi4py import MPI
+from mpi4py import *
 import time
 import sys
-
-
+import communicators
 def scs_m(N, l, r, Field, barrier, verific, together, A, B, m, n, p, q):
-	
-	prev_comm = MPI.COMM_WORLD
-	if N+1 < prev_comm.Get_size():
-	     instances = [i for i in range(N+1, prev_comm.Get_size())]
-	     new_group = prev_comm.group.Excl(instances)
-	     comm = prev_comm.Create(new_group)
-	else:
-	     comm = prev_comm
-
-	
 
 
-	if prev_comm.rank == 0:  # Master
+	if communicators.prev_comm.rank == 0:  # Master
 
 	    if N > 19:
 			print "Too many instances"
@@ -57,15 +46,15 @@ def scs_m(N, l, r, Field, barrier, verific, together, A, B, m, n, p, q):
 		ul_start = time.time()
 		for i in range(N):
 				for j in range(r):
-					reqA[i+j*N] = comm.Isend([Aenc[i][j], MPI.INT], dest=i+1, tag=15)
-					reqB[i+j*N] = comm.Isend([Benc[i][j], MPI.INT], dest=i+1, tag=29)
-				reqC[i] = comm.Irecv([Crtn[i], MPI.INT], source=i+1, tag=42)
+					reqA[i+j*N] = communicators.comm.Isend([Aenc[i][j], MPI.INT], dest=i+1, tag=15)
+					reqB[i+j*N] = communicators.comm.Isend([Benc[i][j], MPI.INT], dest=i+1, tag=29)
+				reqC[i] = communicators.comm.Irecv([Crtn[i], MPI.INT], source=i+1, tag=42)
 		
 		MPI.Request.Waitall(reqA)
 		MPI.Request.Waitall(reqB)
 		
 	   	if barrier:
-				comm.Barrier()
+				communicators.comm.Barrier()
 		
 		dl_start = time.time()
 		MPI.Request.Waitall(reqC)
@@ -83,14 +72,14 @@ def scs_m(N, l, r, Field, barrier, verific, together, A, B, m, n, p, q):
 			for i in range(N):
 				ul_start[i] = time.time()
 				for j in range(r):
-					reqAB[i+j*N] = comm.Isend([Aenc[i][j], MPI.INT], dest=i+1, tag=15)
-					reqAB[i+(j+r)*N] = comm.Isend([Benc[i][j], MPI.INT], dest=i+1, tag=29)
-				reqC[i] = comm.Irecv([Crtn[i], MPI.INT], source=i+1, tag=42)
+					communicators.comm.Isend([Aenc[i][j], MPI.INT], dest=i+1, tag=15)
+				        reqAB[i+(j+r)*N] = communicators.comm.Isend([Benc[i][j], MPI.INT], dest=i+1, tag=29)
+				reqC[i] = communicators.comm.Irecv([Crtn[i], MPI.INT], source=i+1, tag=42)
 
 		
 			
 			if barrier:
-				comm.Barrier()
+				communicators.comm.Barrier()
 			
 			dl_start = time.time()
 			
@@ -113,12 +102,12 @@ def scs_m(N, l, r, Field, barrier, verific, together, A, B, m, n, p, q):
 	    dec = dec_firstpart + dec_secondpart  
 	    
 	    if barrier:
-	 	comm.Barrier()
+	 	communicators.comm.Barrier()
 	
 	    for i in range(N):	
-			serv_comp[i] = comm.recv(source=i+1, tag=64)
+			serv_comp[i] = communicators.comm.recv(source=i+1, tag=64)
 	    for i in range(N):	
-			ul_stop[i] = comm.recv(source=i+1, tag=70)
+			ul_stop[i] = communicators.comm.recv(source=i+1, tag=70)
 		
 		
 		
@@ -141,22 +130,25 @@ def scs_m(N, l, r, Field, barrier, verific, together, A, B, m, n, p, q):
 
 
 	    if barrier:
-				comm.Barrier()
+				communicators.comm.Barrier()
+
+#	    comm.Free()
+#	    new_group.Free()
 
             return dec, dl, ul, serv_comp
 
 
 
 def scs_sl(N, l, r, Field, barrier, verific, together, m, n, p):
-	prev_comm = MPI.COMM_WORLD
-	if N+1 < prev_comm.Get_size():
-	     instances = [i for i in range(N+1, prev_comm.Get_size())]
-	     new_group = prev_comm.group.Excl(instances)
-	     comm = prev_comm.Create(new_group)
-	else:
-	     comm = prev_comm
+#	prev_comm = MPI.COMM_WORLD
+#	if N+1 < prev_comm.Get_size():
+#	     instances = [i for i in range(N+1, prev_comm.Get_size())]
+#	     new_group = prev_comm.group.Excl(instances)
+#	     comm = prev_comm.Create(new_group)
+#	else:
+#	     comm = prev_comm
 
-	if prev_comm.rank > 0 and prev_comm.rank < N+1:
+	if communicators.prev_comm.rank > 0 and communicators.prev_comm.rank < N+1:
 	    Ai = []
 	    Bi = []
 	    rA = [None] * r
@@ -165,8 +157,8 @@ def scs_sl(N, l, r, Field, barrier, verific, together, m, n, p):
 	    for j in range(r):
 			Aij = np.empty_like(np.matrix([[0]*n for i in range(m)]))
 		        Bij = np.empty_like(np.matrix([[0]*n for i in range(p/r)]))
-			rA[j] = comm.Irecv(Aij, source=0, tag=15)
-			rB[j] = comm.Irecv(Bij, source=0, tag=29)
+			rA[j] = communicators.comm.Irecv(Aij, source=0, tag=15)
+			rB[j] = communicators.comm.Irecv(Bij, source=0, tag=29)
 			Ai.append(Aij)
 			Bi.append(Bij)
 		
@@ -185,20 +177,23 @@ def scs_sl(N, l, r, Field, barrier, verific, together, m, n, p):
 	    servcomp = servcomp_done - servcomp_start
 		
 	    if barrier:
-			comm.Barrier()
+			communicators.comm.Barrier()
 		
-	    sC = comm.Isend(Ci, dest=0, tag=42)
+	    sC = communicators.comm.Isend(Ci, dest=0, tag=42)
 	    sC.Wait()
 
 	    
 	    if barrier:
-			comm.Barrier()
+			communicators.comm.Barrier()
 		
-	    sSrv = comm.send(servcomp, dest=0, tag=64) 
-	    sUpl = comm.send(servcomp_start, dest=0, tag=70)
+	    sSrv = communicators.comm.send(servcomp, dest=0, tag=64)
+	    sUpl = communicators.comm.send(servcomp_start, dest=0, tag=70)
            
             if barrier:
-				comm.Barrier()
+				communicators.comm.Barrier()
+
+#	    comm.Free()
+#	    new_group.Free()
 
            
 

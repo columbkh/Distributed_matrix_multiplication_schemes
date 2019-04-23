@@ -13,6 +13,9 @@ import numpy as np
 from same_field_choose_ra_rb import *
 
 def do_multiple_tests(r_a, r_b, l, Field, Q, m, n, p, barrier, verific, together, Number, coeff):
+	write_title_to_octave(Q, Field, m, Number, coeff)
+	set_communicators(r_a, r_b, l, Field)
+
 	for i in range(Number):
                 if MPI.COMM_WORLD.rank == 0:
 			print "--------------------------------------------------------------------------"

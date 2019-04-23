@@ -8,6 +8,7 @@ from gasp_sh import *
 from sh_ass import *
 from sh_scs import *
 import numpy as np
+import communicators
 
 def do_scs(N, l, r, Field, barrier, verific, together, A, B, m, n, p, i, scs):
      if MPI.COMM_WORLD.rank == 0:
@@ -53,7 +54,8 @@ def compute(dec, dl, ul, comp, scheme, i):
 	scheme[2][i] = dec
 	
 
-def do_test(r_a, r_b, l, Field, Q, m, n, p, barrier, verific, together):        
+def do_test(r_a, r_b, l, Field, Q, m, n, p, barrier, verific, together):
+
         A = None
         B = None
         gasp = None
@@ -62,9 +64,10 @@ def do_test(r_a, r_b, l, Field, Q, m, n, p, barrier, verific, together):
         
         experiment_name ="_Q_" + str(Q) + "_m_" + str(m) + "_n_" + str(n) + "_p_" + str(p)
 
-	if l > min(r_a, r_b):
-		print "Bad arguments"
-		sys.exit(100)
+
+#	if l > min(r_a, r_b):
+#		print "Bad arguments"
+#		sys.exit(100)
 	
 	if l == min(r_a, r_b):
 			inv_matr, an, ter, N, a, b = create_GASP_big(r_a, r_b, l, Field)

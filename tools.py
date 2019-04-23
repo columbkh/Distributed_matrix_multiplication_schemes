@@ -5,13 +5,45 @@ import numpy as np
 import fft_fields
 import random
 import scipy.io as sio
-
+import communicators
+from mpi4py import MPI
+import sys
 def check_array(lst, j, r, N):
 	k = j % N
 	for i in range(2*r):
 		if not(k + i in lst):
 			return False
 	return True
+
+def set_communicators(r_a, r_b, l, Field):
+  #  if l > min(r_a, r_b):
+  #      print "Bad arguments"
+   #     sys.exit(100)
+
+    if l == min(r_a, r_b):
+        inv_matr, an, ter, N, a, b = create_GASP_big(r_a, r_b, l, Field)
+    else:
+        inv_matr, an, ter, N, a, b = create_GASP_small(r_a, r_b, l, Field)
+
+    if is_prime_number(Field) == False:
+        print "Field is not prime"
+        sys.exit(100)
+    else:
+        possb = get_nofft_for_fixedN(N, l)
+        if not possb:
+            print "No possabilities"
+            sys.exit(100)
+        else:
+            N = possb.N
+
+
+    communicators.prev_comm = MPI.COMM_WORLD
+    if N + 1 < communicators.prev_comm.Get_size():
+        instances = [i for i in range(N + 1, communicators.prev_comm.Get_size())]
+        new_group = communicators.prev_comm.group.Excl(instances)
+        communicators.comm = communicators.prev_comm.Create(new_group)
+    else:
+        communicators.comm = communicators.prev_comm
 
 def interpol(missing, Crtn, F, kr, lst, var):
 	for i in missing:
@@ -20,6 +52,23 @@ def interpol(missing, Crtn, F, kr, lst, var):
                 for k in set(lst) - set([lst[j]]):
                     coeff[j] = (coeff[j] * (var[i] - var[k]) * pow(var[lst[j]] - var[k], F - 2, F)) % F
             Crtn[i] = sum([Crtn[lst[j]] * coeff[j] for j in range(kr)]) % F
+
+
+def write_title_to_octave(Q, Field, matr_size, number, coeffinc):
+	if type(coeffinc) == int:
+		title = True
+        else:
+		title = False
+	FrameStack = np.empty((6,), dtype=np.object)
+	FrameStack[0] = title
+	FrameStack[1] = Q
+	FrameStack[2] = Field
+	FrameStack[3] = matr_size
+	FrameStack[4] = number
+	FrameStack[5] = coeffinc
+
+	save_string = "./results/" + "title" + ".mat"
+	sio.savemat(save_string, {"FrameStack": FrameStack})
 
 def write_to_octave(scheme, name):
     L = [li for li in scheme]
@@ -31,19 +80,6 @@ def write_to_octave(scheme, name):
     save_string = "./results/" + name + ".mat"
     sio.savemat(save_string, {"FrameStack":FrameStack})
 
-	
- 
- #   if name == "gasp":
-#		sio.savemat("./results/gasp.mat", {"FrameStack":FrameStack})
- #   elif name == "ass":
-#		sio.savemat("./results/ass.mat", {"FrameStack":FrameStack})
-#    elif name == "scs":
-#		sio.savemat("./results/scs.mat", {"FrameStack":FrameStack})
-#    else:
-#		print "error"
-
-	
-	
 	
 	
 	

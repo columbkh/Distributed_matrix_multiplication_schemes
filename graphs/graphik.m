@@ -41,16 +41,16 @@ function [fig, dlv, ulv, decv, compv] = make_pdfs(dl, ul, dec, comp)
   [mu, sigma] = make_pdf(comp, 4, "Slaves");
   compv = [mu, sigma];
 endfunction
-     
+
 function [dl, ul, dec, comp] = load_data(name)
     load(name);
-    dl = FrameStack{1};  
-    ul = FrameStack{2};      
-    dec = FrameStack{3};      
+    dl = FrameStack{1};
+    ul = FrameStack{2};
+    dec = FrameStack{3};
     comp = FrameStack{4};
 endfunction
-    
-function save_pdf(fig, nasme, q, Field, matr_size, ordner)
+
+function save_pdf(fig, name, q, Field, matr_size, ordner)
   q_str = num2str(q);
   q_str = strcat("/Q_", q_str);
   field_str = num2str(Field);
@@ -66,14 +66,14 @@ function save_pdf(fig, nasme, q, Field, matr_size, ordner)
   res_file = strcat(res, name);
   saveas(fig, res_file);
 endfunction
-     
+
 function [dlv, ulv, decv, compv] = work_with_scheme(name, q, Field, matr_size, ordner)
   [dl, ul, dec, comp] = load_data(strcat(ordner, name));
   [fig, dlv, ulv, decv, compv] = make_pdfs(dl, ul, dec, comp);
   save_pdf(fig, name, q, Field, matr_size, ordner);
 endfunction
 
-  
+
 function [gaspv, assv, scsv] = work_with_schemes(q, Field, matr_size, ordner)
   q_str = strcat("_Q_", num2str(q));
   m_str = strcat("_m_", num2str(matr_size));
@@ -93,11 +93,11 @@ function [gaspv, assv, scsv] = work_with_schemes(q, Field, matr_size, ordner)
   [dlv, ulv, decv, compv] = work_with_scheme(scs_addr, q, Field, matr_size, ordner);
   scsv = [dlv, ulv, decv, compv];
 endfunction
-     
+
 #work_with_schemes(q, Field, matr_size);
-     
-     
-function work_with_experiment(q, Field, start_matr_size, ordner, nomer, coeff)
+
+
+function work_with_experiment(q, Field, start_matr_size, ordner, nomer, coeff, title)
   matr_size = start_matr_size;
   gasp_dl = [];
   gasp_ul = [];
@@ -112,7 +112,7 @@ function work_with_experiment(q, Field, start_matr_size, ordner, nomer, coeff)
   scs_dec = [];
   scs_comp = [];
   matr = [];
-  
+
   for i = 1:nomer
     matr_size
     [gaspv, assv, scsv] = work_with_schemes(q, Field, matr_size, ordner);
@@ -129,10 +129,16 @@ function work_with_experiment(q, Field, start_matr_size, ordner, nomer, coeff)
     scs_ul = [scs_ul, scsv(3)];
     scs_dec = [scs_dec, scsv(5)];
     scs_comp = [scs_comp, scsv(7)];
-    matr_size = ceil(matr_size * coeff);
+    if title == 1
+       matr_size = matr_size + coeff;
+    else
+       matr_size = cast(matr_size, "double");
+       matr_size = rround(matr_size * coeff);
+    end
   end
-  
+
   x = matr;
+  clear title
   fig = figure('visible','off');
   subplot(3,2,1);
   plot(x, gasp_dl, 'Color', 'b');
@@ -177,25 +183,49 @@ function work_with_experiment(q, Field, start_matr_size, ordner, nomer, coeff)
   subplot(3,1,3);
   axis off
   legend([y1, y2, y3], {'gasp','ass', 'scs'}, "Location", "best")
-  
 
-  
+
+
   res = strcat("./oct_results/", ordner);
   res = strcat(res, "/grafik.png");
   saveas(fig, res);
-endfunction   
-     
-q = str2num(argv(){1});
-Field = str2num(argv(){2});
-start_matr_size = str2num(argv(){3});
-ordner = argv(){4};    
-nomer = str2num(argv(){5});
-coeff = str2double(argv(){6});
-     
-work_with_experiment(q, Field, start_matr_size, ordner, nomer, coeff)
-     
-     
-     
-     
-     
-     
+endfunction
+
+function [title, q, Field, start_matr_size, nomer, coeff] = load_title(ordner)
+  name = strcat(ordner, "/");
+  name = strcat(name, "title.mat");
+  load(name);
+  title = FrameStack{1};
+  q = FrameStack{2};
+  Field = FrameStack{3};
+  start_matr_size = FrameStack{4};
+  nomer = FrameStack{5};
+  coeff = FrameStack{6};
+endfunction
+
+function res = rround(val)
+ # down = floor(val);
+    up = ceil(val);
+ # if down == up
+    res = up + 1;
+ # else
+    res = up;
+ # end
+endfunction
+
+ordner = argv(){1};
+
+[title, q, Field, start_matr_size, nomer, coeff] = load_title(ordner)
+#q = str2num(argv(){1});
+#Field = str2num(argv(){2});
+#start_matr_size = str2num(argv(){3});
+#ordner = argv(){4};
+#nomer = str2num(argv(){5});
+#coeff = str2double(argv(){6});
+title
+work_with_experiment(q, Field, start_matr_size, ordner, nomer, coeff, title)
+
+
+
+
+
