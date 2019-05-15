@@ -1,0 +1,21 @@
+Time is measured in seconds
+
+
+
+
+  Test 1: <<Skipped>>
+
+r_a = 3, r_b = 3, l = 2, Field = 65537:
+  Test 2: Increment, Q=100, m,n,p = 50...69, Inc=1
+  Test 3: Increment, Q=100, m,n,p = 50...99, Inc=1
+  Test 4: Multiplication, Q=50, m,n,p = 50...126, Coeff=1.1
++  Test 5: Multiplication, Q=50, m,n,p = 100...1065, Coeff=1.3 (no verification)
++  Test 10: Multiplication, Q=10, m,n = 30...254, p = 100...819, Coeff = 1.3 (no verification)
+
+r_a = 2, r_b = 2, l = 4, Field = 65537 (N = 15):
+ + Test 6: Multiplication, Q=10, m,n,p = 100...1065, Coeff = 1.3
+ + Test 7: Multiplication, Q=10, m,n = 50...416, p = 100...819, Coeff = 1.3 (no verification) (N = 9)
+  Test 8: Multiplication, Q=10, m = 100...819, n,p = 50...416, Coeff = 1,3 (no verification) (N = 9)
+  Test 9: Multiplication, Q=10, m,n = 40...197, p = 160...777, Coeff = 1.3 (no verification) (N = 7)
+ + Test 11: Multiplication, Q=10, m,n = 30...254, p = 100...819, Coeff = 1.3 (no verification) (N = 9
+ )

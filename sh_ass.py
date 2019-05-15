@@ -7,14 +7,7 @@ import sys
 import communicators
 
 def ass_m(N, l, r_a, r_b, k, rt, F, barrier, verific, together, A, B, m, n, p, q):
-#    prev_comm = MPI.COMM_WORLD
-#    if N+1 < prev_comm.Get_size():
-#        instances = [i for i in range(N+1, prev_comm.Get_size())]
-#        new_group = prev_comm.group.Excl(instances)
-#        comm = prev_comm.Create(new_group)
-#    else:
-#        comm = prev_comm
-        
+
     if communicators.prev_comm.rank == 0:
      #   dec_start = time.time()
   
@@ -161,8 +154,6 @@ def ass_m(N, l, r_a, r_b, k, rt, F, barrier, verific, together, A, B, m, n, p, q
 	if barrier:
 		communicators.comm.Barrier()
 
-#        comm.Free()
-#        new_group.Free()
 
         return dec, dl, ul, serv_comp
 
@@ -172,13 +163,6 @@ def ass_m(N, l, r_a, r_b, k, rt, F, barrier, verific, together, A, B, m, n, p, q
 
 
 def ass_sl(N, l, r_a, r_b, k, rt, F, barrier, verific, together, m, n, p, q):
-#    prev_comm = MPI.COMM_WORLD
-#    if N+1 < prev_comm.Get_size():
-#        instances = [i for i in range(N+1, prev_comm.Get_size())]
-#        new_group = prev_comm.group.Excl(instances)
-#        comm = prev_comm.Create(new_group)
-#    else:
-#        comm = prev_comm
           
     if communicators.prev_comm.rank > 0 and communicators.prev_comm.rank < N+1:
 	Ai = np.empty_like(np.matrix([[0]*n for i in range(m/r_a)]))

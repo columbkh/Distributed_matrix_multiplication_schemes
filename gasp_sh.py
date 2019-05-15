@@ -1,6 +1,4 @@
 from tools import *
-import argparse
-import random
 from mpi4py import MPI
 import time
 import sys
@@ -142,23 +140,12 @@ def gasp_m(r_a, r_b, l, N, Field, barrier, verific, together, A, B, m, n, p, q):
 	if barrier:
 		communicators.comm.Barrier()
 
-#	comm.Free()
-#	new_group.Free()
                     
         return dec, dl, ul, serv_comp
             
 
 
 def gasp_sl(r_a, r_b, l, N, Field, barrier, verific, together, m, n, p, q):
-#    prev_comm = MPI.COMM_WORLD
-#    if N+1 < prev_comm.Get_size():
-
-#        instances = [i for i in range(N+1, prev_comm.Get_size())]
-#        new_group = prev_comm.group.Excl(instances)
-#        comm = prev_comm.Create(new_group)
-#    else:
-
-#        comm = prev_comm
         
     
     if communicators.prev_comm.rank > 0 and communicators.prev_comm.rank < N+1:
@@ -192,10 +179,6 @@ def gasp_sl(r_a, r_b, l, N, Field, barrier, verific, together, m, n, p, q):
 
 	if barrier:
 		communicators.comm.Barrier()
-
-#	comm.Free()
-#	new_group.Free()
-
 
 	
 	

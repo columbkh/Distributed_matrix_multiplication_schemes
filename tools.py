@@ -53,6 +53,24 @@ def interpol(missing, Crtn, F, kr, lst, var):
                     coeff[j] = (coeff[j] * (var[i] - var[k]) * pow(var[lst[j]] - var[k], F - 2, F)) % F
             Crtn[i] = sum([Crtn[lst[j]] * coeff[j] for j in range(kr)]) % F
 
+def write_title_to_octavemnp(Q, Field, m, n, p, number, coeffinc):
+	if type(coeffinc) == int:
+		title = True
+        else:
+		title = False
+	FrameStack = np.empty((8,), dtype=np.object)
+	FrameStack[0] = title
+	FrameStack[1] = Q
+	FrameStack[2] = Field
+	FrameStack[3] = m
+	FrameStack[4] = n
+	FrameStack[5] = p
+	FrameStack[6] = number
+	FrameStack[7] = coeffinc
+
+	save_string = "./results/" + "title" + ".mat"
+	sio.savemat(save_string, {"FrameStack": FrameStack})
+
 
 def write_title_to_octave(Q, Field, matr_size, number, coeffinc):
 	if type(coeffinc) == int:

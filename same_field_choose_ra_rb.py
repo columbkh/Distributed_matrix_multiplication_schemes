@@ -1,14 +1,7 @@
-from tools import *
-import argparse
-import random
-from mpi4py import MPI
-import time
-import sys
 from gasp_sh import *
 from sh_ass import *
 from sh_scs import *
 import numpy as np
-import communicators
 
 def do_scs(N, l, r, Field, barrier, verific, together, A, B, m, n, p, i, scs):
      if MPI.COMM_WORLD.rank == 0:
@@ -54,7 +47,7 @@ def compute(dec, dl, ul, comp, scheme, i):
 	scheme[2][i] = dec
 	
 
-def do_test(r_a, r_b, l, Field, Q, m, n, p, barrier, verific, together):
+def do_test(r_a, r_b, l, Field, Q, m, n, p, verific, together):
 
         A = None
         B = None
@@ -63,11 +56,6 @@ def do_test(r_a, r_b, l, Field, Q, m, n, p, barrier, verific, together):
         scs = None
         
         experiment_name ="_Q_" + str(Q) + "_m_" + str(m) + "_n_" + str(n) + "_p_" + str(p)
-
-
-#	if l > min(r_a, r_b):
-#		print "Bad arguments"
-#		sys.exit(100)
 	
 	if l == min(r_a, r_b):
 			inv_matr, an, ter, N, a, b = create_GASP_big(r_a, r_b, l, Field)
@@ -84,8 +72,7 @@ def do_test(r_a, r_b, l, Field, Q, m, n, p, barrier, verific, together):
 			print "No possabilities"
 			sys.exit(100)
 		else:
-				#possb = np.random.random_integers(0, len(possbs)-1)
-			
+
 			r_a_ass = possb.r_a
 			r_b_ass = possb.r_b
 			N = possb.N
@@ -115,9 +102,9 @@ def do_test(r_a, r_b, l, Field, Q, m, n, p, barrier, verific, together):
 		if MPI.COMM_WORLD.rank == 0:
 		     A = np.matrix(np.random.random_integers(0, 255, (m, n)))
 		     B = np.matrix(np.random.random_integers(0, 255, (p, n)))
-		do_gasp(r_a, r_b, l, N, Field, barrier, verific, together, A, B, m, n, p, i, gasp)
-		do_ass(N, l, r_a_ass, r_b_ass, k, rt, Field, barrier, verific, together, A, B, m, n, p, i, ass)
-		do_scs(N, l, r, Field, barrier, verific, together, A, B, m, n, p, i, scs)
+		do_gasp(r_a, r_b, l, N, Field, True, verific, together, A, B, m, n, p, i, gasp)
+		do_ass(N, l, r_a_ass, r_b_ass, k, rt, Field, True, verific, together, A, B, m, n, p, i, ass)
+		do_scs(N, l, r, Field, True, verific, together, A, B, m, n, p, i, scs)
 
 
 	if MPI.COMM_WORLD.rank == 0:
@@ -136,7 +123,7 @@ if __name__ == "__main__":
 	parser.add_argument('--r_a', type=int, help='divide A on K')
 	parser.add_argument('--r_b', type=int, help='divide B on L')
 	parser.add_argument('--l', type=int, help='number of colluding workers')
-	parser.add_argument('--barrier', help='Enable barrier', action="store_true")
+	#parser.add_argument('--barrier', help='Enable barrier', action="store_true")
 	parser.add_argument('--verific', help='Enable Verification', action="store_true")
 	parser.add_argument('--all_together', help='Compute all together', action = "store_true")
 	parser.add_argument('--matr_size', type=int, help='Compute all together')
@@ -146,12 +133,6 @@ if __name__ == "__main__":
 
 	args = parser.parse_args()
 
-
-	if args.barrier:
-		barrier = True
-	else:
-		barrier = False
-	
 	if args.verific:
 		verific = True
 	else:
