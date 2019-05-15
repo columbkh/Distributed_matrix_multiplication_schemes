@@ -13,7 +13,7 @@ def do_multiple_tests(r_a, r_b, l, Field, Q, m, n, p, verific, together, Number,
             print "n: ", n
             print "p: ", p
             print "--------------------------------------------------------------------------"
-        do_test(r_a, r_b, l, Field, Q, m, n, p, barrier, verific, together)
+        do_test(r_a, r_b, l, Field, Q, m, n, p, verific, together)
         m = get_rounded(m * coeff)
         p = get_rounded(p * coeff)
         n = get_rounded(n * coeff)

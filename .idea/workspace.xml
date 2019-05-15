@@ -2,19 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="73f13a6c-7882-4fd9-8c75-98a6e854723e" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/change_mnp.m" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/change_mnp.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gasp_sh.py" beforeDir="false" afterPath="$PROJECT_DIR$/gasp_sh.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/primer1.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/primer2.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/proverka.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/same_field_choose_ra_rb.py" beforeDir="false" afterPath="$PROJECT_DIR$/same_field_choose_ra_rb.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/same_field_diff_matr_size_inc.py" beforeDir="false" afterPath="$PROJECT_DIR$/same_field_diff_matr_size_inc.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/same_field_different_matrSize.py" beforeDir="false" afterPath="$PROJECT_DIR$/same_field_different_matrSize.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sh_ass.py" beforeDir="false" afterPath="$PROJECT_DIR$/sh_ass.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -41,7 +29,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/gasp_sh.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="931">
+            <state>
               <caret line="53" column="20" selection-start-line="53" selection-start-column="20" selection-end-line="53" selection-end-column="20" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
@@ -55,10 +43,10 @@
           <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/change_mnp.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="646">
+            <state relative-caret-position="318">
               <caret line="34" column="69" selection-start-line="34" selection-start-column="69" selection-end-line="34" selection-end-column="69" />
             </state>
           </provider>
@@ -69,25 +57,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="209">
               <caret line="11" column="5" selection-start-line="11" selection-start-column="5" selection-end-line="11" selection-end-column="5" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/graphs/oct_results/test15/grafik.png">
-          <provider selected="true" editor-type-id="images" />
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/graphs/oct_results/test14/grafik.png">
-          <provider selected="true" editor-type-id="images" />
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/graphs/change_mnp.m">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="340">
-              <caret line="199" column="33" selection-start-line="199" selection-start-column="33" selection-end-line="199" selection-end-column="33" />
             </state>
           </provider>
         </entry>
@@ -161,8 +130,8 @@
         <option value="$PROJECT_DIR$/same_field_different_matrSize.py" />
         <option value="$PROJECT_DIR$/same_field_diff_matr_size_inc.py" />
         <option value="$PROJECT_DIR$/tests.txt" />
-        <option value="$PROJECT_DIR$/change_mnp.py" />
         <option value="$PROJECT_DIR$/graphs/change_mnp.m" />
+        <option value="$PROJECT_DIR$/change_mnp.py" />
       </list>
     </option>
   </component>
@@ -302,7 +271,7 @@
       <workItem from="1556012374955" duration="12482000" />
       <workItem from="1557059194367" duration="4697000" />
       <workItem from="1557134725888" duration="9771000" />
-      <workItem from="1557909545748" duration="1261000" />
+      <workItem from="1557909545748" duration="2056000" />
     </task>
     <task id="LOCAL-00001" summary="Bugs">
       <created>1555778471876</created>
@@ -318,15 +287,21 @@
       <option name="project" value="LOCAL" />
       <updated>1555992480613</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Final Commit">
+      <created>1557910822704</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1557910822704</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="75009000" />
+    <option name="totallyTimeSpent" value="75804000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="64" y="-4" width="1857" height="1085" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.21337755" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -359,7 +334,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Bugs" />
     <MESSAGE value="1. Communicators&#10;2. Increment" />
-    <option name="LAST_COMMIT_MESSAGE" value="1. Communicators&#10;2. Increment" />
+    <MESSAGE value="Final Commit" />
+    <option name="LAST_COMMIT_MESSAGE" value="Final Commit" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/graphs/oct_results/test1/grafik.png" />
@@ -526,7 +502,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/gasp_sh.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="931">
+        <state>
           <caret line="53" column="20" selection-start-line="53" selection-start-column="20" selection-end-line="53" selection-end-column="20" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
@@ -536,20 +512,6 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/same_field_diff_matr_size_inc.py">
       <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/change_mnp.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="646">
-          <caret line="34" column="69" selection-start-line="34" selection-start-column="69" selection-end-line="34" selection-end-column="69" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="209">
-          <caret line="11" column="5" selection-start-line="11" selection-start-column="5" selection-end-line="11" selection-end-column="5" />
-        </state>
-      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/same_field_choose_ra_rb.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -583,6 +545,20 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/graphs/oct_results/test14/grafik.png">
       <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="209">
+          <caret line="11" column="5" selection-start-line="11" selection-start-column="5" selection-end-line="11" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/change_mnp.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="318">
+          <caret line="34" column="69" selection-start-line="34" selection-start-column="69" selection-end-line="34" selection-end-column="69" />
+        </state>
+      </provider>
     </entry>
   </component>
 </project>
