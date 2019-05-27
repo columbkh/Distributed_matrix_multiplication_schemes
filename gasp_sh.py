@@ -9,7 +9,7 @@ def gasp_m(r_a, r_b, l, N, Field, barrier, verific, together, A, B, m, n, p, q):
     if communicators.prev_comm.rank == 0:
         dec_start = time.time()
         
-        if l == min(r_a, r_b):
+        if l >= min(r_a, r_b):
 		    inv_matr, an, ter, N, a, b = create_GASP_big(r_a, r_b, l, Field)
         else:
 		    inv_matr, an, ter, N, a, b = create_GASP_small(r_a, r_b, l, Field)

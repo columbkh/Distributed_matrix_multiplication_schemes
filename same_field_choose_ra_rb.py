@@ -57,7 +57,7 @@ def do_test(r_a, r_b, l, Field, Q, m, n, p, verific, together):
         
         experiment_name ="_Q_" + str(Q) + "_m_" + str(m) + "_n_" + str(n) + "_p_" + str(p)
 	
-	if l == min(r_a, r_b):
+	if l >= min(r_a, r_b):
 			inv_matr, an, ter, N, a, b = create_GASP_big(r_a, r_b, l, Field)
 	else:
 			inv_matr, an, ter, N, a, b = create_GASP_small(r_a, r_b, l, Field)
