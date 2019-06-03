@@ -16,11 +16,8 @@ def check_array(lst, j, r, N):
 	return True
 
 def set_communicators(r_a, r_b, l, Field):
-  #  if l > min(r_a, r_b):
-  #      print "Bad arguments"
-   #     sys.exit(100)
 
-    if l == min(r_a, r_b):
+    if l >= min(r_a, r_b):
         inv_matr, an, ter, N, a, b = create_GASP_big(r_a, r_b, l, Field)
     else:
         inv_matr, an, ter, N, a, b = create_GASP_small(r_a, r_b, l, Field)
@@ -35,6 +32,8 @@ def set_communicators(r_a, r_b, l, Field):
             sys.exit(100)
         else:
             N = possb.N
+
+    print "N IS", N
 
 
     communicators.prev_comm = MPI.COMM_WORLD

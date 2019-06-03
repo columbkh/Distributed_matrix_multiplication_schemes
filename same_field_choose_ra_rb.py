@@ -155,7 +155,7 @@ if __name__ == "__main__":
 	p = args.matr_size
 
 
-        do_test(r_a, r_b, l, Field, Q, m, n, p, barrier, verific, together)
+        do_test(r_a, r_b, l, Field, Q, m, n, p, verific, together)
 
 
 

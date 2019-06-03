@@ -142,7 +142,7 @@ def ass_m(N, l, r_a, r_b, k, rt, F, barrier, verific, together, A, B, m, n, p, q
 		        ul[i] = ul_stop[i] - ul_start[i]
     
     
-        write_times(dec, dl, ul, serv_comp, "ass.txt", q)
+
         
         if verific:    
 		    Cver = []

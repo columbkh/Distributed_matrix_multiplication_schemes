@@ -13,11 +13,11 @@ def gasp_m(r_a, r_b, l, N, Field, barrier, verific, together, A, B, m, n, p, q):
 		    inv_matr, an, ter, N, a, b = create_GASP_big(r_a, r_b, l, Field)
         else:
 		    inv_matr, an, ter, N, a, b = create_GASP_small(r_a, r_b, l, Field)
-		    
+
         dec_pause = time.time()
         dec_firstpart = dec_pause - dec_start
-		    
-		    
+
+
 	Ap = np.split(A, r_a)
 	Bp = np.split(B, r_b)
 	
@@ -31,9 +31,9 @@ def gasp_m(r_a, r_b, l, N, Field, barrier, verific, together, A, B, m, n, p, q):
 	
 	Aenc = getAencGASP(Ap, Field, N, a, an)
 	Benc = getBencGASP(Bp, Field, N, b, an)
-	
-   #     dec_pause = time.time()
-   #     dec_firstpart = dec_pause - dec_start
+
+
+#	print "Check"
     
         if N > 19:
 	        print "Too many instances"
@@ -49,8 +49,7 @@ def gasp_m(r_a, r_b, l, N, Field, barrier, verific, together, A, B, m, n, p, q):
         reqB = [None] * N
         reqC = [None] * N
         reqS = [None] * N
-    
-    
+
         if together:
 		    ul_start = time.time()
 		    for i in range(N):
@@ -61,15 +60,18 @@ def gasp_m(r_a, r_b, l, N, Field, barrier, verific, together, A, B, m, n, p, q):
 		    MPI.Request.Waitall(reqA)
 		    MPI.Request.Waitall(reqB)
 
+
 		    if barrier:
 			    communicators.comm.Barrier()
-	
+
+
 	            dl_start = time.time()
 	            MPI.Request.Waitall(reqC)
-	    
+
+
 	            dl_stop = time.time()
 	            dl = dl_stop - dl_start
-	    
+
         else:
 		    ul_start = [None] * N
 		    dl = [None] * N
@@ -79,6 +81,8 @@ def gasp_m(r_a, r_b, l, N, Field, barrier, verific, together, A, B, m, n, p, q):
 			    reqAB[i] = communicators.comm.Isend([Aenc[i], MPI.INT], dest=i+1, tag=15)
 			    reqAB[i + N] = communicators.comm.Isend([Benc[i], MPI.INT], dest=i+1, tag=29)
 			    reqC[i] = communicators.comm.Irecv([Crtn[i], MPI.INT], source=i+1, tag=42)
+
+#		    print "Check_else_sent"
 			
 			
 		    if barrier:
@@ -90,12 +94,9 @@ def gasp_m(r_a, r_b, l, N, Field, barrier, verific, together, A, B, m, n, p, q):
 			    j = MPI.Request.Waitany(reqC)
 			    tmp = time.time()
 			    dl[j] = tmp - dl_start
-			
-			
-		
-		
-		
-			
+
+#		    print "Check_else_send_rcv"
+
 			    
         dec_pause = time.time()
     
@@ -128,7 +129,6 @@ def gasp_m(r_a, r_b, l, N, Field, barrier, verific, together, A, B, m, n, p, q):
 		    for i in range(N):
 		        ul[i] = ul_stop[i] - ul_start[i]
     
-        write_times(dec, dl, ul, serv_comp, "gasp.txt", q)
 
         if verific:
 		    Cver = []
@@ -164,9 +164,11 @@ def gasp_sl(r_a, r_b, l, N, Field, barrier, verific, together, m, n, p, q):
         servcomp_done = time.time()
     
         servcomp = servcomp_done - servcomp_start
-    
+
+
         if barrier:
 		    communicators.comm.Barrier()
+
     
         sC = communicators.comm.Isend(Ci, dest=0, tag=42)
         sC.Wait()

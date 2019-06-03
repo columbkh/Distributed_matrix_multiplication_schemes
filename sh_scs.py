@@ -121,8 +121,7 @@ def scs_m(N, l, r, Field, barrier, verific, together, A, B, m, n, p, q):
 			    ul[i] = ul_stop[i] - ul_start[i]
 
 	    
-	    write_times(dec, dl, ul, serv_comp, "scs.txt", q) 
-	    
+
 	    if verific: 
 			Cver = []
 			Cver = [(A * bb.getT()) % Field for bb in Bn[:r]]
