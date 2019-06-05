@@ -5,7 +5,7 @@ import sys
 import communicators
 
 
-def scs_m(N, l, r, Field, barrier, verific, together, A, B, m, n, p, q):
+def scs_m(N, l, r, Field, barrier, verific, together, A, B, m, p):
     if communicators.prev_comm.rank == 0:  # Master
 
         if N > 19:
@@ -33,7 +33,6 @@ def scs_m(N, l, r, Field, barrier, verific, together, A, B, m, n, p, q):
         reqA = [None] * N * r
         reqB = [None] * N * r
         reqC = [None] * N
-        reqS = [None] * N
 
         if together:
             ul_start = time.time()
@@ -106,7 +105,6 @@ def scs_m(N, l, r, Field, barrier, verific, together, A, B, m, n, p, q):
                 ul[i] = ul_stop[i] - ul_start[i]
 
         if verific:
-            Cver = []
             Cver = [(A * bb.getT()) % Field for bb in Bn[:r]]
             print ([np.array_equal(final_res[i], Cver[i]) for i in range(len(Cver))])
 
@@ -116,7 +114,7 @@ def scs_m(N, l, r, Field, barrier, verific, together, A, B, m, n, p, q):
         return dec, dl, ul, serv_comp
 
 
-def scs_sl(N, l, r, Field, barrier, verific, together, m, n, p):
+def scs_sl(N, r, Field, barrier, m, n, p):
     if 0 < communicators.prev_comm.rank < N + 1:
         Ai = []
         Bi = []
@@ -153,8 +151,8 @@ def scs_sl(N, l, r, Field, barrier, verific, together, m, n, p):
         if barrier:
             communicators.comm.Barrier()
 
-        sSrv = communicators.comm.send(servcomp, dest=0, tag=64)
-        sUpl = communicators.comm.send(servcomp_start, dest=0, tag=70)
+        communicators.comm.send(servcomp, dest=0, tag=64)
+        communicators.comm.send(servcomp_start, dest=0, tag=70)
 
         if barrier:
             communicators.comm.Barrier()

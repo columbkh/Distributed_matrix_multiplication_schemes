@@ -5,7 +5,7 @@ import sys
 import communicators
 
 
-def gasp_m(r_a, r_b, l, N, Field, barrier, verific, together, A, B, m, n, p, q):
+def gasp_m(r_a, r_b, l, Field, barrier, verific, together, A, B, m, n, p):
     if communicators.prev_comm.rank == 0:
         dec_start = time.time()
 
@@ -126,7 +126,7 @@ def gasp_m(r_a, r_b, l, N, Field, barrier, verific, together, A, B, m, n, p, q):
         return dec, dl, ul, serv_comp
 
 
-def gasp_sl(r_a, r_b, l, N, Field, barrier, verific, together, m, n, p, q):
+def gasp_sl(r_a, r_b, N, Field, barrier, m, n, p):
     if 0 < communicators.prev_comm.rank < N + 1:
         Ai = np.empty_like(np.matrix([[0] * n for i in range(m / r_a)]))
         Bi = np.empty_like(np.matrix([[0] * n for i in range(p / r_b)]))
@@ -153,8 +153,8 @@ def gasp_sl(r_a, r_b, l, N, Field, barrier, verific, together, m, n, p, q):
         if barrier:
             communicators.comm.Barrier()
 
-        sSrv = communicators.comm.send(servcomp, dest=0, tag=64)
-        sUpl = communicators.comm.send(servcomp_start, dest=0, tag=70)
+        communicators.comm.send(servcomp, dest=0, tag=64)
+        communicators.comm.send(servcomp_start, dest=0, tag=70)
 
         if barrier:
             communicators.comm.Barrier()

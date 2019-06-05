@@ -4,7 +4,7 @@ import time
 import communicators
 
 
-def ass_m(N, l, r_a, r_b, k, rt, F, barrier, verific, together, A, B, m, n, p, q):
+def ass_m(N, l, r_a, r_b, k, rt, F, barrier, verific, together, A, B, m, n, p):
     if communicators.prev_comm.rank == 0:
         Ap = np.split(A, r_a)
         Bp = np.split(B, r_b)
@@ -33,7 +33,6 @@ def ass_m(N, l, r_a, r_b, k, rt, F, barrier, verific, together, A, B, m, n, p, q
         reqA = [None] * N
         reqB = [None] * N
         reqC = [None] * N
-        reqS = [None] * N
 
         if together:
             ul_start = time.time()
@@ -72,11 +71,10 @@ def ass_m(N, l, r_a, r_b, k, rt, F, barrier, verific, together, A, B, m, n, p, q
                 reqAB[i + N] = communicators.comm.Isend([Benc[i], MPI.INT], dest=i + 1, tag=29)
                 reqC[i] = communicators.comm.Irecv([Rdict[i], MPI.INT], source=i + 1, tag=42)
 
-            lsst = []
             lst = []
 
             for i in range(N * 2):
-                j = MPI.Request.Waitany(reqAB)
+                MPI.Request.Waitany(reqAB)
 
             if barrier:
                 communicators.comm.Barrier()
@@ -138,7 +136,7 @@ def ass_m(N, l, r_a, r_b, k, rt, F, barrier, verific, together, A, B, m, n, p, q
         return dec, dl, ul, serv_comp
 
 
-def ass_sl(N, l, r_a, r_b, k, rt, F, barrier, verific, together, m, n, p, q):
+def ass_sl(N, r_a, r_b, F, barrier, m, n, p):
     if 0 < communicators.prev_comm.rank < N + 1:
         Ai = np.empty_like(np.matrix([[0] * n for i in range(m / r_a)]))
         Bi = np.empty_like(np.matrix([[0] * n for i in range(p / r_b)]))
@@ -165,8 +163,8 @@ def ass_sl(N, l, r_a, r_b, k, rt, F, barrier, verific, together, m, n, p, q):
         if barrier:
             communicators.comm.Barrier()
 
-        sSrv = communicators.comm.send(servcomp, dest=0, tag=64)
-        sUpl = communicators.comm.send(servcomp_start, dest=0, tag=70)
+        communicators.comm.send(servcomp, dest=0, tag=64)
+        communicators.comm.send(servcomp_start, dest=0, tag=70)
 
         if barrier:
             communicators.comm.Barrier()

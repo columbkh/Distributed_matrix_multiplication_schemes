@@ -47,7 +47,7 @@ def set_communicators(r_a, r_b, l, Field):
 
 def interpol(missing, Crtn, F, kr, lst, var):
     for i in missing:
-        coeff = [1] * (kr)
+        coeff = [1] * kr
         for j in range(kr):
             for k in set(lst) - set([lst[j]]):
                 coeff[j] = (coeff[j] * (var[i] - var[k]) * pow(var[lst[j]] - var[k], F - 2, F)) % F
@@ -110,7 +110,7 @@ def write_times(dec, dl, ul, serv_comp, file_name, iter_number):
     f.write("Decoding %d: %f\r\n" % (iter_number, dec))
     f.write("---------------------------------------\r\n")
     if isinstance(ul, list):
-        f.write("Uploading %d:\r\n" % (iter_number))
+        f.write("Uploading %d:\r\n" % iter_number)
         for i in range(len(ul)):
             f.write("Server Nr. %d: %f\r\n" % (i + 1, ul[i]))
         f.write("Average: %f\r\n" % (sum(ul) / len(ul)))
@@ -118,7 +118,7 @@ def write_times(dec, dl, ul, serv_comp, file_name, iter_number):
         f.write("Uploading %d: %f\r\n" % (iter_number, ul))
 
     if isinstance(dl, list):
-        f.write("Downloading %d:\r\n" % (iter_number))
+        f.write("Downloading %d:\r\n" % iter_number)
         for i in range(len(dl)):
             f.write("Server Nr. %d: %f\r\n" % (i + 1, dl[i]))
         f.write("Average: %f\r\n" % (sum(dl) / len(dl)))
@@ -126,7 +126,7 @@ def write_times(dec, dl, ul, serv_comp, file_name, iter_number):
         f.write("Downloading %d: %f\r\n" % (iter_number, dl))
 
     if isinstance(serv_comp, list):
-        f.write("Server Computation %d:\r\n" % (iter_number))
+        f.write("Server Computation %d:\r\n" % iter_number)
         for i in range(len(serv_comp)):
             f.write("Server Nr. %d: %f\r\n" % (i + 1, serv_comp[i]))
         f.write("Average: %f\r\n" % (sum(serv_comp) / len(serv_comp)))
@@ -187,7 +187,7 @@ def make_d_cross_right_part(delta_ff, an, N, Field, l):
 
 
 def make_matrix_d_cross(N, Field, r, l):
-    an = make_a_n(N, Field)
+    an = make_a_n(N)
     delta = make_delta(Field, an, r)
     delta_ff = arr2ffarray(delta, Field)
     i_plus_an = [[i + ai for i in range(1, r + 1)] for ai in an]
@@ -209,7 +209,7 @@ def encode_A(left_part, i_plus_an, A, Field, N, l, r):
     return [encode_An(left_part[n], i_plus_an[n], A, Field, l, r, Zik) for n in range(N)]
 
 
-def encode_Bn(Bn, i_plus, Field, l, r, N, Zik):
+def encode_Bn(Bn, i_plus, Field, l, r, Zik):
     return [(Bn[i] + sum([(pow(i_plus[i], k, Field) * Zik[i][k - 1]) % Field for k in range(1, l + 1)])) % Field for i
             in range(r)]
 
@@ -217,7 +217,7 @@ def encode_Bn(Bn, i_plus, Field, l, r, N, Zik):
 def encode_B(Bn, i_plus_an, Field, l, r, N):
     Zik = [[np.matrix(np.random.random_integers(0, 0, (Bn[0].shape[0], Bn[0].shape[1]))) for k in range(l)] for i in
            range(r)]
-    return [encode_Bn(Bn, i_plus_an[n], Field, l, r, N, Zik) for n in range(N)]
+    return [encode_Bn(Bn, i_plus_an[n], Field, l, r, Zik) for n in range(N)]
 
 
 def getAencGASP(Ap, Field, N, a, an):
@@ -228,15 +228,14 @@ def getBencGASP(Bp, Field, N, b, an):
     return [sum([Bp[j] * pow(an[i], b[j], Field) for j in range(len(b))]) for i in range(N)]
 
 
-def make_a_n(N, Field):
-    # return [random.randint(2, Field - 1) for i in range(N)]
+def make_a_n(N):
     return [3 * i + 1 for i in range(N)]
 
 
 def make_matrix(ter, N, Field):
     flag = False
     while not flag:
-        an = make_a_n(N, Field)
+        an = make_a_n(N)
         matr = [[pow(aa, t, Field) for t in ter] for aa in an]
         res = get_inv(matr, Field)
         flag = True
@@ -331,7 +330,7 @@ def find_or(x, field):
 
 
 def gcd(x, y):
-    while (y):
+    while y:
         x, y = y, x % y
     return x
 

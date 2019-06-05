@@ -8,28 +8,28 @@ import argparse
 def do_scs(N, l, r, Field, barrier, verific, together, A, B, m, n, p, i, scs):
     if MPI.COMM_WORLD.rank == 0:
         print "scs: Iteration", str(i)
-        dec, dl, ul, comp = scs_m(N, l, r, Field, barrier, verific, together, A, B, m, n, p, i)
+        dec, dl, ul, comp = scs_m(N, l, r, Field, barrier, verific, together, A, B, m, p)
         compute(dec, dl, ul, comp, scs, i)
     else:
-        scs_sl(N, l, r, Field, barrier, verific, together, m, n, p)
+        scs_sl(N, r, Field, barrier, m, n, p)
 
 
 def do_gasp(r_a, r_b, l, N, Field, barrier, verific, together, A, B, m, n, p, i, gasp):
     if MPI.COMM_WORLD.rank == 0:
         print "gasp: Iteration", str(i)
-        dec, dl, ul, comp = gasp_m(r_a, r_b, l, N, Field, barrier, verific, together, A, B, m, n, p, i)
+        dec, dl, ul, comp = gasp_m(r_a, r_b, l, Field, barrier, verific, together, A, B, m, n, p)
         compute(dec, dl, ul, comp, gasp, i)
     else:
-        gasp_sl(r_a, r_b, l, N, Field, barrier, verific, together, m, n, p, i)
+        gasp_sl(r_a, r_b, N, Field, barrier, m, n, p)
 
 
 def do_ass(N, l, r_a_ass, r_b_ass, k, rt, Field, barrier, verific, together, A, B, m, n, p, i, ass):
     if MPI.COMM_WORLD.rank == 0:
         print "ass: Iteration", str(i)
-        dec, dl, ul, comp = ass_m(N, l, r_a_ass, r_b_ass, k, rt, Field, barrier, verific, together, A, B, m, n, p, i)
+        dec, dl, ul, comp = ass_m(N, l, r_a_ass, r_b_ass, k, rt, Field, barrier, verific, together, A, B, m, n, p)
         compute(dec, dl, ul, comp, ass, i)
     else:
-        ass_sl(N, l, r_a_ass, r_b_ass, k, rt, Field, barrier, verific, together, m, n, p, i)
+        ass_sl(N, r_a_ass, r_b_ass, Field, barrier, m, n, p)
 
 
 def compute(dec, dl, ul, comp, scheme, i):

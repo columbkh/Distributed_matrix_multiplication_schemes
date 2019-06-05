@@ -33,7 +33,6 @@ if __name__ == "__main__":
     parser.add_argument('--m', type=int, help='Starting matr size m')
     parser.add_argument('--n', type=int, help='Starting matr size n')
     parser.add_argument('--p', type=int, help='Starting matr size p')
-
     args = parser.parse_args()
 
     if args.verific:
