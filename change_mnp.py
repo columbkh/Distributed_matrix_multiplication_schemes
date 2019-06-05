@@ -25,7 +25,6 @@ if __name__ == "__main__":
     parser.add_argument('--r_a', type=int, help='divide A on K')
     parser.add_argument('--r_b', type=int, help='divide B on L')
     parser.add_argument('--l', type=int, help='number of colluding workers')
-   # parser.add_argument('--barrier', help='Enable barrier', action="store_true")
     parser.add_argument('--verific', help='Enable Verification', action="store_true")
     parser.add_argument('--all_together', help='Compute all together', action="store_true")
     parser.add_argument('--Q', type=int, help='Number of iterations')
@@ -61,26 +60,3 @@ if __name__ == "__main__":
     coeff = args.Coeff
 
     do_multiple_tests(r_a, r_b, l, Field, Q, m, n, p, verific, together, Number, coeff)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

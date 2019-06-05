@@ -1,13 +1,13 @@
 from same_field_choose_ra_rb import *
 
-def set_communicators(r_a, r_b, l, Field):
 
+def set_communicators(r_a, r_b, l, Field):
     if l == min(r_a, r_b):
         inv_matr, an, ter, N, a, b = create_GASP_big(r_a, r_b, l, Field)
     else:
         inv_matr, an, ter, N, a, b = create_GASP_small(r_a, r_b, l, Field)
 
-    if is_prime_number(Field) == False:
+    if not is_prime_number(Field):
         print "Field is not prime"
         sys.exit(100)
     else:
@@ -18,7 +18,6 @@ def set_communicators(r_a, r_b, l, Field):
         else:
             N = possb.N
 
-
     communicators.prev_comm = MPI.COMM_WORLD
     if N + 1 < communicators.prev_comm.Get_size():
         instances = [i for i in range(N + 1, communicators.prev_comm.Get_size())]
@@ -26,7 +25,6 @@ def set_communicators(r_a, r_b, l, Field):
         communicators.comm = communicators.prev_comm.Create(new_group)
     else:
         communicators.comm = communicators.prev_comm
-
 
 
 def do_multiple_tests(r_a, r_b, l, Field, Q, m, n, p, verific, together, Number, inc):
@@ -47,14 +45,12 @@ def do_multiple_tests(r_a, r_b, l, Field, Q, m, n, p, verific, together, Number,
         n = n + inc
 
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process some integers.')
     parser.add_argument('--Field', type=int, help='Finite Field')
     parser.add_argument('--r_a', type=int, help='divide A on K')
     parser.add_argument('--r_b', type=int, help='divide B on L')
     parser.add_argument('--l', type=int, help='number of colluding workers')
-    #parser.add_argument('--barrier', help='Enable barrier', action="store_true")
     parser.add_argument('--verific', help='Enable Verification', action="store_true")
     parser.add_argument('--all_together', help='Compute all together', action="store_true")
     parser.add_argument('--start_matr_size', type=int, help='Starting matr size')
@@ -88,26 +84,3 @@ if __name__ == "__main__":
     inc = args.Inc
 
     do_multiple_tests(r_a, r_b, l, Field, Q, m, n, p, verific, together, Number, inc)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
