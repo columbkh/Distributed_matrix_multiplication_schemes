@@ -34,8 +34,6 @@ def set_communicators(r_a, r_b, l, field):
         else:
             N = possb.N
 
-    print "N IS", N
-
     communicators.prev_comm = MPI.COMM_WORLD
     if N + 1 < communicators.prev_comm.Get_size():
         instances = [i for i in range(N + 1, communicators.prev_comm.Get_size())]
