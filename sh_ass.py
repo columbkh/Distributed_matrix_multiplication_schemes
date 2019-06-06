@@ -4,22 +4,22 @@ import time
 import communicators
 
 
-def ass_m(N, l, r_a, r_b, k, rt, F, barrier, verific, together, A, B, m, n, p):
+def ass_m(N, l, r_a, r_b, k, rt, field, barrier, verific, together, A, B, m, n, p):
     if communicators.prev_comm.rank == 0:
         Ap = np.split(A, r_a)
         Bp = np.split(B, r_b)
         Ka = [np.matrix(np.random.random_integers(0, 255, (m / r_a, n))) for i in range(l)]
         Kb = [np.matrix(np.random.random_integers(0, 255, (p / r_b, n))) for i in range(l)]
 
-        x = [pow(rt, i, F) for i in range(k)]
+        x = [pow(rt, i, field) for i in range(k)]
         t = 3
         for i in range(N - k):
             while is_power2(t):
                 t += 1
             x.append(t)
 
-        Aenc = getAenc(Ap, Ka, N, F, l, r_a, x)
-        Benc = getBenc(Bp, Kb, N, F, l, r_a, r_b, x)
+        Aenc = getAenc(Ap, Ka, N, field, l, r_a, x)
+        Benc = getBenc(Bp, Kb, N, field, l, r_a, r_b, x)
 
         Rdict = []
         for i in range(N):
@@ -30,19 +30,19 @@ def ass_m(N, l, r_a, r_b, k, rt, F, barrier, verific, together, A, B, m, n, p):
         for i in range(N):
             Crtn.append(np.zeros((m / r_a, p / r_b), dtype=np.int_))
 
-        reqA = [None] * N
-        reqB = [None] * N
-        reqC = [None] * N
+        req_a = [None] * N
+        req_b = [None] * N
+        req_c = [None] * N
 
         if together:
             ul_start = time.time()
             for i in range(N):
-                reqA[i] = communicators.comm.Isend([Aenc[i], MPI.INT], dest=i + 1, tag=15)
-                reqB[i] = communicators.comm.Isend([Benc[i], MPI.INT], dest=i + 1, tag=29)
-                reqC[i] = communicators.comm.Irecv([Rdict[i], MPI.INT], source=i + 1, tag=42)
+                req_a[i] = communicators.comm.Isend([Aenc[i], MPI.INT], dest=i + 1, tag=15)
+                req_b[i] = communicators.comm.Isend([Benc[i], MPI.INT], dest=i + 1, tag=29)
+                req_c[i] = communicators.comm.Irecv([Rdict[i], MPI.INT], source=i + 1, tag=42)
 
-            MPI.Request.Waitall(reqA)
-            MPI.Request.Waitall(reqB)
+            MPI.Request.Waitall(req_a)
+            MPI.Request.Waitall(req_b)
 
             if barrier:
                 communicators.comm.Barrier()
@@ -51,7 +51,7 @@ def ass_m(N, l, r_a, r_b, k, rt, F, barrier, verific, together, A, B, m, n, p):
 
             lst = []
             for i in range(k):
-                j = MPI.Request.Waitany(reqC)
+                j = MPI.Request.Waitany(req_c)
                 lst.append(j)
                 Crtn[j] = Rdict[j]
             dl_stop = time.time()
@@ -64,17 +64,17 @@ def ass_m(N, l, r_a, r_b, k, rt, F, barrier, verific, together, A, B, m, n, p):
             ul_start = [None] * N
 
             dl = [None] * N
-            reqAB = [None] * 2 * N
+            req_ab = [None] * 2 * N
             for i in range(N):
                 ul_start[i] = time.time()
-                reqAB[i] = communicators.comm.Isend([Aenc[i], MPI.INT], dest=i + 1, tag=15)
-                reqAB[i + N] = communicators.comm.Isend([Benc[i], MPI.INT], dest=i + 1, tag=29)
-                reqC[i] = communicators.comm.Irecv([Rdict[i], MPI.INT], source=i + 1, tag=42)
+                req_ab[i] = communicators.comm.Isend([Aenc[i], MPI.INT], dest=i + 1, tag=15)
+                req_ab[i + N] = communicators.comm.Isend([Benc[i], MPI.INT], dest=i + 1, tag=29)
+                req_c[i] = communicators.comm.Irecv([Rdict[i], MPI.INT], source=i + 1, tag=42)
 
             lst = []
 
             for i in range(N * 2):
-                MPI.Request.Waitany(reqAB)
+                MPI.Request.Waitany(req_ab)
 
             if barrier:
                 communicators.comm.Barrier()
@@ -82,7 +82,7 @@ def ass_m(N, l, r_a, r_b, k, rt, F, barrier, verific, together, A, B, m, n, p):
             dl_start = time.time()
 
             for i in range(k):
-                j = MPI.Request.Waitany(reqC)
+                j = MPI.Request.Waitany(req_c)
                 tmp = time.time()
                 dl[j] = tmp - dl_start
                 lst.append(j)
@@ -95,9 +95,9 @@ def ass_m(N, l, r_a, r_b, k, rt, F, barrier, verific, together, A, B, m, n, p):
 
         dec_start = time.time()
 
-        interpol(missing, Crtn, F, k, lst, x)
-        inv_matr = get_dec_matr(x[:k], F)
-        res = decode_message(inv_matr, Crtn[:k], F)
+        interpol(missing, Crtn, field, k, lst, x)
+        inv_matr = get_dec_matr(x[:k], field)
+        res = decode_message(inv_matr, Crtn[:k], field)
 
         final_res = []
 
@@ -126,7 +126,7 @@ def ass_m(N, l, r_a, r_b, k, rt, F, barrier, verific, together, A, B, m, n, p):
         if verific:
             Cver = []
             for bb in Bp:
-                Cver += [(aa * bb.getT()) % F for aa in Ap]
+                Cver += [(aa * bb.getT()) % field for aa in Ap]
 
             print ([np.array_equal(final_res[i], Cver[i]) for i in range(len(Cver))])
 
@@ -136,19 +136,19 @@ def ass_m(N, l, r_a, r_b, k, rt, F, barrier, verific, together, A, B, m, n, p):
         return dec, dl, ul, serv_comp
 
 
-def ass_sl(N, r_a, r_b, F, barrier, m, n, p):
+def ass_sl(N, r_a, r_b, field, barrier, m, n, p):
     if 0 < communicators.prev_comm.rank < N + 1:
         Ai = np.empty_like(np.matrix([[0] * n for i in range(m / r_a)]))
         Bi = np.empty_like(np.matrix([[0] * n for i in range(p / r_b)]))
-        rA = communicators.comm.Irecv(Ai, source=0, tag=15)
-        rB = communicators.comm.Irecv(Bi, source=0, tag=29)
+        recv_a = communicators.comm.Irecv(Ai, source=0, tag=15)
+        recv_b = communicators.comm.Irecv(Bi, source=0, tag=29)
 
-        rA.wait()
-        rB.wait()
+        recv_a.wait()
+        recv_b.wait()
 
         servcomp_start = time.time()
 
-        Ci = (Ai * (Bi.getT())) % F
+        Ci = (Ai * (Bi.getT())) % field
 
         servcomp_done = time.time()
 
@@ -157,8 +157,8 @@ def ass_sl(N, r_a, r_b, F, barrier, m, n, p):
         if barrier:
             communicators.comm.Barrier()
 
-        sC = communicators.comm.Isend(Ci, dest=0, tag=42)
-        sC.Wait()
+        req_c = communicators.comm.Isend(Ci, dest=0, tag=42)
+        req_c.Wait()
 
         if barrier:
             communicators.comm.Barrier()

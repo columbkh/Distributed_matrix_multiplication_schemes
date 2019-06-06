@@ -5,31 +5,31 @@ import numpy as np
 import argparse
 
 
-def do_scs(N, l, r, Field, barrier, verific, together, A, B, m, n, p, i, scs):
+def do_scs(N, l, r, field, barrier, verific, together, A, B, m, n, p, i, scs):
     if MPI.COMM_WORLD.rank == 0:
         print "scs: Iteration", str(i)
-        dec, dl, ul, comp = scs_m(N, l, r, Field, barrier, verific, together, A, B, m, p)
+        dec, dl, ul, comp = scs_m(N, l, r, field, barrier, verific, together, A, B, m, p)
         compute(dec, dl, ul, comp, scs, i)
     else:
-        scs_sl(N, r, Field, barrier, m, n, p)
+        scs_sl(N, r, field, barrier, m, n, p)
 
 
-def do_gasp(r_a, r_b, l, N, Field, barrier, verific, together, A, B, m, n, p, i, gasp):
+def do_gasp(r_a, r_b, l, N, field, barrier, verific, together, A, B, m, n, p, i, gasp):
     if MPI.COMM_WORLD.rank == 0:
         print "gasp: Iteration", str(i)
-        dec, dl, ul, comp = gasp_m(r_a, r_b, l, Field, barrier, verific, together, A, B, m, n, p)
+        dec, dl, ul, comp = gasp_m(r_a, r_b, l, field, barrier, verific, together, A, B, m, n, p)
         compute(dec, dl, ul, comp, gasp, i)
     else:
-        gasp_sl(r_a, r_b, N, Field, barrier, m, n, p)
+        gasp_sl(r_a, r_b, N, field, barrier, m, n, p)
 
 
-def do_ass(N, l, r_a_ass, r_b_ass, k, rt, Field, barrier, verific, together, A, B, m, n, p, i, ass):
+def do_ass(N, l, r_a_ass, r_b_ass, k, rt, field, barrier, verific, together, A, B, m, n, p, i, ass):
     if MPI.COMM_WORLD.rank == 0:
         print "ass: Iteration", str(i)
-        dec, dl, ul, comp = ass_m(N, l, r_a_ass, r_b_ass, k, rt, Field, barrier, verific, together, A, B, m, n, p)
+        dec, dl, ul, comp = ass_m(N, l, r_a_ass, r_b_ass, k, rt, field, barrier, verific, together, A, B, m, n, p)
         compute(dec, dl, ul, comp, ass, i)
     else:
-        ass_sl(N, r_a_ass, r_b_ass, Field, barrier, m, n, p)
+        ass_sl(N, r_a_ass, r_b_ass, field, barrier, m, n, p)
 
 
 def compute(dec, dl, ul, comp, scheme, i):
@@ -51,21 +51,21 @@ def compute(dec, dl, ul, comp, scheme, i):
     scheme[2][i] = dec
 
 
-def do_test(r_a, r_b, l, Field, Q, m, n, p, verific, together):
+def do_test(r_a, r_b, l, field, q, m, n, p, verific, together):
     A = None
     B = None
     gasp = None
     ass = None
     scs = None
 
-    experiment_name = "_Q_" + str(Q) + "_m_" + str(m) + "_n_" + str(n) + "_p_" + str(p)
+    experiment_name = "_Q_" + str(q) + "_m_" + str(m) + "_n_" + str(n) + "_p_" + str(p)
 
     if l >= min(r_a, r_b):
-        inv_matr, an, ter, N, a, b = create_GASP_big(r_a, r_b, l, Field)
+        inv_matr, an, ter, N, a, b = create_GASP_big(r_a, r_b, l, field)
     else:
-        inv_matr, an, ter, N, a, b = create_GASP_small(r_a, r_b, l, Field)
+        inv_matr, an, ter, N, a, b = create_GASP_small(r_a, r_b, l, field)
 
-    if not is_prime_number(Field):
+    if not is_prime_number(field):
         print "Field is not prime"
         sys.exit(100)
     else:
@@ -79,7 +79,7 @@ def do_test(r_a, r_b, l, Field, Q, m, n, p, verific, together):
             N = possb.N
             l = possb.l
             k = possb.k
-            rt = find_var(Field, k)
+            rt = find_var(field, k)
 
     r = N - 2 * l
 
@@ -93,17 +93,17 @@ def do_test(r_a, r_b, l, Field, Q, m, n, p, verific, together):
         p = (p // lcm_p) * lcm_p
 
     if MPI.COMM_WORLD.rank == 0:
-        gasp = [np.zeros(Q) for count in range(4)]
-        ass = [np.zeros(Q) for count in range(4)]
-        scs = [np.zeros(Q) for count in range(4)]
+        gasp = [np.zeros(q) for count in range(4)]
+        ass = [np.zeros(q) for count in range(4)]
+        scs = [np.zeros(q) for count in range(4)]
 
-    for i in range(Q):
+    for i in range(q):
         if MPI.COMM_WORLD.rank == 0:
             A = np.matrix(np.random.random_integers(0, 255, (m, n)))
             B = np.matrix(np.random.random_integers(0, 255, (p, n)))
-        do_gasp(r_a, r_b, l, N, Field, True, verific, together, A, B, m, n, p, i, gasp)
-        do_ass(N, l, r_a_ass, r_b_ass, k, rt, Field, True, verific, together, A, B, m, n, p, i, ass)
-        do_scs(N, l, r, Field, True, verific, together, A, B, m, n, p, i, scs)
+        do_gasp(r_a, r_b, l, N, field, True, verific, together, A, B, m, n, p, i, gasp)
+        do_ass(N, l, r_a_ass, r_b_ass, k, rt, field, True, verific, together, A, B, m, n, p, i, ass)
+        do_scs(N, l, r, field, True, verific, together, A, B, m, n, p, i, scs)
 
     if MPI.COMM_WORLD.rank == 0:
         write_to_octave(gasp, "gasp" + experiment_name)
@@ -138,11 +138,11 @@ if __name__ == "__main__":
     r_a = args.r_a
     r_b = args.r_b
     l = args.l
-    Field = args.Field
-    Q = args.Q
+    field = args.Field
+    q = args.Q
 
     m = args.matr_size
     n = args.matr_size
     p = args.matr_size
 
-    do_test(r_a, r_b, l, Field, Q, m, n, p, verific, together)
+    do_test(r_a, r_b, l, field, q, m, n, p, verific, together)

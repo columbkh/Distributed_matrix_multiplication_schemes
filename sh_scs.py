@@ -5,7 +5,7 @@ import sys
 import communicators
 
 
-def scs_m(N, l, r, Field, barrier, verific, together, A, B, m, p):
+def scs_m(N, l, r, field, barrier, verific, together, A, B, m, p):
     if communicators.prev_comm.rank == 0:  # Master
 
         if N > 19:
@@ -16,12 +16,12 @@ def scs_m(N, l, r, Field, barrier, verific, together, A, B, m, p):
 
         dec_start = time.time()
 
-        d_cross, left_part, i_plus_an, an = make_matrix_d_cross(N, Field, r, l)
+        d_cross, left_part, i_plus_an, an = make_matrix_d_cross(N, field, r, l)
         dec_pause = time.time()
         dec_firstpart = dec_pause - dec_start
 
-        Aenc = encode_A(left_part, i_plus_an, A, Field, N, l, r)
-        Benc = encode_B(Bn, i_plus_an, Field, l, r, N)
+        Aenc = encode_A(left_part, i_plus_an, A, field, N, l, r)
+        Benc = encode_B(Bn, i_plus_an, field, l, r, N)
 
         Crtn = []
         serv_comp = [None] * N
@@ -30,26 +30,26 @@ def scs_m(N, l, r, Field, barrier, verific, together, A, B, m, p):
         for i in range(N):
             Crtn.append(np.zeros((m, p / r), dtype=np.int_))
 
-        reqA = [None] * N * r
-        reqB = [None] * N * r
-        reqC = [None] * N
+        req_a = [None] * N * r
+        req_b = [None] * N * r
+        req_c = [None] * N
 
         if together:
             ul_start = time.time()
             for i in range(N):
                 for j in range(r):
-                    reqA[i + j * N] = communicators.comm.Isend([Aenc[i][j], MPI.INT], dest=i + 1, tag=15)
-                    reqB[i + j * N] = communicators.comm.Isend([Benc[i][j], MPI.INT], dest=i + 1, tag=29)
-                reqC[i] = communicators.comm.Irecv([Crtn[i], MPI.INT], source=i + 1, tag=42)
+                    req_a[i + j * N] = communicators.comm.Isend([Aenc[i][j], MPI.INT], dest=i + 1, tag=15)
+                    req_b[i + j * N] = communicators.comm.Isend([Benc[i][j], MPI.INT], dest=i + 1, tag=29)
+                req_c[i] = communicators.comm.Irecv([Crtn[i], MPI.INT], source=i + 1, tag=42)
 
-            MPI.Request.Waitall(reqA)
-            MPI.Request.Waitall(reqB)
+            MPI.Request.Waitall(req_a)
+            MPI.Request.Waitall(req_b)
 
             if barrier:
                 communicators.comm.Barrier()
 
             dl_start = time.time()
-            MPI.Request.Waitall(reqC)
+            MPI.Request.Waitall(req_c)
 
             dl_stop = time.time()
             dl = dl_stop - dl_start
@@ -58,14 +58,14 @@ def scs_m(N, l, r, Field, barrier, verific, together, A, B, m, p):
             ul_start = [None] * N
 
             dl = [None] * N
-            reqAB = [None] * 2 * N * r
+            req_ab = [None] * 2 * N * r
 
             for i in range(N):
                 ul_start[i] = time.time()
                 for j in range(r):
                     communicators.comm.Isend([Aenc[i][j], MPI.INT], dest=i + 1, tag=15)
-                    reqAB[i + (j + r) * N] = communicators.comm.Isend([Benc[i][j], MPI.INT], dest=i + 1, tag=29)
-                reqC[i] = communicators.comm.Irecv([Crtn[i], MPI.INT], source=i + 1, tag=42)
+                    req_ab[i + (j + r) * N] = communicators.comm.Isend([Benc[i][j], MPI.INT], dest=i + 1, tag=29)
+                req_c[i] = communicators.comm.Irecv([Crtn[i], MPI.INT], source=i + 1, tag=42)
 
             if barrier:
                 communicators.comm.Barrier()
@@ -73,13 +73,13 @@ def scs_m(N, l, r, Field, barrier, verific, together, A, B, m, p):
             dl_start = time.time()
 
             for i in range(N):
-                j = MPI.Request.Waitany(reqC)
+                j = MPI.Request.Waitany(req_c)
                 tmp = time.time()
                 dl[j] = tmp - dl_start
 
         dec_pause = time.time()
 
-        res = decode_message(d_cross, Crtn, Field)
+        res = decode_message(d_cross, Crtn, field)
 
         final_res = res[0:r]
 
@@ -105,7 +105,7 @@ def scs_m(N, l, r, Field, barrier, verific, together, A, B, m, p):
                 ul[i] = ul_stop[i] - ul_start[i]
 
         if verific:
-            Cver = [(A * bb.getT()) % Field for bb in Bn[:r]]
+            Cver = [(A * bb.getT()) % field for bb in Bn[:r]]
             print ([np.array_equal(final_res[i], Cver[i]) for i in range(len(Cver))])
 
         if barrier:
@@ -114,29 +114,29 @@ def scs_m(N, l, r, Field, barrier, verific, together, A, B, m, p):
         return dec, dl, ul, serv_comp
 
 
-def scs_sl(N, r, Field, barrier, m, n, p):
+def scs_sl(N, r, field, barrier, m, n, p):
     if 0 < communicators.prev_comm.rank < N + 1:
         Ai = []
         Bi = []
-        rA = [None] * r
-        rB = [None] * r
+        recv_a = [None] * r
+        recv_b = [None] * r
         Ci = np.matrix([[0] * (p / r) for i in range(m)])
         for j in range(r):
             Aij = np.empty_like(np.matrix([[0] * n for i in range(m)]))
             Bij = np.empty_like(np.matrix([[0] * n for i in range(p / r)]))
-            rA[j] = communicators.comm.Irecv(Aij, source=0, tag=15)
-            rB[j] = communicators.comm.Irecv(Bij, source=0, tag=29)
+            recv_a[j] = communicators.comm.Irecv(Aij, source=0, tag=15)
+            recv_b[j] = communicators.comm.Irecv(Bij, source=0, tag=29)
             Ai.append(Aij)
             Bi.append(Bij)
 
-        MPI.Request.Waitall(rA)
-        MPI.Request.Waitall(rB)
+        MPI.Request.Waitall(recv_a)
+        MPI.Request.Waitall(recv_b)
 
         servcomp_start = time.time()
 
         for j in range(r):
             Ci += (Ai[j] * (Bi[j].getT()))
-            Ci = Ci % Field
+            Ci = Ci % field
 
         servcomp_done = time.time()
 
@@ -145,8 +145,8 @@ def scs_sl(N, r, Field, barrier, m, n, p):
         if barrier:
             communicators.comm.Barrier()
 
-        sC = communicators.comm.Isend(Ci, dest=0, tag=42)
-        sC.Wait()
+        req_c = communicators.comm.Isend(Ci, dest=0, tag=42)
+        req_c.Wait()
 
         if barrier:
             communicators.comm.Barrier()

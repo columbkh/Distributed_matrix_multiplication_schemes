@@ -1,13 +1,13 @@
 from same_field_choose_ra_rb import *
 
 
-def set_communicators(r_a, r_b, l, Field):
+def set_communicators(r_a, r_b, l, field):
     if l == min(r_a, r_b):
-        inv_matr, an, ter, N, a, b = create_GASP_big(r_a, r_b, l, Field)
+        inv_matr, an, ter, N, a, b = create_GASP_big(r_a, r_b, l, field)
     else:
-        inv_matr, an, ter, N, a, b = create_GASP_small(r_a, r_b, l, Field)
+        inv_matr, an, ter, N, a, b = create_GASP_small(r_a, r_b, l, field)
 
-    if not is_prime_number(Field):
+    if not is_prime_number(field):
         print "Field is not prime"
         sys.exit(100)
     else:
@@ -27,11 +27,11 @@ def set_communicators(r_a, r_b, l, Field):
         communicators.comm = communicators.prev_comm
 
 
-def do_multiple_tests(r_a, r_b, l, Field, Q, m, n, p, verific, together, Number, inc):
-    write_title_to_octave(Q, Field, m, Number, inc)
-    set_communicators(r_a, r_b, l, Field)
+def do_multiple_tests(r_a, r_b, l, field, q, m, n, p, verific, together, number, inc):
+    write_title_to_octave(q, field, m, number, inc)
+    set_communicators(r_a, r_b, l, field)
 
-    for i in range(Number):
+    for i in range(number):
         if MPI.COMM_WORLD.rank == 0:
             print("--------------------------------------------------------------------------")
             print("Experiment Nr. ", i + 1)
@@ -39,7 +39,7 @@ def do_multiple_tests(r_a, r_b, l, Field, Q, m, n, p, verific, together, Number,
             print("n: ", n)
             print("p: ", p)
             print("--------------------------------------------------------------------------")
-        do_test(r_a, r_b, l, Field, Q, m, n, p, verific, together)
+        do_test(r_a, r_b, l, field, q, m, n, p, verific, together)
         m = m + inc
         p = p + inc
         n = n + inc
@@ -73,14 +73,14 @@ if __name__ == "__main__":
     r_a = args.r_a
     r_b = args.r_b
     l = args.l
-    Field = args.Field
-    Q = args.Q
+    field = args.Field
+    q = args.Q
 
     m = args.start_matr_size
     n = args.start_matr_size
     p = args.start_matr_size
 
-    Number = args.Number
+    number = args.Number
     inc = args.Inc
 
-    do_multiple_tests(r_a, r_b, l, Field, Q, m, n, p, verific, together, Number, inc)
+    do_multiple_tests(r_a, r_b, l, field, q, m, n, p, verific, together, number, inc)

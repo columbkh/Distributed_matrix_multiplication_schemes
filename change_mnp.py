@@ -1,11 +1,11 @@
 from same_field_choose_ra_rb import *
 
 
-def do_multiple_tests(r_a, r_b, l, Field, Q, m, n, p, verific, together, Number, coeff):
-    write_title_to_octavemnp(Q, Field, m, n, p, Number, coeff)
-    set_communicators(r_a, r_b, l, Field)
+def do_multiple_tests(r_a, r_b, l, field, q, m, n, p, verific, together, number, coeff):
+    write_title_to_octavemnp(q, field, m, n, p, number, coeff)
+    set_communicators(r_a, r_b, l, field)
 
-    for i in range(Number):
+    for i in range(number):
         if MPI.COMM_WORLD.rank == 0:
             print "--------------------------------------------------------------------------"
             print "Experiment Nr. ", i + 1
@@ -13,7 +13,7 @@ def do_multiple_tests(r_a, r_b, l, Field, Q, m, n, p, verific, together, Number,
             print "n: ", n
             print "p: ", p
             print "--------------------------------------------------------------------------"
-        do_test(r_a, r_b, l, Field, Q, m, n, p, verific, together)
+        do_test(r_a, r_b, l, field, q, m, n, p, verific, together)
         m = get_rounded(m * coeff)
         p = get_rounded(p * coeff)
         n = get_rounded(n * coeff)
@@ -48,14 +48,15 @@ if __name__ == "__main__":
     r_a = args.r_a
     r_b = args.r_b
     l = args.l
-    Field = args.Field
-    Q = args.Q
+    field = args.Field
+    q = args.Q
 
     m = args.m
     n = args.n
     p = args.p
 
-    Number = args.Number
+    number = args.Number
     coeff = args.Coeff
 
-    do_multiple_tests(r_a, r_b, l, Field, Q, m, n, p, verific, together, Number, coeff)
+    do_multiple_tests(r_a, r_b, l, field, q, m, n, p, verific, together, number, coeff)
+

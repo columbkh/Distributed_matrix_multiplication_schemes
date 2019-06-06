@@ -45,24 +45,24 @@ def set_communicators(r_a, r_b, l, field):
         communicators.comm = communicators.prev_comm
 
 
-def interpol(missing, Crtn, F, kr, lst, var):
+def interpol(missing, Crtn, field, kr, lst, var):
     for i in missing:
         coeff = [1] * kr
         for j in range(kr):
             for k in set(lst) - set([lst[j]]):
-                coeff[j] = (coeff[j] * (var[i] - var[k]) * pow(var[lst[j]] - var[k], F - 2, F)) % F
-        Crtn[i] = sum([Crtn[lst[j]] * coeff[j] for j in range(kr)]) % F
+                coeff[j] = (coeff[j] * (var[i] - var[k]) * pow(var[lst[j]] - var[k], field - 2, field)) % field
+        Crtn[i] = sum([Crtn[lst[j]] * coeff[j] for j in range(kr)]) % field
 
 
-def write_title_to_octavemnp(Q, Field, m, n, p, number, coeffinc):
+def write_title_to_octavemnp(q, field, m, n, p, number, coeffinc):
     if type(coeffinc) == int:
         title = True
     else:
         title = False
     FrameStack = np.empty((8,), dtype=np.object)
     FrameStack[0] = title
-    FrameStack[1] = Q
-    FrameStack[2] = Field
+    FrameStack[1] = q
+    FrameStack[2] = field
     FrameStack[3] = m
     FrameStack[4] = n
     FrameStack[5] = p
@@ -73,15 +73,15 @@ def write_title_to_octavemnp(Q, Field, m, n, p, number, coeffinc):
     sio.savemat(save_string, {"FrameStack": FrameStack})
 
 
-def write_title_to_octave(Q, Field, matr_size, number, coeffinc):
+def write_title_to_octave(q, field, matr_size, number, coeffinc):
     if type(coeffinc) == int:
         title = True
     else:
         title = False
     FrameStack = np.empty((6,), dtype=np.object)
     FrameStack[0] = title
-    FrameStack[1] = Q
-    FrameStack[2] = Field
+    FrameStack[1] = q
+    FrameStack[2] = field
     FrameStack[3] = matr_size
     FrameStack[4] = number
     FrameStack[5] = coeffinc
@@ -163,82 +163,82 @@ def print_times(dec, dl, ul, serv_comp):
         print "Server Computation: ", serv_comp
 
 
-def make_delta_i(Field, ai, r):
+def make_delta_i(field, ai, r):
     res = 1
     for u in range(1, r + 1):
         res *= (u + ai)
-        res = res % Field
+        res = res % field
     return res
 
 
-def make_delta(Field, an, r):
-    return [make_delta_i(Field, ai, r) for ai in an]
+def make_delta(field, an, r):
+    return [make_delta_i(field, ai, r) for ai in an]
 
 
-def make_d_cross_left_part(delta_ff, plus, N, Field):
-    plus_ff = matr2ffmatrix(plus, Field)
+def make_d_cross_left_part(delta_ff, plus, N, field):
+    plus_ff = matr2ffmatrix(plus, field)
     return [[delta_ff[i] / el for el in plus_ff[i]] for i in range(N)]
 
 
-def make_d_cross_right_part(delta_ff, an, N, Field, l):
-    an_matr = [[pow(ai, i, Field) for i in range(2 * l)] for ai in an]
-    an_ff = matr2ffmatrix(an_matr, Field)
+def make_d_cross_right_part(delta_ff, an, N, field, l):
+    an_matr = [[pow(ai, i, field) for i in range(2 * l)] for ai in an]
+    an_ff = matr2ffmatrix(an_matr, field)
     return [[delta_ff[i] * el for el in an_ff[i]] for i in range(N)]
 
 
-def make_matrix_d_cross(N, Field, r, l):
+def make_matrix_d_cross(N, field, r, l):
     an = make_a_n(N)
-    delta = make_delta(Field, an, r)
-    delta_ff = arr2ffarray(delta, Field)
+    delta = make_delta(field, an, r)
+    delta_ff = arr2ffarray(delta, field)
     i_plus_an = [[i + ai for i in range(1, r + 1)] for ai in an]
-    d_cross_left_part = make_d_cross_left_part(delta_ff, i_plus_an, N, Field)
-    d_cross_right_part = make_d_cross_right_part(delta_ff, an, N, Field, l)
+    d_cross_left_part = make_d_cross_left_part(delta_ff, i_plus_an, N, field)
+    d_cross_right_part = make_d_cross_right_part(delta_ff, an, N, field, l)
     d_cross = [d_cross_left_part[count] + d_cross_right_part[count] for count in range(N)]
-    d_cross_inv = get_inv(d_cross, Field)
+    d_cross_inv = get_inv(d_cross, field)
     return d_cross_inv, np.asarray(d_cross_left_part), i_plus_an, an
 
 
-def encode_An(lpart, i_plus, A, Field, l, r, Zik):
+def encode_An(lpart, i_plus, A, field, l, r, Zik):
     return [
-        lpart[i] * ((A + sum([(pow(i_plus[i], k, Field) * Zik[i][k - 1]) % Field for k in range(1, l + 1)])) % Field)
+        lpart[i] * ((A + sum([(pow(i_plus[i], k, field) * Zik[i][k - 1]) % field for k in range(1, l + 1)])) % field)
         for i in range(r)]
 
 
 # noinspection PyUnusedLocal
-def encode_A(left_part, i_plus_an, A, Field, N, l, r):
+def encode_A(left_part, i_plus_an, A, field, N, l, r):
     Zik = [[np.matrix(np.random.random_integers(0, 0, (A.shape[0], A.shape[1]))) for k in range(l)] for i in range(r)]
-    return [encode_An(left_part[n], i_plus_an[n], A, Field, l, r, Zik) for n in range(N)]
+    return [encode_An(left_part[n], i_plus_an[n], A, field, l, r, Zik) for n in range(N)]
 
 
-def encode_Bn(Bn, i_plus, Field, l, r, Zik):
-    return [(Bn[i] + sum([(pow(i_plus[i], k, Field) * Zik[i][k - 1]) % Field for k in range(1, l + 1)])) % Field for i
+def encode_Bn(Bn, i_plus, field, l, r, Zik):
+    return [(Bn[i] + sum([(pow(i_plus[i], k, field) * Zik[i][k - 1]) % field for k in range(1, l + 1)])) % field for i
             in range(r)]
 
 
-def encode_B(Bn, i_plus_an, Field, l, r, N):
+def encode_B(Bn, i_plus_an, field, l, r, N):
     Zik = [[np.matrix(np.random.random_integers(0, 0, (Bn[0].shape[0], Bn[0].shape[1]))) for k in range(l)] for i in
            range(r)]
-    return [encode_Bn(Bn, i_plus_an[n], Field, l, r, Zik) for n in range(N)]
+    return [encode_Bn(Bn, i_plus_an[n], field, l, r, Zik) for n in range(N)]
 
 
-def getAencGASP(Ap, Field, N, a, an):
-    return [sum([Ap[j] * pow(an[i], a[j], Field) for j in range(len(a))]) for i in range(N)]
+def getAencGASP(Ap, field, N, a, an):
+    return [sum([Ap[j] * pow(an[i], a[j], field) for j in range(len(a))]) for i in range(N)]
 
 
-def getBencGASP(Bp, Field, N, b, an):
-    return [sum([Bp[j] * pow(an[i], b[j], Field) for j in range(len(b))]) for i in range(N)]
+def getBencGASP(Bp, field, N, b, an):
+    return [sum([Bp[j] * pow(an[i], b[j], field) for j in range(len(b))]) for i in range(N)]
 
 
 def make_a_n(N):
     return [3 * i + 1 for i in range(N)]
 
 
-def make_matrix(ter, N, Field):
+def make_matrix(ter, N, field):
     flag = False
     while not flag:
         an = make_a_n(N)
-        matr = [[pow(aa, t, Field) for t in ter] for aa in an]
-        res = get_inv(matr, Field)
+        matr = [[pow(aa, t, field) for t in ter] for aa in an]
+        res = get_inv(matr, field)
         flag = True
         if len(res) == 1:
             if res == -1:
@@ -246,7 +246,7 @@ def make_matrix(ter, N, Field):
     return res, an
 
 
-def create_GASP_big(K, L, T, Field):
+def create_GASP_big(K, L, T, field):
     if K >= L:
         a = make_a_L_less_or_equal_K_big(K, L, T)
         b = make_b_L_less_or_equal_K_big(K, L, T)
@@ -254,11 +254,11 @@ def create_GASP_big(K, L, T, Field):
         b = make_a_K_less_L_big(K, L, T)
         a = make_b_K_less_L_big(K, L, T)
     ter, N = terms(a, b)
-    inv_matr, an = make_matrix(ter, N, Field)
+    inv_matr, an = make_matrix(ter, N, field)
     return inv_matr, an, ter, N, a, b
 
 
-def create_GASP_small(K, L, T, Field):
+def create_GASP_small(K, L, T, field):
     if K >= L:
         a = make_a_L_less_or_equal_K_small(K, L, T)
         b = make_b_L_less_or_equal_K_small(K, L, T)
@@ -266,7 +266,7 @@ def create_GASP_small(K, L, T, Field):
         b = make_a_K_less_L_small(K, L, T)
         a = make_b_K_less_L_small(K, L, T)
     ter, N = terms(a, b)
-    inv_matr, an = make_matrix(ter, N, Field)
+    inv_matr, an = make_matrix(ter, N, field)
     return inv_matr, an, ter, N, a, b
 
 
@@ -562,7 +562,6 @@ def get_all_possabilities_nofft_for_fixedN(N):
     return possbs
 
 
-
 def get_all_possabilities_nofft(Nmax):
     all_possbs = []
     for worker_count in range(4, Nmax):
@@ -579,46 +578,46 @@ def get_all_possabilities(Nmax):
     return all_possbs
 
 
-def getAenc(Ap, Ka, N, F, l, r_a, x):
-    return [sum([Ap[j] * pow(x[i], j, F) for j in range(r_a)]) % F + sum(
-        [Ka[k] * pow(x[i], k + r_a, F) for k in range(l)]) % F for i in range(N)]
+def getAenc(Ap, Ka, N, field, l, r_a, x):
+    return [sum([Ap[j] * pow(x[i], j, field) for j in range(r_a)]) % field + sum(
+        [Ka[k] * pow(x[i], k + r_a, field) for k in range(l)]) % field for i in range(N)]
 
 
-def getBenc(Bp, Kb, N, F, l, r_a, r_b, x):
-    return [sum([Bp[j] * pow(x[i], j * (r_a + l), F) for j in range(r_b)]) % F + sum(
-        [Kb[k] * pow(x[i], k + r_a + (r_b - 1) * (r_a + l), F) for k in range(l)]) % F for i in range(N)]
+def getBenc(Bp, Kb, N, field, l, r_a, r_b, x):
+    return [sum([Bp[j] * pow(x[i], j * (r_a + l), field) for j in range(r_b)]) % field + sum(
+        [Kb[k] * pow(x[i], k + r_a + (r_b - 1) * (r_a + l), field) for k in range(l)]) % field for i in range(N)]
 
 
-def inverse_n(n, rt, F):
+def inverse_n(n, rt, field):
     if rt == n:
-        return pow(rt, n - 1, F)
+        return pow(rt, n - 1, field)
     else:
         if rt > n:
             s = rt / n
-            return pow(n, s * n - 1, F)
+            return pow(n, s * n - 1, field)
         else:
             s = n / rt
-            return pow(n, s * n - 1, F)
+            return pow(n, s * n - 1, field)
 
 
-def fast_fourier_transform(n, A, rt, F):
+def fast_fourier_transform(n, A, rt, field):
     if n == 1:
         return A
     else:
-        B = fast_fourier_transform(n / 2, A[0:][::2], pow(rt, 2, F), F)
-        C = fast_fourier_transform(n / 2, A[1:][::2], pow(rt, 2, F), F)
+        B = fast_fourier_transform(n / 2, A[0:][::2], pow(rt, 2, field), field)
+        C = fast_fourier_transform(n / 2, A[1:][::2], pow(rt, 2, field), field)
         Afft = []
 
         for i in range(n / 2):
-            tmp = (B[i] + pow(rt, i, F) * C[i]) % F
+            tmp = (B[i] + pow(rt, i, field) * C[i]) % field
             Afft.insert(i, tmp)
-            tmp = (B[i] + pow(rt, i + n / 2, F) * C[i]) % F
+            tmp = (B[i] + pow(rt, i + n / 2, field) * C[i]) % field
             Afft.insert(i + n / 2, tmp)
 
         return Afft
 
 
-def inverse_fft(n, A, rt, F):
-    rt_inv = pow(rt, n - 1, F)
-    Afft = fast_fourier_transform(n, A, rt_inv, F)
-    return [(Afft[i] * find_invert_rt(n, F)) % F for i in range(len(Afft))]
+def inverse_fft(n, A, rt, field):
+    rt_inv = pow(rt, n - 1, field)
+    Afft = fast_fourier_transform(n, A, rt_inv, field)
+    return [(Afft[i] * find_invert_rt(n, field)) % field for i in range(len(Afft))]
