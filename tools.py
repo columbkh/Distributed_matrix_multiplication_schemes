@@ -57,6 +57,7 @@ def write_title_to_octavemnp(q, field, m, n, p, number, coeffinc):
         title = True
     else:
         title = False
+
     FrameStack = np.empty((8,), dtype=np.object)
     FrameStack[0] = title
     FrameStack[1] = q
@@ -76,6 +77,7 @@ def write_title_to_octave(q, field, matr_size, number, coeffinc):
         title = True
     else:
         title = False
+
     FrameStack = np.empty((6,), dtype=np.object)
     FrameStack[0] = title
     FrameStack[1] = q
@@ -91,7 +93,6 @@ def write_title_to_octave(q, field, matr_size, number, coeffinc):
 def write_to_octave(scheme, name):
     L = [li for li in scheme]
     FrameStack = np.empty((len(L),), dtype=np.object)
-
     for i in range(len(L)):
         FrameStack[i] = L[i]
 
@@ -130,6 +131,7 @@ def write_times(dec, dl, ul, serv_comp, file_name, iter_number):
         f.write("Average: %f\r\n" % (sum(serv_comp) / len(serv_comp)))
     else:
         f.write("Server Computation %d: %f\r\n" % (iter_number, serv_comp))
+
     f.write("---------------------------------------\r\n")
     f.close()
 
@@ -202,7 +204,6 @@ def encode_An(lpart, i_plus, A, field, l, r, Zik):
         for i in range(r)]
 
 
-# noinspection PyUnusedLocal
 def encode_A(left_part, i_plus_an, A, field, N, l, r):
     Zik = [[np.matrix(np.random.random_integers(0, 0, (A.shape[0], A.shape[1]))) for k in range(l)] for i in range(r)]
     return [encode_An(left_part[n], i_plus_an[n], A, field, l, r, Zik) for n in range(N)]
@@ -251,6 +252,7 @@ def create_GASP_big(K, L, T, field):
     else:
         b = make_a_K_less_L_big(K, L, T)
         a = make_b_K_less_L_big(K, L, T)
+
     ter, N = terms(a, b)
     inv_matr, an = make_matrix(ter, N, field)
     return inv_matr, an, ter, N, a, b
@@ -263,6 +265,7 @@ def create_GASP_small(K, L, T, field):
     else:
         b = make_a_K_less_L_small(K, L, T)
         a = make_b_K_less_L_small(K, L, T)
+
     ter, N = terms(a, b)
     inv_matr, an = make_matrix(ter, N, field)
     return inv_matr, an, ter, N, a, b
@@ -511,12 +514,10 @@ def get_lmax(N):
 def get_ra(N, l, rb):
     cand_ra = 1
     eqw = (cand_ra + l) * (rb + 1) - 1
-
     while eqw <= N:
         res = cand_ra
         cand_ra += 1
         eqw = (cand_ra + l) * (rb + 1) - 1
-
     return res
 
 
