@@ -42,7 +42,6 @@ def gasp_m(r_a, r_b, l, Field, barrier, verific, together, A, B, m, n, p):
         reqA = [None] * N
         reqB = [None] * N
         reqC = [None] * N
-        reqS = [None] * N
 
         if together:
             ul_start = time.time()

@@ -17,13 +17,13 @@ def check_array(lst, j, r, N):
     return True
 
 
-def set_communicators(r_a, r_b, l, Field):
+def set_communicators(r_a, r_b, l, field):
     if l >= min(r_a, r_b):
-        inv_matr, an, ter, N, a, b = create_GASP_big(r_a, r_b, l, Field)
+        inv_matr, an, ter, N, a, b = create_GASP_big(r_a, r_b, l, field)
     else:
-        inv_matr, an, ter, N, a, b = create_GASP_small(r_a, r_b, l, Field)
+        inv_matr, an, ter, N, a, b = create_GASP_small(r_a, r_b, l, field)
 
-    if not is_prime_number(Field):
+    if not is_prime_number(field):
         print "Field is not prime"
         sys.exit(100)
     else:
@@ -204,6 +204,7 @@ def encode_An(lpart, i_plus, A, Field, l, r, Zik):
         for i in range(r)]
 
 
+# noinspection PyUnusedLocal
 def encode_A(left_part, i_plus_an, A, Field, N, l, r):
     Zik = [[np.matrix(np.random.random_integers(0, 0, (A.shape[0], A.shape[1]))) for k in range(l)] for i in range(r)]
     return [encode_An(left_part[n], i_plus_an[n], A, Field, l, r, Zik) for n in range(N)]
@@ -553,11 +554,20 @@ def get_nofft_for_fixedN(N, l):
         return Params(N, l, r_a, r_b)
 
 
+def get_all_possabilities_nofft_for_fixedN(N):
+    lmax = get_lmax(N)
+    possbs = []
+    for l in range(1, lmax):
+        possbs.append(get_nofft_for_fixedN(N, l))
+    return possbs
+
+
+
 def get_all_possabilities_nofft(Nmax):
     all_possbs = []
     for worker_count in range(4, Nmax):
-        possb = get_nofft_for_fixedN(worker_count)
-        all_possbs.append(possb)
+        possb = get_all_possabilities_nofft_for_fixedN(worker_count)
+        all_possbs = all_possbs + possb
     return all_possbs
 
 
