@@ -5,6 +5,26 @@ import communicators
 
 
 def ass_m(N, l, r_a, r_b, k, rt, field, barrier, verific, together, A, B, m, n, p):
+    """
+    Master code for the Alligned Secret Sharing Scheme with Matrix Partition
+
+    :param N: Number of workers
+    :param l: Number of colluding workers
+    :param r_a:
+    :param r_b:
+    :param k:
+    :param rt:
+    :param field:
+    :param barrier:
+    :param verific:
+    :param together:
+    :param A:
+    :param B:
+    :param m:
+    :param n:
+    :param p:
+    :return:
+    """
     if communicators.prev_comm.rank == 0:
         Ap = np.split(A, r_a)
         Bp = np.split(B, r_b)
