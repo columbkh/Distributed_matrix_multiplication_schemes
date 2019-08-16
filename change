@@ -1,0 +1,57 @@
+ hold off;
+  subplot(3,2,2);
+  gasp_ul
+  ass_ul
+  scs_ul
+  plot(x, gasp_ul, 'Color', 'b');
+  hold on;
+  plot(x, ass_ul, 'Color', 'y');
+  plot(x, scs_ul, 'Color', 'r');
+ # legend({'gasp','ass', 'scs'});
+  xlabel ("Matrix Size");
+  ylabel ("Time");
+  title("Upload");
+  hold off;
+  subplot(3,2,3);
+  gasp_dec
+  ass_dec
+  scs_dec
+  plot(x, gasp_dec, 'Color', 'b');
+  hold on;
+  plot(x, ass_dec, 'Color', 'y');
+  plot(x, scs_dec, 'Color', 'r');
+ # legend({'gasp','ass', 'scs'});
+  xlabel ("Matrix Size");
+  ylabel ("Time");
+  title("Decoding");
+  hold off;
+  subplot(3,2,4);
+  gasp_comp
+  ass_comp
+  scs_comp
+  y1 = plot(x, gasp_comp, 'Color', 'b');
+  hold on;
+  y2 = plot(x, ass_comp, 'Color', 'y');
+  y3 = plot(x, scs_comp, 'Color', 'r');
+  #legend({'gasp','ass', 'scs'});
+  xlabel ("Matrix Size");
+  ylabel ("Time");
+  title("Slaves");
+  hold off;
+  subplot(3,2,5);
+  res_gasp = gasp_dl + gasp_ul + gasp_dec + gasp_comp;
+  res_ass = ass_dl + ass_ul + ass_dec + ass_comp;
+  res_scs = scs_dl + scs_ul + scs_dec + scs_comp;
+  res_gasp
+  res_ass
+  res_scs
+  plot(x, res_gasp, 'Color', 'b');
+  hold on;
+  plot(x, res_ass, 'Color', 'y');
+  plot(x, res_scs, 'Color', 'r');
+ # legend({'gasp','ass', 'scs'});
+  xlabel ("Matrix Size");
+  ylabel ("Time");
+  title("Total");
+  hold off;
+  #saveas(fig, res);

@@ -1,6 +1,8 @@
 from gasp_sh import *
 from sh_ass import *
 from sh_scs import *
+from sh_uscsa import *
+from sh_gscsa import *
 import numpy as np
 import argparse
 
@@ -13,6 +15,23 @@ def do_scs(N, l, r, field, barrier, verific, together, A, B, m, n, p, i, scs):
     else:
         scs_sl(N, r, field, barrier, m, n, p)
 
+
+def do_uscsa(N, l, f, qq, field, barrier, verific, together, A, B, m, n, p, i, uscsa):
+    if MPI.COMM_WORLD.rank == 0:
+        print "uscsa: Iteration", str(i)
+        dec, dl, ul, comp = uscsa_m(N, l, f, qq, field, barrier, verific, together, A, B, m, p)
+        compute(dec, dl, ul, comp, uscsa, i)
+    else:
+        uscsa_sl(N, qq, f, field, barrier, m, n, p)
+
+
+def do_gscsa(N, l, f, qq, field, barrier, verific, together, A, B, m, n, p, i, gscsa):
+    if MPI.COMM_WORLD.rank == 0:
+        print "gscsa: Iteration", str(i)
+        dec, dl, ul, comp = gscsa_m(N, l, f, qq, field, barrier, verific, together, A, B, m, p)
+        compute(dec, dl, ul, comp, gscsa, i)
+    else:
+        gscsa_sl(N, qq, f, field, barrier, m, n, p)
 
 def do_gasp(r_a, r_b, l, N, field, barrier, verific, together, A, B, m, n, p, i, gasp):
     if MPI.COMM_WORLD.rank == 0:
@@ -57,6 +76,8 @@ def do_test(r_a, r_b, l, field, q, m, n, p, verific, together):
     gasp = None
     ass = None
     scs = None
+    uscsa = None
+    gscsa = None
 
     experiment_name = "_Q_" + str(q) + "_m_" + str(m) + "_n_" + str(n) + "_p_" + str(p)
 
@@ -83,19 +104,50 @@ def do_test(r_a, r_b, l, field, q, m, n, p, verific, together):
 
     r = N - 2 * l
 
-    lcm_m = lcm(r_a, r_a_ass)
-    tmp = lcm(r_b, r_b_ass)
-    lcm_p = lcm(r, tmp)
+    qq, f = factorize_root(N + 1 - 2 * l)
+    qq = qq - 1
+    
+  #  qq = 4
+  #  f = 3
+
+
+    if MPI.COMM_WORLD.rank == 0:
+        print "N: ", N
+        print "r: ", r
+        print "r_a_ass:", r_a_ass
+        print "r_b_ass:", r_b_ass
+        print "q: ", qq
+        print "f: ", f
+
+    tmp_m = lcm(r_a, r_a_ass)
+    lcm_m = lcm(tmp_m, f*qq)
+
+    tmp_p = lcm(r_b, r_b_ass)
+    tmp_p = lcm(tmp_p, r)
+    lcm_p = lcm(tmp_p, qq)
 
     if m % lcm_m != 0:
         m = (m // lcm_m) * lcm_m
     if p % lcm_p != 0:
         p = (p // lcm_p) * lcm_p
 
+
+    if MPI.COMM_WORLD.rank == 0:
+        print "actual m: ", m
+        print "actual p: ", p
+        print "r_b: ", r_b
+        print "r: ", r
+        print "r_b_ass", r_b_ass
+        print "q: ", qq
+        print "lcm_p", lcm_p
+
     if MPI.COMM_WORLD.rank == 0:
         gasp = [np.zeros(q) for count in range(4)]
         ass = [np.zeros(q) for count in range(4)]
         scs = [np.zeros(q) for count in range(4)]
+        uscsa = [np.zeros(q) for count in range(4)]
+        gscsa = [np.zeros(q) for count in range(4)]
+
 
     for i in range(q):
         if MPI.COMM_WORLD.rank == 0:
@@ -104,11 +156,16 @@ def do_test(r_a, r_b, l, field, q, m, n, p, verific, together):
         do_gasp(r_a, r_b, l, N, field, True, verific, together, A, B, m, n, p, i, gasp)
         do_ass(N, l, r_a_ass, r_b_ass, k, rt, field, True, verific, together, A, B, m, n, p, i, ass)
         do_scs(N, l, r, field, True, verific, together, A, B, m, n, p, i, scs)
+        do_uscsa(N, l, f, qq, field, True, verific, together, A, B, m, n, p, i, uscsa)
+        do_gscsa(N, l, f, qq, field, True, verific, together, A, B, m, n, p, i, gscsa)
 
     if MPI.COMM_WORLD.rank == 0:
         write_to_octave(gasp, "gasp" + experiment_name)
         write_to_octave(ass, "ass" + experiment_name)
         write_to_octave(scs, "scs" + experiment_name)
+        write_to_octave(uscsa, "uscsa" + experiment_name)
+        write_to_octave(gscsa, "gscsa" + experiment_name)
+
 
 
 if __name__ == "__main__":

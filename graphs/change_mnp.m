@@ -74,11 +74,11 @@ endfunction
 function [dlv, ulv, decv, compv] = work_with_scheme(name, q, Field, m, n, p, ordner)
   [dl, ul, dec, comp] = load_data(strcat(ordner, name));
   [fig, dlv, ulv, decv, compv] = make_pdfs(dl, ul, dec, comp);
-  save_pdf(fig, name, q, Field, m, n, p, ordner);
+  #save_pdf(fig, name, q, Field, m, n, p, ordner);
 endfunction
 
 
-function [gaspv, assv, scsv] = work_with_schemes(q, Field, m, n, p, ordner)
+function [gaspv, assv, scsv, uscsav, gscsav] = work_with_schemes(q, Field, m, n, p, ordner)
   q_str = strcat("_Q_", num2str(q));
   m_str = strcat("_m_", num2str(m));
   n_str = strcat("_n_", num2str(n));
@@ -90,12 +90,21 @@ function [gaspv, assv, scsv] = work_with_schemes(q, Field, m, n, p, ordner)
   gasp_addr = strcat("/gasp", name);
   ass_addr = strcat("/ass", name);
   scs_addr = strcat("/scs", name);
+  uscsa_addr = strcat("/uscsa", name);  
+  gscsa_addr = strcat("/gscsa", name);
   [dlv, ulv, decv, compv] = work_with_scheme(gasp_addr, q, Field, m, n,  p, ordner);
   gaspv = [dlv, ulv, decv, compv];
   [dlv, ulv, decv, compv] = work_with_scheme(ass_addr, q, Field, m, n, p, ordner);
   assv = [dlv, ulv, decv, compv];
   [dlv, ulv, decv, compv] = work_with_scheme(scs_addr, q, Field, m, n, p, ordner);
   scsv = [dlv, ulv, decv, compv];
+  
+  [dlv, ulv, decv, compv] = work_with_scheme(uscsa_addr, q, Field, m, n, p, ordner);
+  uscsav = [dlv, ulv, decv, compv];
+  
+  [dlv, ulv, decv, compv] = work_with_scheme(gscsa_addr, q, Field, m, n, p, ordner);
+  gscsav = [dlv, ulv, decv, compv];
+  
 endfunction
 
 #work_with_schemes(q, Field, matr_size);
@@ -114,10 +123,18 @@ function work_with_experiment(q, Field, m, n, p, ordner, nomer, coeff, title)
   scs_ul = [];
   scs_dec = [];
   scs_comp = [];
+  uscsa_dl = [];
+  uscsa_ul = [];
+  uscsa_dec = [];
+  uscsa_comp = [];
+  gscsa_dl = [];
+  gscsa_ul = [];
+  gscsa_dec = [];
+  gscsa_comp = [];
   matr = [];
 
   for i = 1:nomer
-    [gaspv, assv, scsv] = work_with_schemes(q, Field, m, n, p, ordner);
+    [gaspv, assv, scsv, uscsav, gscsav] = work_with_schemes(q, Field, m, n, p, ordner);
     matr = [matr, p];
     m
     n
@@ -134,6 +151,14 @@ function work_with_experiment(q, Field, m, n, p, ordner, nomer, coeff, title)
     scs_ul = [scs_ul, scsv(3)];
     scs_dec = [scs_dec, scsv(5)];
     scs_comp = [scs_comp, scsv(7)];
+    uscsa_dl = [uscsa_dl, uscsav(1)];
+    uscsa_ul = [uscsa_ul, uscsav(3)];
+    uscsa_dec = [uscsa_dec, uscsav(5)];
+    uscsa_comp = [uscsa_comp, uscsav(7)];
+    gscsa_dl = [gscsa_dl, gscsav(1)];
+    gscsa_ul = [gscsa_ul, gscsav(3)];
+    gscsa_dec = [gscsa_dec, gscsav(5)];
+    gscsa_comp = [gscsa_comp, gscsav(7)];
     if title == 1
        m = m + coeff;
        n = n + coeff;
@@ -150,22 +175,26 @@ function work_with_experiment(q, Field, m, n, p, ordner, nomer, coeff, title)
 
   x = matr
   clear title
-  fig = figure('visible','off');
-  subplot(3,2,1);
-  plot(x, gasp_dl, 'Color', 'b');
+  fig = figure();
+  subplot(3,2,1)
+  plot(x, gasp_dl, 'Color', 'b')
   hold on;
-  plot(x, ass_dl, 'Color', 'y');
-  plot(x, scs_dl, 'Color', 'r');
- # legend({'gasp','ass', 'scs'}, 'east');
+  plot(x, ass_dl, 'Color', 'y')
+  plot(x, scs_dl, 'Color', 'r')
+  plot(x, uscsa_dl, 'Color', 'g')
+  plot(x, gscsa_dl, 'Color', 'magenta')
   xlabel ("Matrix Size");
   ylabel ("Time");
   title("Download");
+  
   hold off;
   subplot(3,2,2);
   plot(x, gasp_ul, 'Color', 'b');
   hold on;
   plot(x, ass_ul, 'Color', 'y');
   plot(x, scs_ul, 'Color', 'r');
+  plot(x, uscsa_ul, 'Color', 'g');
+  plot(x, gscsa_ul, 'Color', 'magenta')
  # legend({'gasp','ass', 'scs'});
   xlabel ("Matrix Size");
   ylabel ("Time");
@@ -176,16 +205,20 @@ function work_with_experiment(q, Field, m, n, p, ordner, nomer, coeff, title)
   hold on;
   plot(x, ass_dec, 'Color', 'y');
   plot(x, scs_dec, 'Color', 'r');
+  plot(x, uscsa_dec, 'Color', 'g');
+  plot(x, gscsa_dec, 'Color', 'magenta')
  # legend({'gasp','ass', 'scs'});
   xlabel ("Matrix Size");
   ylabel ("Time");
   title("Decoding");
   hold off;
   subplot(3,2,4);
-  y1 = plot(x, gasp_comp, 'Color', 'b');
+  plot(x, gasp_comp, 'Color', 'b');
   hold on;
-  y2 = plot(x, ass_comp, 'Color', 'y');
-  y3 = plot(x, scs_comp, 'Color', 'r');
+  plot(x, ass_comp, 'Color', 'y');
+  plot(x, scs_comp, 'Color', 'r');
+  plot(x, uscsa_comp, 'Color', 'g');
+  plot(x, gscsa_comp, 'Color', 'magenta')
   #legend({'gasp','ass', 'scs'});
   xlabel ("Matrix Size");
   ylabel ("Time");
@@ -195,24 +228,20 @@ function work_with_experiment(q, Field, m, n, p, ordner, nomer, coeff, title)
   res_gasp = gasp_dl + gasp_ul + gasp_dec + gasp_comp;
   res_ass = ass_dl + ass_ul + ass_dec + ass_comp;
   res_scs = scs_dl + scs_ul + scs_dec + scs_comp;
+  res_uscsa = uscsa_dl + uscsa_ul + uscsa_dec + uscsa_comp;
+  res_gscsa = gscsa_dl + gscsa_ul + gscsa_dec + gscsa_comp;
   plot(x, res_gasp, 'Color', 'b');
   hold on;
   plot(x, res_ass, 'Color', 'y');
   plot(x, res_scs, 'Color', 'r');
+  plot(x, res_uscsa, 'Color', 'g');
+  plot(x, res_gscsa, 'Color', 'magenta')
  # legend({'gasp','ass', 'scs'});
   xlabel ("Matrix Size");
   ylabel ("Time");
   title("Total");
   hold off;
-  subplot(3,2,6);
-  axis off
-  legend([y1, y2, y3], {'gasp','ass', 'scs'}, "Location", "best");
-
-
-
-  res = strcat("./oct_results/", ordner);
-  res = strcat(res, "/grafik.png");
-  saveas(fig, res);
+  #saveas(fig, res);
 endfunction
 
 function [title, q, Field, m, n, p, nomer, coeff] = load_title(ordner)
@@ -239,8 +268,8 @@ function res = rround(val)
  # end
 endfunction
 
-ordner = argv(){1};
-
+#ordner = argv(){1};
+ordner = "test_q3f2_224";
 [title, q, Field, m, n, p, nomer, coeff] = load_title(ordner)
 #q = str2num(argv(){1});
 #Field = str2num(argv(){2});
