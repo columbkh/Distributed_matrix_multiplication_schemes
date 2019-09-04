@@ -4,6 +4,18 @@ import time
 import sys
 import communicators
 
+def schema1(A, B, l, r, N, left_part, i_plus_an, field):
+    Bn = np.split(B, r)
+
+    Aenc = encode_A(left_part, i_plus_an, A, field, N, l, r)
+    Benc = encode_B(Bn, i_plus_an, field, l, r, N)
+    return [A], Bn, Aenc, Benc
+
+def schema2(A, B, l, r, N, left_part, i_plus_an, field):
+    An = np.split(A, r)
+    Aenc = reverse_encode_A(An, i_plus_an, field, l, r, N)
+    Benc = reverse_encode_B(left_part, i_plus_an, B, field, N, l, r)
+    return An, [B], Aenc, Benc
 
 def scs_m(N, l, r, field, barrier, verific, together, A, B, m, p):
     if communicators.prev_comm.rank == 0:  # Master
@@ -12,16 +24,29 @@ def scs_m(N, l, r, field, barrier, verific, together, A, B, m, p):
             print "Too many instances"
             sys.exit(100)
 
-        Bn = np.split(B, r)
 
         dec_start = time.time()
 
         d_cross, left_part, i_plus_an, an = make_matrix_d_cross(N, field, r, l)
+
+
         dec_pause = time.time()
         dec_firstpart = dec_pause - dec_start
 
-        Aenc = encode_A(left_part, i_plus_an, A, field, N, l, r)
-        Benc = encode_B(Bn, i_plus_an, field, l, r, N)
+        if r == 1:
+            An, Bn, Aenc, Benc = schema1(A, B, l, r, N, left_part, i_plus_an, field);
+        else:
+            if m <= p:
+                An, Bn, Aenc, Benc = schema1(A, B, l, r, N, left_part, i_plus_an, field);
+            else:
+                An, Bn, Aenc, Benc = schema2(A, B, l, r, N, left_part, i_plus_an, field);
+
+
+
+     #   Bn = np.split(B, r)
+
+      #  Aenc = encode_A(left_part, i_plus_an, A, field, N, l, r)
+      #  Benc = encode_B(Bn, i_plus_an, field, l, r, N)
 
         Crtn = []
         serv_comp = [None] * N
@@ -105,7 +130,10 @@ def scs_m(N, l, r, field, barrier, verific, together, A, B, m, p):
                 ul[i] = ul_stop[i] - ul_start[i]
 
         if verific:
-            Cver = [(A * bb.getT()) % field for bb in Bn[:r]]
+            Cver = []
+            for bb in Bn:
+                Cver += [(aa * bb.getT()) % field for aa in An]
+          #  Cver = [(A * bb.getT()) % field for bb in Bn[:r]]
             print ([np.array_equal(final_res[i], Cver[i]) for i in range(len(Cver))])
 
         if barrier:

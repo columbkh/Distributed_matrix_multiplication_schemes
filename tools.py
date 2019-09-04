@@ -237,6 +237,17 @@ def encode_A(left_part, i_plus_an, A, field, N, l, r):
     Zik = [[np.matrix(np.random.random_integers(0, 0, (A.shape[0], A.shape[1]))) for k in range(l)] for i in range(r)]
     return [encode_An(left_part[n], i_plus_an[n], A, field, l, r, Zik) for n in range(N)]
 
+def reverse_encode_B(left_part, i_plus_an, B, field, N, l, r):
+    Zik = [[np.matrix(np.random.random_integers(0, 0, (B.shape[0], B.shape[1]))) for k in range(l)] for i in range(r)]
+    return [reverse_encode_Bn(left_part[n], i_plus_an[n], B, field, l, r, Zik) for n in range(N)]
+
+def reverse_encode_Bn(lpart, i_plus, B, field, l, r, Zik):
+    return [
+        lpart[i] * ((B + sum([(pow(i_plus[i], k, field) * Zik[i][k - 1]) % field for k in range(1, l + 1)])) % field)
+        for i in range(r)]
+
+
+
 
 def uscsa_encode_A(left_part, i_plus_an, Aj, field, N, l, f, q):
     Zik = [[np.matrix(np.random.random_integers(0, 0, (Aj[0].shape[0], Aj[0].shape[1]))) for k in range(l)] for i in range(q)]
@@ -265,6 +276,14 @@ def encode_B(Bn, i_plus_an, field, l, r, N):
            range(r)]
     return [encode_Bn(Bn, i_plus_an[n], field, l, r, Zik) for n in range(N)]
 
+def reverse_encode_A(An, i_plus_an, field, l, r, N):
+    Zik = [[np.matrix(np.random.random_integers(0, 0, (An[0].shape[0], An[0].shape[1]))) for k in range(l)] for i in
+           range(r)]
+    return [reverse_encode_An(An, i_plus_an[n], field, l, r, Zik) for n in range(N)]
+
+def reverse_encode_An(An, i_plus, field, l, r, Zik):
+    return [(An[i] + sum([(pow(i_plus[i], k, field) * Zik[i][k - 1]) % field for k in range(1, l + 1)])) % field for i
+            in range(r)]
 
 def uscsa_encode_B(Bn, i_plus_an, field, l, q, f, N, left_term):
     Zik = [[np.matrix(np.random.random_integers(0, 0, (Bn[0].shape[0], Bn[0].shape[1]))) for k in range(l)] for i in
@@ -656,6 +675,13 @@ def getAenc(Ap, Ka, N, field, l, r_a, x):
 def getBenc(Bp, Kb, N, field, l, r_a, r_b, x):
     return [sum([Bp[j] * pow(x[i], j * (r_a + l), field) for j in range(r_b)]) % field + sum(
         [Kb[k] * pow(x[i], k + r_a + (r_b - 1) * (r_a + l), field) for k in range(l)]) % field for i in range(N)]
+
+def getNewAenc(Ap, Ka, N, field, l, r_a, r_b, x):
+    return [sum([Bp[j] * pow(x[i], j * (r_a + l), field) for j in range(r_b)]) % field + sum(
+        [Kb[k] * pow(x[i], k + r_a + (r_b - 1) * (r_a + l), field) for k in range(l)]) % field for i in range(N)]
+
+
+
 
 
 def inverse_n(n, rt, field):

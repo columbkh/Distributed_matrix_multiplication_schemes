@@ -38,6 +38,9 @@ def ass_m(N, l, r_a, r_b, k, rt, field, barrier, verific, together, A, B, m, n, 
                 t += 1
             x.append(t)
 
+   #     Benc = getAenc(Bp, Ka, N, field, l, r_a, x)
+    #    Aenc = getBenc(Ap, Kb, N, field, l, r_a, r_b, x)
+
         Aenc = getAenc(Ap, Ka, N, field, l, r_a, x)
         Benc = getBenc(Bp, Kb, N, field, l, r_a, r_b, x)
 

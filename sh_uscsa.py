@@ -16,9 +16,15 @@ def uscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p):
 
         dec_start = time.time()
 
+        decode_start = time.time()
         d_cross, left_part, j_plus_i_plus_an, i_plus_an, an = uscsa_make_matrix_d_cross(N, field, q, f, l)
+        decode_end = time.time()
+
         dec_pause = time.time()
         dec_firstpart = dec_pause - dec_start
+
+        print "decoding uscsa: ", decode_end - decode_start
+
 
         Aenc = uscsa_encode_A(left_part, i_plus_an, An, field, N, l, f, q)
         Benc = uscsa_encode_B(Bn, i_plus_an, field, l, q, f, N, j_plus_i_plus_an)

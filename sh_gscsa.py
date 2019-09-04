@@ -16,8 +16,15 @@ def gscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p):
 
         dec_start = time.time()
 
+        decode_start = time.time()
+
 
         d_cross, left_part, j_plus_i_plus_an, i_plus_an, an = uscsa_make_matrix_d_cross(N, field, q, f, l)
+        decode_end = time.time()
+
+        print "decoding gscsa: ", decode_end - decode_start
+
+
         dec_pause = time.time()
         dec_firstpart = dec_pause - dec_start
 
