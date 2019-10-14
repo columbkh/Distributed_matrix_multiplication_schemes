@@ -5,36 +5,114 @@ import sys
 import communicators
 
 
-def uscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p):
+def schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta):
+    An = np.split(A, f)
+    Bn = np.split(B, q)
+
+    Aenc = uscsa_encode_A(left_part, i_plus_an, An, field, N, l, f, q, delta)
+    Benc = uscsa_encode_B(Bn, i_plus_an, field, l, q, f, N, j_plus_i_plus_an)
+
+    return An, Bn, Aenc, Benc
+
+def schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta):
+    An = np.split(A, q)
+    Bn = np.split(B, f)
+
+    Aenc = reverse_uscsa_encode_A(An, i_plus_an, field, l, q, f, N, j_plus_i_plus_an)
+    Benc = reverse_uscsa_encode_B(left_part, i_plus_an, Bn, field, N, l, f, q, delta)
+
+    return An, Bn, Aenc, Benc
+
+
+def uscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p, flazhok):
     if communicators.prev_comm.rank == 0:
         if N > 19:
             print "Too many instances"
             sys.exit(100)
 
-        Bn = np.split(B, q)
-        An = np.split(A, f)
-
         dec_start = time.time()
 
-        decode_start = time.time()
-        d_cross, left_part, j_plus_i_plus_an, i_plus_an, an = uscsa_make_matrix_d_cross(N, field, q, f, l)
-        decode_end = time.time()
+        d_cross, left_part, j_plus_i_plus_an, i_plus_an, an, delta = uscsa_make_matrix_d_cross(N, field, q, f, l)
 
         dec_pause = time.time()
         dec_firstpart = dec_pause - dec_start
 
-        print "decoding uscsa: ", decode_end - decode_start
-
-
-        Aenc = uscsa_encode_A(left_part, i_plus_an, An, field, N, l, f, q)
-        Benc = uscsa_encode_B(Bn, i_plus_an, field, l, q, f, N, j_plus_i_plus_an)
+        if flazhok:
+            if m == p:
+                schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
+            else:
+                if m > p:
+                    if q <= f:
+                        An, Bn, Aenc, Benc = schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
+                    else:
+                        An, Bn, Aenc, Benc = schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
+                else:
+                    if q >= f:
+                        An, Bn, Aenc, Benc = schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
+                    else:
+                        An, Bn, Aenc, Benc = schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
+        else:
+            if m == p:
+                schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
+            else:
+                if m > p:
+                    if q <= f:
+                        An, Bn, Aenc, Benc = schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an,
+                                                     delta)
+                    else:
+                        An, Bn, Aenc, Benc = schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an,
+                                                     delta)
+                else:
+                    if q >= f:
+                        An, Bn, Aenc, Benc = schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an,
+                                                     delta)
+                    else:
+                        An, Bn, Aenc, Benc = schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an,
+                                                     delta)
 
         Crtn = []
         serv_comp = [None] * N
         ul_stop = [None] * N
 
-        for i in range(N):
-            Crtn.append(np.zeros((m / f, p / q), dtype=np.int_))
+
+        if  flazhok:
+            if m == p:
+                for i in range(N):
+                    Crtn.append(np.zeros((m / f, p / q), dtype=np.int_))
+            else:
+                if m > p:
+                    if q <= f:
+                        for i in range(N):
+                            Crtn.append(np.zeros((m / f, p / q), dtype=np.int_))
+                    else:
+                        for i in range(N):
+                            Crtn.append(np.zeros((m / q, p / f), dtype=np.int_))
+                else:
+                    if q >= f:
+                        for i in range(N):
+                            Crtn.append(np.zeros((m / f, p / q), dtype=np.int_))
+                    else:
+                        for i in range(N):
+                            Crtn.append(np.zeros((m / q, p / f), dtype=np.int_))
+        else:
+            if m == p:
+                for i in range(N):
+                    Crtn.append(np.zeros((m / q, p / f), dtype=np.int_))
+            else:
+                if m > p:
+                    if q <= f:
+                        for i in range(N):
+                            Crtn.append(np.zeros((m / q, p / f), dtype=np.int_))
+                    else:
+                        for i in range(N):
+                            Crtn.append(np.zeros((m / f, p / q), dtype=np.int_))
+                else:
+                    if q >= f:
+                        for i in range(N):
+                            Crtn.append(np.zeros((m / q, p / f), dtype=np.int_))
+                    else:
+                        for i in range(N):
+                            Crtn.append(np.zeros((m / f, p / q), dtype=np.int_))
 
         req_a = [None] * N * q
         req_b = [None] * N * q
@@ -112,8 +190,45 @@ def uscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p):
 
         if verific:
             Cver = []
-            for bb in Bn:
-                Cver += [(aa * bb.getT()) % field for aa in An]
+            if flazhok:
+                if m == p:
+                    for bb in Bn:
+                        Cver += [(aa * bb.getT()) % field for aa in An]
+                else:
+                    if m > p:
+                        if q <= f:
+                            for bb in Bn:
+                                Cver += [(aa * bb.getT()) % field for aa in An]
+                        else:
+                            for aa in An:
+                                Cver += [(aa * bb.getT()) % field for bb in Bn]
+                    else:
+                        if q >= f:
+                            for bb in Bn:
+                                Cver += [(aa * bb.getT()) % field for aa in An]
+                        else:
+                            for aa in An:
+                                Cver += [(aa * bb.getT()) % field for bb in Bn]
+            else:
+                if m == p:
+                    for aa in An:
+                        Cver += [(aa * bb.getT()) % field for bb in Bn]
+                else:
+                    if m > p:
+                        if q <= f:
+                            for aa in An:
+                                Cver += [(aa * bb.getT()) % field for bb in Bn]
+                        else:
+                            for bb in Bn:
+                                Cver += [(aa * bb.getT()) % field for aa in An]
+                    else:
+                        if q >= f:
+                            for aa in An:
+                                Cver += [(aa * bb.getT()) % field for bb in Bn]
+                        else:
+                            for bb in Bn:
+                                Cver += [(aa * bb.getT()) % field for aa in An]
+
 
             print ([np.array_equal(final_res[i], Cver[i]) for i in range(len(Cver))])
 
@@ -123,16 +238,81 @@ def uscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p):
         return dec, dl, ul, serv_comp
 
 
-def uscsa_sl(N, q, f, field, barrier, m, n, p):
+def uscsa_sl(N, q, f, field, barrier, m, n, p, flazhok):
         if 0 < communicators.prev_comm.rank < N + 1:
             Ai = []
             Bi = []
             recv_a = [None] * q
             recv_b = [None] * q
-            Ci = np.matrix([[0] * (p / q) for i in range(m / f)])
+            if flazhok:
+                if m == p:
+                    Ci = np.matrix([[0] * (p / q) for i in range(m / f)])
+                else:
+                    if m > p:
+                        if q <= f:
+                            Ci = np.matrix([[0] * (p / q) for i in range(m / f)])
+                        else:
+                            Ci = np.matrix([[0] * (p / f) for i in range(m / q)])
+                    else:
+                        if q >= f:
+                            Ci = np.matrix([[0] * (p / q) for i in range(m / f)])
+                        else:
+                            Ci = np.matrix([[0] * (p / f) for i in range(m / q)])
+            else:
+                if m == p:
+                    Ci = np.matrix([[0] * (p / f) for i in range(m / q)])
+                else:
+                    if m > p:
+                        if q <= f:
+                            Ci = np.matrix([[0] * (p / f) for i in range(m / q)])
+                        else:
+                            Ci = np.matrix([[0] * (p / q) for i in range(m / f)])
+                    else:
+                        if q >= f:
+                            Ci = np.matrix([[0] * (p / f) for i in range(m / q)])
+                        else:
+                            Ci = np.matrix([[0] * (p / q) for i in range(m / f)])
+
             for j in range(q):
-                Aij = np.empty_like(np.matrix([[0] * n for i in range(m / f)]))
-                Bij = np.empty_like(np.matrix([[0] * n for i in range(p / q)]))
+                if flazhok:
+                    if m == p:
+                        Aij = np.empty_like(np.matrix([[0] * n for i in range(m / f)]))
+                        Bij = np.empty_like(np.matrix([[0] * n for i in range(p / q)]))
+                    else:
+                        if m > p:
+                            if q <= f:
+                                Aij = np.empty_like(np.matrix([[0] * n for i in range(m / f)]))
+                                Bij = np.empty_like(np.matrix([[0] * n for i in range(p / q)]))
+                            else:
+                                Aij = np.empty_like(np.matrix([[0] * n for i in range(m / q)]))
+                                Bij = np.empty_like(np.matrix([[0] * n for i in range(p / f)]))
+                        else:
+                            if q >= f:
+                                Aij = np.empty_like(np.matrix([[0] * n for i in range(m / f)]))
+                                Bij = np.empty_like(np.matrix([[0] * n for i in range(p / q)]))
+                            else:
+                                Aij = np.empty_like(np.matrix([[0] * n for i in range(m / q)]))
+                                Bij = np.empty_like(np.matrix([[0] * n for i in range(p / f)]))
+                else:
+                    if m == p:
+                        Aij = np.empty_like(np.matrix([[0] * n for i in range(m / q)]))
+                        Bij = np.empty_like(np.matrix([[0] * n for i in range(p / f)]))
+                    else:
+                        if m > p:
+                            if q <= f:
+                                Aij = np.empty_like(np.matrix([[0] * n for i in range(m / q)]))
+                                Bij = np.empty_like(np.matrix([[0] * n for i in range(p / f)]))
+                            else:
+                                Aij = np.empty_like(np.matrix([[0] * n for i in range(m / f)]))
+                                Bij = np.empty_like(np.matrix([[0] * n for i in range(p / q)]))
+                        else:
+                            if q >= f:
+                                Aij = np.empty_like(np.matrix([[0] * n for i in range(m / q)]))
+                                Bij = np.empty_like(np.matrix([[0] * n for i in range(p / f)]))
+                            else:
+                                Aij = np.empty_like(np.matrix([[0] * n for i in range(m / f)]))
+                                Bij = np.empty_like(np.matrix([[0] * n for i in range(p / q)]))
+
                 recv_a[j] = communicators.comm.Irecv(Aij, source=0, tag=15)
                 recv_b[j] = communicators.comm.Irecv(Bij, source=0, tag=29)
                 Ai.append(Aij)

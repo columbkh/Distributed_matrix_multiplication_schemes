@@ -5,39 +5,121 @@ import sys
 import communicators
 import argparse
 
-def gscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p):
+def schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta):
+    An = np.split(A, f*q)
+    Bn = np.split(B, 1)
+
+    Aenc = gscsa_encode_A(left_part, i_plus_an, An, field, N, l, f, q, delta)
+    Benc = gscsa_encode_B(Bn, i_plus_an, field, l, q, f, N, j_plus_i_plus_an)
+
+    return An, Bn, Aenc, Benc
+
+def schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta):
+    An = np.split(A, 1)
+    Bn = np.split(B, f*q)
+
+    Aenc = reverse_gscsa_encode_A(An, i_plus_an, field, l, q, f, N, j_plus_i_plus_an)
+    Benc = reverse_gscsa_encode_B(left_part, i_plus_an, Bn, field, N, l, f, q, delta)
+
+    return An, Bn, Aenc, Benc
+
+def gscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p, flazhok):
     if communicators.prev_comm.rank == 0:
         if N > 19:
             print "Too many instances"
             sys.exit(100)
 
-        Bn = np.split(B, 1)
-        An = np.split(A, f*q)
+       # Bn = np.split(B, 1)
+       # An = np.split(A, f*q)
 
         dec_start = time.time()
 
-        decode_start = time.time()
-
-
-        d_cross, left_part, j_plus_i_plus_an, i_plus_an, an = uscsa_make_matrix_d_cross(N, field, q, f, l)
-        decode_end = time.time()
-
-        print "decoding gscsa: ", decode_end - decode_start
+        d_cross, left_part, j_plus_i_plus_an, i_plus_an, an, delta = uscsa_make_matrix_d_cross(N, field, q, f, l)
 
 
         dec_pause = time.time()
         dec_firstpart = dec_pause - dec_start
 
-        Aenc = gscsa_encode_A(left_part, i_plus_an, An, field, N, l, f, q)
-        Benc = gscsa_encode_B(Bn, i_plus_an, field, l, q, f, N, j_plus_i_plus_an)
+
+        if flazhok:
+            if m == p:
+                schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
+            else:
+                if m > p:
+                    if 1 / f <= q:
+                        An, Bn, Aenc, Benc = schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
+                    else:
+                        An, Bn, Aenc, Benc = schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
+                else:
+                    if 1 / f >= q:
+                        An, Bn, Aenc, Benc = schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
+                    else:
+                        An, Bn, Aenc, Benc = schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
+        else:
+            if m == p:
+                schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
+            else:
+                if m > p:
+                    if 1 / f <= q:
+                        An, Bn, Aenc, Benc = schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
+                    else:
+                        An, Bn, Aenc, Benc = schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
+                else:
+                    if 1 / f >= q:
+                        An, Bn, Aenc, Benc = schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
+                    else:
+                        An, Bn, Aenc, Benc = schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
+
+
+        #Aenc = gscsa_encode_A(left_part, i_plus_an, An, field, N, l, f, q)
+        #Benc = gscsa_encode_B(Bn, i_plus_an, field, l, q, f, N, j_plus_i_plus_an)
 
 
         Crtn = []
         serv_comp = [None] * N
         ul_stop = [None] * N
 
-        for i in range(N):
-            Crtn.append(np.zeros((m / (f*q), p), dtype=np.int_))
+#        for i in range(N):
+#            Crtn.append(np.zeros((m / (f*q), p), dtype=np.int_))
+
+        if flazhok:
+            if m == p:
+                for i in range(N):
+                    Crtn.append(np.zeros((m / (f*q), p), dtype=np.int_))
+            else:
+                if m > p:
+                    if 1 / f <= q:
+                        for i in range(N):
+                            Crtn.append(np.zeros((m / (f*q), p), dtype=np.int_))
+                    else:
+                        for i in range(N):
+                            Crtn.append(np.zeros((m, p / (f*q)), dtype=np.int_))
+                else:
+                    if 1 / f >= q:
+                        for i in range(N):
+                            Crtn.append(np.zeros((m / (f*q), p), dtype=np.int_))
+                    else:
+                        for i in range(N):
+                            Crtn.append(np.zeros((m, p / (f*q)), dtype=np.int_))
+        else:
+            if m == p:
+                for i in range(N):
+                    Crtn.append(np.zeros((m, p / (f*q)), dtype=np.int_))
+            else:
+                if m > p:
+                    if 1 / f <= q:
+                        for i in range(N):
+                            Crtn.append(np.zeros((m, p / (f*q)), dtype=np.int_))
+                    else:
+                        for i in range(N):
+                            Crtn.append(np.zeros((m / (f*q), p), dtype=np.int_))
+                else:
+                    if 1 / f >= q:
+                        for i in range(N):
+                            Crtn.append(np.zeros((m, p / (f*q)), dtype=np.int_))
+                    else:
+                        for i in range(N):
+                            Crtn.append(np.zeros((m / (f*q), p), dtype=np.int_))
 
         req_a = [None] * N * q
         req_b = [None] * N * q
@@ -90,7 +172,7 @@ def gscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p):
 
         res = decode_message(d_cross, Crtn, field)
 
-        final_res = res[0:q * f]
+        final_res = res[0:q*f]
 
         dec_done = time.time()
 
@@ -115,8 +197,44 @@ def gscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p):
 
         if verific:
             Cver = []
-            for bb in Bn:
-                Cver += [(aa * bb.getT()) % field for aa in An]
+            if flazhok:
+                if m == p:
+                    for bb in Bn:
+                        Cver += [(aa * bb.getT()) % field for aa in An]
+                else:
+                    if m > p:
+                        if 1 / f <= q:
+                            for bb in Bn:
+                                Cver += [(aa * bb.getT()) % field for aa in An]
+                        else:
+                            for aa in An:
+                                Cver += [(aa * bb.getT()) % field for bb in Bn]
+                    else:
+                        if 1 / f >= q:
+                            for bb in Bn:
+                                Cver += [(aa * bb.getT()) % field for aa in An]
+                        else:
+                            for aa in An:
+                                Cver += [(aa * bb.getT()) % field for bb in Bn]
+            else:
+                if m == p:
+                    for aa in An:
+                        Cver += [(aa * bb.getT()) % field for bb in Bn]
+                else:
+                    if m > p:
+                        if 1 / f <= q:
+                            for aa in An:
+                                Cver += [(aa * bb.getT()) % field for bb in Bn]
+                        else:
+                            for bb in Bn:
+                                Cver += [(aa * bb.getT()) % field for aa in An]
+                    else:
+                        if 1 / f >= q:
+                            for aa in An:
+                                Cver += [(aa * bb.getT()) % field for bb in Bn]
+                        else:
+                            for bb in Bn:
+                                Cver += [(aa * bb.getT()) % field for aa in An]
 
             print ([np.array_equal(final_res[i], Cver[i]) for i in range(len(Cver))])
 
@@ -125,7 +243,7 @@ def gscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p):
 
         return dec, dl, ul, serv_comp
 
-def gscsa_sl(N, q, f, field, barrier, m, n, p):
+def gscsa_sl(N, q, f, field, barrier, m, n, p, flazhok):
     if 0 < communicators.prev_comm.rank < N + 1:
         Ai = []
         Bi = []
@@ -133,9 +251,80 @@ def gscsa_sl(N, q, f, field, barrier, m, n, p):
         recv_b = [None] * q
         Ci = np.matrix([[0] * p for i in range(m / (f*q))])
 
+        if flazhok:
+            if m == p:
+                Ci = np.matrix([[0] * p for i in range(m / (f*q))])
+            else:
+                if m > p:
+                    if 1 / f <= q:
+                        Ci = np.matrix([[0] * p for i in range(m / (f * q))])
+                    else:
+                        Ci = np.matrix([[0] * (p / (f*q)) for i in range(m)])
+                else:
+                    if 1 / f >= q:
+                        Ci = np.matrix([[0] * p for i in range(m / (f * q))])
+                    else:
+                        Ci = np.matrix([[0] * (p / (f*q)) for i in range(m)])
+        else:
+            if m == p:
+                Ci = np.matrix([[0] * (p / (f*q)) for i in range(m)])
+            else:
+                if m > p:
+                    if 1 / f <= q:
+                        Ci = np.matrix([[0] * (p / (f*q)) for i in range(m)])
+                    else:
+                        Ci = np.matrix([[0] * p for i in range(m / (f * q))])
+                else:
+                    if 1 / f >= q:
+                        Ci = np.matrix([[0] * (p / (f*q)) for i in range(m)])
+                    else:
+                        Ci = np.matrix([[0] * p for i in range(m / (f * q))])
+
+
         for j in range(q):
             Aij = np.empty_like(np.matrix([[0] * n for i in range(m / (f*q))]))
             Bij = np.empty_like(np.matrix([[0] * n for i in range(p)]))
+            if flazhok:
+                if m == p:
+                    Aij = np.empty_like(np.matrix([[0] * n for i in range(m / (f * q))]))
+                    Bij = np.empty_like(np.matrix([[0] * n for i in range(p)]))
+                else:
+                    if m > p:
+                        if 1 / f <= q:
+                            Aij = np.empty_like(np.matrix([[0] * n for i in range(m / (f * q))]))
+                            Bij = np.empty_like(np.matrix([[0] * n for i in range(p)]))
+                        else:
+                            Aij = np.empty_like(np.matrix([[0] * n for i in range(m)]))
+                            Bij = np.empty_like(np.matrix([[0] * n for i in range(p / (f * q))]))
+                    else:
+                        if 1 / f >= q:
+                            Aij = np.empty_like(np.matrix([[0] * n for i in range(m / (f * q))]))
+                            Bij = np.empty_like(np.matrix([[0] * n for i in range(p)]))
+                        else:
+                            Aij = np.empty_like(np.matrix([[0] * n for i in range(m)]))
+                            Bij = np.empty_like(np.matrix([[0] * n for i in range(p / (f * q))]))
+            else:
+                if m == p:
+                    Aij = np.empty_like(np.matrix([[0] * n for i in range(m)]))
+                    Bij = np.empty_like(np.matrix([[0] * n for i in range(p / (f * q))]))
+                else:
+                    if m > p:
+                        if 1 / f <= q:
+                            Aij = np.empty_like(np.matrix([[0] * n for i in range(m)]))
+                            Bij = np.empty_like(np.matrix([[0] * n for i in range(p / (f * q))]))
+                        else:
+                            Aij = np.empty_like(np.matrix([[0] * n for i in range(m / (f * q))]))
+                            Bij = np.empty_like(np.matrix([[0] * n for i in range(p)]))
+                    else:
+                        if 1 / f >= q:
+                            Aij = np.empty_like(np.matrix([[0] * n for i in range(m)]))
+                            Bij = np.empty_like(np.matrix([[0] * n for i in range(p / (f * q))]))
+                        else:
+                            Aij = np.empty_like(np.matrix([[0] * n for i in range(m / (f * q))]))
+                            Bij = np.empty_like(np.matrix([[0] * n for i in range(p)]))
+
+
+
             recv_a[j] = communicators.comm.Irecv(Aij, source=0, tag=15)
             recv_b[j] = communicators.comm.Irecv(Bij, source=0, tag=29)
             Ai.append(Aij)

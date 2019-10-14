@@ -17,7 +17,7 @@ def schema2(A, B, l, r, N, left_part, i_plus_an, field):
     Benc = reverse_encode_B(left_part, i_plus_an, B, field, N, l, r)
     return An, [B], Aenc, Benc
 
-def scs_m(N, l, r, field, barrier, verific, together, A, B, m, p):
+def scs_m(N, l, r, field, barrier, verific, together, A, B, m, p, flazhok):
     if communicators.prev_comm.rank == 0:  # Master
 
         if N > 19:
@@ -33,27 +33,45 @@ def scs_m(N, l, r, field, barrier, verific, together, A, B, m, p):
         dec_pause = time.time()
         dec_firstpart = dec_pause - dec_start
 
-        if r == 1:
-            An, Bn, Aenc, Benc = schema1(A, B, l, r, N, left_part, i_plus_an, field);
-        else:
-            if m <= p:
-                An, Bn, Aenc, Benc = schema1(A, B, l, r, N, left_part, i_plus_an, field);
+        if flazhok:
+            if r == 1:
+                An, Bn, Aenc, Benc = schema1(A, B, l, r, N, left_part, i_plus_an, field)
             else:
-                An, Bn, Aenc, Benc = schema2(A, B, l, r, N, left_part, i_plus_an, field);
+                if m <= p:
+                    An, Bn, Aenc, Benc = schema1(A, B, l, r, N, left_part, i_plus_an, field)
+                else:
+                    An, Bn, Aenc, Benc = schema2(A, B, l, r, N, left_part, i_plus_an, field)
 
-
-
-     #   Bn = np.split(B, r)
-
-      #  Aenc = encode_A(left_part, i_plus_an, A, field, N, l, r)
-      #  Benc = encode_B(Bn, i_plus_an, field, l, r, N)
+        else:
+            if r == 1:
+                An, Bn, Aenc, Benc = schema2(A, B, l, r, N, left_part, i_plus_an, field)
+            else:
+                if m <= p:
+                    An, Bn, Aenc, Benc = schema2(A, B, l, r, N, left_part, i_plus_an, field)
+                else:
+                    An, Bn, Aenc, Benc = schema1(A, B, l, r, N, left_part, i_plus_an, field)
 
         Crtn = []
         serv_comp = [None] * N
         ul_stop = [None] * N
 
         for i in range(N):
-            Crtn.append(np.zeros((m, p / r), dtype=np.int_))
+            if flazhok:
+                if r == 1:
+                    Crtn.append(np.zeros((m, p / r), dtype=np.int_))
+                else:
+                    if m <= p:
+                        Crtn.append(np.zeros((m, p / r), dtype=np.int_))
+                    else:
+                        Crtn.append(np.zeros((m / r, p), dtype=np.int_))
+            else:
+                if r == 1:
+                    Crtn.append(np.zeros((m / r, p), dtype=np.int_))
+                else:
+                    if m <= p:
+                        Crtn.append(np.zeros((m / r, p), dtype=np.int_))
+                    else:
+                        Crtn.append(np.zeros((m, p / r), dtype=np.int_))
 
         req_a = [None] * N * r
         req_b = [None] * N * r
@@ -133,6 +151,7 @@ def scs_m(N, l, r, field, barrier, verific, together, A, B, m, p):
             Cver = []
             for bb in Bn:
                 Cver += [(aa * bb.getT()) % field for aa in An]
+
           #  Cver = [(A * bb.getT()) % field for bb in Bn[:r]]
             print ([np.array_equal(final_res[i], Cver[i]) for i in range(len(Cver))])
 
@@ -142,16 +161,59 @@ def scs_m(N, l, r, field, barrier, verific, together, A, B, m, p):
         return dec, dl, ul, serv_comp
 
 
-def scs_sl(N, r, field, barrier, m, n, p):
+def scs_sl(N, r, field, barrier, m, n, p, flazhok):
     if 0 < communicators.prev_comm.rank < N + 1:
         Ai = []
         Bi = []
         recv_a = [None] * r
         recv_b = [None] * r
-        Ci = np.matrix([[0] * (p / r) for i in range(m)])
+        if flazhok:
+            if r == 1:
+                Ci = np.matrix([[0] * (p / r) for i in range(m)])
+
+            else:
+                if m <= p:
+                    Ci = np.matrix([[0] * (p / r) for i in range(m)])
+                else:
+                    Ci = np.matrix([[0] * (p) for i in range(m / r)])
+        else:
+            if r == 1:
+                Ci = np.matrix([[0] * (p) for i in range(m / r)])
+
+            else:
+                if m <= p:
+                    Ci = np.matrix([[0] * (p) for i in range(m / r)])
+                else:
+                    Ci = np.matrix([[0] * (p / r) for i in range(m)])
+
+
         for j in range(r):
-            Aij = np.empty_like(np.matrix([[0] * n for i in range(m)]))
-            Bij = np.empty_like(np.matrix([[0] * n for i in range(p / r)]))
+            if flazhok:
+                if r == 1:
+                    Aij = np.empty_like(np.matrix([[0] * n for i in range(m)]))
+                    Bij = np.empty_like(np.matrix([[0] * n for i in range(p / r)]))
+                else:
+                    if m <= p:
+                        Aij = np.empty_like(np.matrix([[0] * n for i in range(m)]))
+                        Bij = np.empty_like(np.matrix([[0] * n for i in range(p / r)]))
+                    else:
+                        Aij = np.empty_like(np.matrix([[0] * n for i in range(m / r)]))
+                        Bij = np.empty_like(np.matrix([[0] * n for i in range(p)]))
+            else:
+                if r == 1:
+                    Aij = np.empty_like(np.matrix([[0] * n for i in range(m / r)]))
+                    Bij = np.empty_like(np.matrix([[0] * n for i in range(p)]))
+                else:
+                    if m <= p:
+                        Aij = np.empty_like(np.matrix([[0] * n for i in range(m / r)]))
+                        Bij = np.empty_like(np.matrix([[0] * n for i in range(p)]))
+                    else:
+                        Aij = np.empty_like(np.matrix([[0] * n for i in range(m)]))
+                        Bij = np.empty_like(np.matrix([[0] * n for i in range(p / r)]))
+
+
+
+
             recv_a[j] = communicators.comm.Irecv(Aij, source=0, tag=15)
             recv_b[j] = communicators.comm.Irecv(Bij, source=0, tag=29)
             Ai.append(Aij)

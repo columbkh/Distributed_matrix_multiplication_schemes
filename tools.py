@@ -224,7 +224,7 @@ def uscsa_make_matrix_d_cross(N, field, q, f, l):
     d_cross_right_part = uscsa_make_matrix_d_cross_right_part(delta_ff, an, N, field, l, f)
     d_cross = [d_cross_left_part_matrix[count] + d_cross_right_part[count] for count in range(N)]
     d_cross_inv = get_inv(d_cross, field)
-    return d_cross_inv, np.asarray(d_cross_left_part), j_plus_i_plus_an, i_plus_an, an
+    return d_cross_inv, np.asarray(d_cross_left_part), j_plus_i_plus_an, i_plus_an, an, delta
 
 
 def encode_An(lpart, i_plus, A, field, l, r, Zik):
@@ -234,11 +234,11 @@ def encode_An(lpart, i_plus, A, field, l, r, Zik):
 
 
 def encode_A(left_part, i_plus_an, A, field, N, l, r):
-    Zik = [[np.matrix(np.random.random_integers(0, 0, (A.shape[0], A.shape[1]))) for k in range(l)] for i in range(r)]
+    Zik = [[np.matrix(np.random.random_integers(0, field-1, (A.shape[0], A.shape[1]))) for k in range(l)] for i in range(r)]
     return [encode_An(left_part[n], i_plus_an[n], A, field, l, r, Zik) for n in range(N)]
 
 def reverse_encode_B(left_part, i_plus_an, B, field, N, l, r):
-    Zik = [[np.matrix(np.random.random_integers(0, 0, (B.shape[0], B.shape[1]))) for k in range(l)] for i in range(r)]
+    Zik = [[np.matrix(np.random.random_integers(0, field-1, (B.shape[0], B.shape[1]))) for k in range(l)] for i in range(r)]
     return [reverse_encode_Bn(left_part[n], i_plus_an[n], B, field, l, r, Zik) for n in range(N)]
 
 def reverse_encode_Bn(lpart, i_plus, B, field, l, r, Zik):
@@ -246,38 +246,51 @@ def reverse_encode_Bn(lpart, i_plus, B, field, l, r, Zik):
         lpart[i] * ((B + sum([(pow(i_plus[i], k, field) * Zik[i][k - 1]) % field for k in range(1, l + 1)])) % field)
         for i in range(r)]
 
+def uscsa_encode_A(left_part, i_plus_an, Aj, field, N, l, f, q, delta):
+    Zik = [[np.matrix(np.random.random_integers(0, field-1, (Aj[0].shape[0], Aj[0].shape[1]))) for k in range(l)] for i in range(q)]
+    return [uscsa_encode_An(left_part[n], i_plus_an[n], Aj, field, l, q, f, Zik, delta[n]) for n in range(N)]
 
+def reverse_uscsa_encode_B(left_part, i_plus_an, Bj, field, N, l, f, q, delta):
+    Zik = [[np.matrix(np.random.random_integers(0, field-1, (Bj[0].shape[0], Bj[0].shape[1]))) for k in range(l)] for i in range(q)]
+    return [reverse_uscsa_encode_Bn(left_part[n], i_plus_an[n], Bj, field, l, q, f, Zik, delta[n]) for n in range(N)]
 
+def uscsa_encode_An(lpart, i_plus, Aj, field, l, q, f, Zik, delta):
+    return [(sum([(lpart[i][j] * Aj[j]) % field for j in range(f)]) % field + (delta * sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) % field
+                                                                                for k in range(1, l + 1)])) % field) % field for i in range(q)]
 
-def uscsa_encode_A(left_part, i_plus_an, Aj, field, N, l, f, q):
-    Zik = [[np.matrix(np.random.random_integers(0, 0, (Aj[0].shape[0], Aj[0].shape[1]))) for k in range(l)] for i in range(q)]
-    return [uscsa_encode_An(left_part[n], i_plus_an[n], Aj, field, l, q, f, Zik) for n in range(N)]
+def reverse_uscsa_encode_Bn(lpart, i_plus, Bj, field, l, q, f, Zik, delta):
+    return [(sum([(lpart[i][j] * Bj[j]) % field for j in range(f)]) % field + (delta * sum([(pow(i_plus[i], k - 1, field) * Zik[i][k - 1]) % field
+                                                                                for k in range(1, l + 1)])) % field) % field for i in range(q)]
 
-def gscsa_encode_A(left_part, i_plus_an, Aj, field, N, l, f, q):
-    Zik = [[np.matrix(np.random.random_integers(0, 0, (Aj[0].shape[0], Aj[0].shape[1]))) for k in range(l)] for i in range(q)]
-    return [gscsa_encode_An(left_part[n], i_plus_an[n], Aj, field, l, q, f, Zik) for n in range(N)]
+def gscsa_encode_A(left_part, i_plus_an, Aj, field, N, l, f, q, delta):
+    Zik = [[np.matrix(np.random.random_integers(0, field-1, (Aj[0].shape[0], Aj[0].shape[1]))) for k in range(l)] for i in range(q)]
+    return [gscsa_encode_An(left_part[n], i_plus_an[n], Aj, field, l, q, f, Zik, delta[n]) for n in range(N)]
 
+def gscsa_encode_An(lpart, i_plus, Aj, field, l, q, f, Zik, delta):
+    return [(sum([(lpart[i][j] * Aj[i*f + j]) % field for j in range(f)]) % field + (delta * sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) % field
+                                                                                  for k in range(1, l + 1)])) % field) % field for i in range(q)]
 
+def reverse_gscsa_encode_B(left_part, i_plus_an, Bj, field, N, l, f, q, delta):
+    Zik = [[np.matrix(np.random.random_integers(0, field - 1, (Bj[0].shape[0], Bj[0].shape[1]))) for k in range(l)] for
+           i in range(q)]
+    return [reverse_gscsa_encode_Bn(left_part[n], i_plus_an[n], Bj, field, l, q, f, Zik, delta[n]) for n in range(N)]
 
-def uscsa_encode_An(lpart, i_plus, Aj, field, l, q, f, Zik):
-    return [(sum([(lpart[i][j] * Aj[j]) % field for j in range(f)]) % field + sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) % field
-                                                                                  for k in range(1, l + 1)])) % field for i in range(q)]
-def gscsa_encode_An(lpart, i_plus, Aj, field, l, q, f, Zik):
-    return [(sum([(lpart[i][j] * Aj[i*f + j]) % field for j in range(f)]) % field + sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) % field
-                                                                                  for k in range(1, l + 1)])) % field for i in range(q)]
+def reverse_gscsa_encode_Bn(lpart, i_plus, Aj, field, l, q, f, Zik, delta):
+    return [(sum([(lpart[i][j] * Aj[i*f + j]) % field for j in range(f)]) % field + (delta * sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) % field
+                                                                                  for k in range(1, l + 1)])) % field) % field for i in range(q)]
+
 
 def encode_Bn(Bn, i_plus, field, l, r, Zik):
     return [(Bn[i] + sum([(pow(i_plus[i], k, field) * Zik[i][k - 1]) % field for k in range(1, l + 1)])) % field for i
             in range(r)]
 
-
 def encode_B(Bn, i_plus_an, field, l, r, N):
-    Zik = [[np.matrix(np.random.random_integers(0, 0, (Bn[0].shape[0], Bn[0].shape[1]))) for k in range(l)] for i in
+    Zik = [[np.matrix(np.random.random_integers(0, field-1, (Bn[0].shape[0], Bn[0].shape[1]))) for k in range(l)] for i in
            range(r)]
     return [encode_Bn(Bn, i_plus_an[n], field, l, r, Zik) for n in range(N)]
 
 def reverse_encode_A(An, i_plus_an, field, l, r, N):
-    Zik = [[np.matrix(np.random.random_integers(0, 0, (An[0].shape[0], An[0].shape[1]))) for k in range(l)] for i in
+    Zik = [[np.matrix(np.random.random_integers(0, field-1, (An[0].shape[0], An[0].shape[1]))) for k in range(l)] for i in
            range(r)]
     return [reverse_encode_An(An, i_plus_an[n], field, l, r, Zik) for n in range(N)]
 
@@ -286,22 +299,41 @@ def reverse_encode_An(An, i_plus, field, l, r, Zik):
             in range(r)]
 
 def uscsa_encode_B(Bn, i_plus_an, field, l, q, f, N, left_term):
-    Zik = [[np.matrix(np.random.random_integers(0, 0, (Bn[0].shape[0], Bn[0].shape[1]))) for k in range(l)] for i in
+    Zik = [[np.matrix(np.random.random_integers(0, field-1, (Bn[0].shape[0], Bn[0].shape[1]))) for k in range(l)] for i in
            range(q)]
     return [uscsa_encode_Bn(Bn, i_plus_an[n], left_term[n], field, l, q, Zik) for n in range(N)]
 
+def reverse_uscsa_encode_A(An, i_plus_an, field, l, q, f, N, left_term):
+    Zik = [[np.matrix(np.random.random_integers(0, field-1, (An[0].shape[0], An[0].shape[1]))) for k in range(l)] for i in
+           range(q)]
+    return [reverse_uscsa_encode_An(An, i_plus_an[n], left_term[n], field, l, q, Zik) for n in range(N)]
 
 def uscsa_encode_Bn(Bn, i_plus, lterm, field, l, q, Zik):
     return [(Bn[i] + multiply(lterm[i]) * sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) * field for k in range(1, l + 1)])) % field for i in range(q)]
 
+def reverse_uscsa_encode_An(An, i_plus, lterm, field, l, q, Zik):
+    return [(An[i] + multiply(lterm[i]) * sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) * field for k in range(1, l + 1)])) % field for i in range(q)]
+
+
 def gscsa_encode_B(Bn, i_plus_an, field, l, q, f, N, left_term):
-    Zik = [[np.matrix(np.random.random_integers(0, 0, (Bn[0].shape[0], Bn[0].shape[1]))) for k in range(l)] for i in
+    Zik = [[np.matrix(np.random.random_integers(0, field-1, (Bn[0].shape[0], Bn[0].shape[1]))) for k in range(l)] for i in
            range(q)]
     return [gscsa_encode_Bn(Bn, i_plus_an[n], left_term[n], field, l, q, Zik) for n in range(N)]
 
 
 def gscsa_encode_Bn(Bn, i_plus, lterm, field, l, q, Zik):
     return [(Bn[0] + multiply(lterm[i]) * sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) * field for k in range(1, l + 1)])) % field for i in range(q)]
+
+
+def reverse_gscsa_encode_A(An, i_plus_an, field, l, q, f, N, left_term):
+    Zik = [[np.matrix(np.random.random_integers(0, field - 1, (An[0].shape[0], An[0].shape[1]))) for k in range(l)] for i in
+           range(q)]
+    return [reverse_gscsa_encode_An(An, i_plus_an[n], left_term[n], field, l, q, Zik) for n in range(N)]
+
+
+def reverse_gscsa_encode_An(An, i_plus, lterm, field, l, q, Zik):
+    return [(An[0] + multiply(lterm[i]) * sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) * field for k in range(1, l + 1)])) % field for i in range(q)]
+
 
 
 def getAencGASP(Ap, field, N, a, an):
