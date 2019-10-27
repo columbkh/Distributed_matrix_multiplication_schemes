@@ -107,11 +107,11 @@ def do_test(r_a, r_b, l, field, q, m, n, p, verific, together):
 
   #  qq, f = factorize_root(N + 1 - 2 * l)
   #  qq = qq - 1
-#    qq = 3
-#    f = 2
+    qq = 3
+    f = 2
 
-    qq = 4
-    f = 3
+  #  qq = 4
+  #  f = 3
 
 
 

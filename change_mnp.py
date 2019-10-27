@@ -1,5 +1,5 @@
-from same_field_choose_ra_rb import *
-#from gscsa_same_field import *
+from uscsa_same_field import *
+
 
 def do_multiple_tests(r_a, r_b, l, field, q, m, n, p, verific, together, number, coeff):
     write_title_to_octavemnp(q, field, m, n, p, number, coeff)

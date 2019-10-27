@@ -20,6 +20,8 @@ def gasp_m(r_a, r_b, l, field, barrier, verific, together, A, B, m, n, p):
         Ap = np.split(A, r_a)
         Bp = np.split(B, r_b)
 
+        enc_start = time.time()
+
         Ka = [np.matrix(np.random.random_integers(0, 255, (m / r_a, n))) for i in range(l)]
         Kb = [np.matrix(np.random.random_integers(0, 255, (p / r_b, n))) for i in range(l)]
 
@@ -28,6 +30,9 @@ def gasp_m(r_a, r_b, l, field, barrier, verific, together, A, B, m, n, p):
 
         Aenc = getAencGASP(Ap, field, N, a, an)
         Benc = getBencGASP(Bp, field, N, b, an)
+
+        enc_stop = time.time()
+        enc = enc_stop - enc_start
 
         if N > 19:
             print "Too many instances"
@@ -96,6 +101,10 @@ def gasp_m(r_a, r_b, l, field, barrier, verific, together, A, B, m, n, p):
         dec_secondpart = dec_done - dec_pause
         dec = dec_firstpart + dec_secondpart
 
+        print("first_part: ", dec_firstpart)
+        print("second_part: ", dec_secondpart)
+
+
         if barrier:
             communicators.comm.Barrier()
 
@@ -122,7 +131,7 @@ def gasp_m(r_a, r_b, l, field, barrier, verific, together, A, B, m, n, p):
         if barrier:
             communicators.comm.Barrier()
 
-        return dec, dl, ul, serv_comp
+        return enc, dec, dl, ul, serv_comp
 
 
 def gasp_sl(r_a, r_b, N, field, barrier, m, n, p):

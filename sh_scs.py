@@ -51,6 +51,10 @@ def scs_m(N, l, r, field, barrier, verific, together, A, B, m, p, flazhok):
                 else:
                     An, Bn, Aenc, Benc = schema1(A, B, l, r, N, left_part, i_plus_an, field)
 
+        enc_stop = time.time()
+
+        enc = enc_stop - dec_start
+
         Crtn = []
         serv_comp = [None] * N
         ul_stop = [None] * N
@@ -131,6 +135,9 @@ def scs_m(N, l, r, field, barrier, verific, together, A, B, m, p, flazhok):
         dec_secondpart = dec_done - dec_pause
         dec = dec_firstpart + dec_secondpart
 
+        print("first_part: ", dec_firstpart)
+        print("second_part: ", dec_secondpart)
+
         if barrier:
             communicators.comm.Barrier()
 
@@ -158,7 +165,7 @@ def scs_m(N, l, r, field, barrier, verific, together, A, B, m, p, flazhok):
         if barrier:
             communicators.comm.Barrier()
 
-        return dec, dl, ul, serv_comp
+        return enc, dec, dl, ul, serv_comp
 
 
 def scs_sl(N, r, field, barrier, m, n, p, flazhok):

@@ -28,6 +28,9 @@ def ass_m(N, l, r_a, r_b, k, rt, field, barrier, verific, together, A, B, m, n, 
     if communicators.prev_comm.rank == 0:
         Ap = np.split(A, r_a)
         Bp = np.split(B, r_b)
+
+        enc_start = time.time()
+
         Ka = [np.matrix(np.random.random_integers(0, 255, (m / r_a, n))) for i in range(l)]
         Kb = [np.matrix(np.random.random_integers(0, 255, (p / r_b, n))) for i in range(l)]
 
@@ -38,11 +41,13 @@ def ass_m(N, l, r_a, r_b, k, rt, field, barrier, verific, together, A, B, m, n, 
                 t += 1
             x.append(t)
 
-   #     Benc = getAenc(Bp, Ka, N, field, l, r_a, x)
-    #    Aenc = getBenc(Ap, Kb, N, field, l, r_a, r_b, x)
+
 
         Aenc = getAenc(Ap, Ka, N, field, l, r_a, x)
         Benc = getBenc(Bp, Kb, N, field, l, r_a, r_b, x)
+
+        enc_stop = time.time()
+        enc = enc_stop - enc_start
 
         Rdict = []
         for i in range(N):
@@ -120,6 +125,7 @@ def ass_m(N, l, r_a, r_b, k, rt, field, barrier, verific, together, A, B, m, n, 
 
         interpol(missing, Crtn, field, k, lst, x)
         inv_matr = get_dec_matr(x[:k], field)
+        dec_pause = time.time()
         res = decode_message(inv_matr, Crtn[:k], field)
 
         final_res = []
@@ -128,7 +134,12 @@ def ass_m(N, l, r_a, r_b, k, rt, field, barrier, verific, together, A, B, m, n, 
             final_res += res[k_tmp * (r_a + l): (k_tmp + 1) * (r_a + l) - l]
 
         dec_done = time.time()
-        dec = dec_done - dec_start
+        dec_secondpart = dec_done - dec_pause
+        dec_firstpart = dec_pause - dec_start
+        dec = dec_firstpart + dec_secondpart
+
+        print("first_part: ", dec_firstpart)
+        print("second_part: ", dec_secondpart)
 
         if barrier:
             communicators.comm.Barrier()
@@ -156,7 +167,7 @@ def ass_m(N, l, r_a, r_b, k, rt, field, barrier, verific, together, A, B, m, n, 
         if barrier:
             communicators.comm.Barrier()
 
-        return dec, dl, ul, serv_comp
+        return enc, dec, dl, ul, serv_comp
 
 
 def ass_sl(N, r_a, r_b, field, barrier, m, n, p):

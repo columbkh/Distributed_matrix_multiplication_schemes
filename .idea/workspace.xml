@@ -7,15 +7,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="73f13a6c-7882-4fd9-8c75-98a6e854723e" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/gscsa_same_field.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/uscsa_same_field.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/change_all_schemes.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/change_mnp.py" beforeDir="false" afterPath="$PROJECT_DIR$/change_mnp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gasp_sh.py" beforeDir="false" afterPath="$PROJECT_DIR$/gasp_sh.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gscsa_same_field.py" beforeDir="false" afterPath="$PROJECT_DIR$/gscsa_same_field.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/same_field_choose_ra_rb.py" beforeDir="false" afterPath="$PROJECT_DIR$/same_field_choose_ra_rb.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sh_ass.py" beforeDir="false" afterPath="$PROJECT_DIR$/sh_ass.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sh_gscsa.py" beforeDir="false" afterPath="$PROJECT_DIR$/sh_gscsa.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sh_scs.py" beforeDir="false" afterPath="$PROJECT_DIR$/sh_scs.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sh_uscsa.py" beforeDir="false" afterPath="$PROJECT_DIR$/sh_uscsa.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/uscsa_same_field.py" beforeDir="false" afterPath="$PROJECT_DIR$/uscsa_same_field.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -50,18 +52,12 @@
   <component name="NamedScopeManager">
     <scope name="scope_1" pattern="file:change_mnp.py||file:communicators.py||file:fft_fields.py||file:finite_field_comp.py||file:finite_field_inv.py||file:gasp_sh.py||file:same_field_choose_ra_rb.py||file:same_field_diff_matr_size_inc.py||file:same_field_different_matrSize.py||file:sh_ass.py||file:sh_scs.py||file:tools.py" />
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="384" />
-    <option name="y" value="109" />
-    <option name="width" value="1398" />
-    <option name="height" value="971" />
-  </component>
   <component name="ProjectId" id="1Qk4fYUb96jtO1Sfq4HuTQpWfFO" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../graphs/change_mnp.m" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -223,7 +219,18 @@
       <workItem from="1570786015596" duration="5077000" />
       <workItem from="1570791905580" duration="938000" />
       <workItem from="1570801525586" duration="24000" />
-      <workItem from="1571077576346" duration="1723000" />
+      <workItem from="1571077576346" duration="2161000" />
+      <workItem from="1571085312963" duration="4608000" />
+      <workItem from="1571141705457" duration="711000" />
+      <workItem from="1571387046288" duration="3468000" />
+      <workItem from="1571393441137" duration="4005000" />
+      <workItem from="1571495172115" duration="8069000" />
+      <workItem from="1571521624630" duration="2856000" />
+      <workItem from="1571629315279" duration="1303000" />
+      <workItem from="1571770474506" duration="10212000" />
+      <workItem from="1571911346176" duration="6775000" />
+      <workItem from="1572012823089" duration="777000" />
+      <workItem from="1572188349407" duration="3889000" />
     </task>
     <task id="LOCAL-00001" summary="Bugs">
       <created>1555778471876</created>

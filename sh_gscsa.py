@@ -70,6 +70,9 @@ def gscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p, flazhok):
                     else:
                         An, Bn, Aenc, Benc = schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
 
+        enc_stop = time.time()
+        enc = enc_stop - dec_start
+
 
         #Aenc = gscsa_encode_A(left_part, i_plus_an, An, field, N, l, f, q)
         #Benc = gscsa_encode_B(Bn, i_plus_an, field, l, q, f, N, j_plus_i_plus_an)
@@ -179,6 +182,9 @@ def gscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p, flazhok):
         dec_secondpart = dec_done - dec_pause
         dec = dec_firstpart + dec_secondpart
 
+        print("first_part: ", dec_firstpart)
+        print("second_part: ", dec_secondpart)
+
         if barrier:
             communicators.comm.Barrier()
 
@@ -241,7 +247,7 @@ def gscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p, flazhok):
         if barrier:
             communicators.comm.Barrier()
 
-        return dec, dl, ul, serv_comp
+        return enc, dec, dl, ul, serv_comp
 
 def gscsa_sl(N, q, f, field, barrier, m, n, p, flazhok):
     if 0 < communicators.prev_comm.rank < N + 1:

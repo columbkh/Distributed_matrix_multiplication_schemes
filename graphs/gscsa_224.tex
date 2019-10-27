@@ -1,0 +1,183 @@
+% This file was created by matlab2tikz.
+%
+%The latest updates can be retrieved from
+%  http://www.mathworks.com/matlabcentral/fileexchange/22022-matlab2tikz-matlab2tikz
+%where you can also make suggestions and rate matlab2tikz.
+%
+\begin{tikzpicture}
+
+\begin{axis}[%
+width=1.883in,
+height=0.715in,
+at={(0.757in,3.16in)},
+scale only axis,
+xmin=1000,
+xmax=3000,
+xlabel style={font=\color{white!15!black}},
+xlabel={Matrix Size},
+ymin=0,
+ymax=0.16,
+ylabel style={font=\color{white!15!black}},
+ylabel={Time},
+axis background/.style={fill=white},
+title style={font=\bfseries},
+title={Download}
+]
+\addplot [color=red, forget plot]
+  table[row sep=crcr]{%
+1000	0.022164\\
+1300	0.034507\\
+1690	0.036349\\
+2197	0.069269\\
+2857	0.115704\\
+};
+\addplot [color=green, forget plot]
+  table[row sep=crcr]{%
+1000	0.019643\\
+1300	0.035016\\
+1690	0.043370\\
+2197	0.069470\\
+2857	0.127237\\
+};
+\end{axis}
+
+\begin{axis}[%
+width=1.883in,
+height=0.715in,
+at={(3.389in,3.16in)},
+scale only axis,
+xmin=1000,
+xmax=3000,
+xlabel style={font=\color{white!15!black}},
+xlabel={Matrix Size},
+ymin=0,
+ymax=6,
+ylabel style={font=\color{white!15!black}},
+ylabel={Time},
+axis background/.style={fill=white},
+title style={font=\bfseries},
+title={Upload}
+]
+\addplot [color=red, forget plot]
+  table[row sep=crcr]{%
+1000	0.37107\\
+1300	0.40393\\
+1690	0.48277\\
+2197	0.63867\\
+2857	0.90279\\
+};
+\addplot [color=green, forget plot]
+  table[row sep=crcr]{%
+1000	0.58041\\
+1300	0.76725\\
+1690	1.10997\\
+2197	2.00909\\
+2857	5.36155\\
+};
+\end{axis}
+
+\begin{axis}[%
+width=1.883in,
+height=0.715in,
+at={(0.757in,1.82in)},
+scale only axis,
+xmin=1000,
+xmax=3000,
+xlabel style={font=\color{white!15!black}},
+xlabel={Matrix Size},
+ymin=0.2,
+ymax=1.4,
+ylabel style={font=\color{white!15!black}},
+ylabel={Time},
+axis background/.style={fill=white},
+title style={font=\bfseries},
+title={Decoding}
+]
+\addplot [color=red, forget plot]
+  table[row sep=crcr]{%
+1000	0.30295\\
+1300	0.32029\\
+1690	0.36097\\
+2197	0.71179\\
+2857	1.21138\\
+};
+\addplot [color=green, forget plot]
+  table[row sep=crcr]{%
+1000	0.29017\\
+1300	0.32300\\
+1690	0.36004\\
+2197	0.63268\\
+2857	1.06717\\
+};
+\end{axis}
+
+\begin{axis}[%
+width=1.883in,
+height=0.715in,
+at={(3.389in,1.82in)},
+scale only axis,
+xmin=1000,
+xmax=3000,
+xlabel style={font=\color{white!15!black}},
+xlabel={Matrix Size},
+ymin=0,
+ymax=0.25,
+ylabel style={font=\color{white!15!black}},
+ylabel={Time},
+axis background/.style={fill=white},
+title style={font=\bfseries},
+title={Slaves}
+]
+\addplot [color=red, forget plot]
+  table[row sep=crcr]{%
+1000	0.0077929\\
+1300	0.0125901\\
+1690	0.0254458\\
+2197	0.0828386\\
+2857	0.2062126\\
+};
+\addplot [color=green, forget plot]
+  table[row sep=crcr]{%
+1000	0.0081272\\
+1300	0.0134364\\
+1690	0.0245968\\
+2197	0.0837115\\
+2857	0.2091634\\
+};
+\end{axis}
+
+\begin{axis}[%
+width=1.883in,
+height=0.715in,
+at={(0.757in,0.481in)},
+scale only axis,
+xmin=1000,
+xmax=3000,
+xlabel style={font=\color{white!15!black}},
+xlabel={Matrix Size},
+ymin=0,
+ymax=7,
+ylabel style={font=\color{white!15!black}},
+ylabel={Time},
+axis background/.style={fill=white},
+title style={font=\bfseries},
+title={Total}
+]
+\addplot [color=red, forget plot]
+  table[row sep=crcr]{%
+1000	0.70398\\
+1300	0.77131\\
+1690	0.90554\\
+2197	1.50256\\
+2857	2.43608\\
+};
+\addplot [color=green, forget plot]
+  table[row sep=crcr]{%
+1000	0.89835\\
+1300	1.13870\\
+1690	1.53798\\
+2197	2.79495\\
+2857	6.76512\\
+};
+\end{axis}
+\end{tikzpicture}%
