@@ -3,33 +3,30 @@ from mpi4py import MPI
 import time
 import communicators
 
+def schema1(Ap, Bp, Ka, Kb, N, field, l, r_a, r_b, x, m, n, p):
+    Aenc = getAenc(Ap, Ka, N, field, l, r_a, x)
+    Benc = getBenc(Bp, Kb, N, field, l, r_a, r_b, x)
+    return Aenc, Benc
+
+def schema2(Ap, Bp, Ka, Kb, N, field, l, r_a, r_b, x, m, n, p):
+    Aenc = getReversedAenc(Ap, Ka, N, field, l, r_a, r_b, x)
+    Benc = getReversedBenc(Bp, Kb, N, field, l, r_b, x)
+    return Aenc, Benc
+
 
 def ass_m(N, l, r_a, r_b, k, rt, field, barrier, verific, together, A, B, m, n, p):
-    """
-    Master code for the Alligned Secret Sharing Scheme with Matrix Partition
 
-    :param N: Number of workers
-    :param l: Number of colluding workers
-    :param r_a:
-    :param r_b:
-    :param k:
-    :param rt:
-    :param field:
-    :param barrier:
-    :param verific:
-    :param together:
-    :param A:
-    :param B:
-    :param m:
-    :param n:
-    :param p:
-    :return:
-    """
     if communicators.prev_comm.rank == 0:
-        Ap = np.split(A, r_a)
-        Bp = np.split(B, r_b)
 
         enc_start = time.time()
+
+        if m < p:
+            tmp = r_a
+            r_a = r_b
+            r_b = tmp
+
+        Ap = np.split(A, r_a)
+        Bp = np.split(B, r_b)
 
         Ka = [np.matrix(np.random.random_integers(0, 255, (m / r_a, n))) for i in range(l)]
         Kb = [np.matrix(np.random.random_integers(0, 255, (p / r_b, n))) for i in range(l)]
@@ -41,23 +38,21 @@ def ass_m(N, l, r_a, r_b, k, rt, field, barrier, verific, together, A, B, m, n, 
                 t += 1
             x.append(t)
 
-
-
-        Aenc = getAenc(Ap, Ka, N, field, l, r_a, x)
-        Benc = getBenc(Bp, Kb, N, field, l, r_a, r_b, x)
+        if m >= p:
+            Aenc, Benc = schema1(Ap, Bp, Ka, Kb, N, field, l, r_a, r_b, x, m, n, p)
+        else:
+            Aenc, Benc = schema2(Ap, Bp, Ka, Kb, N, field, l, r_a, r_b, x, m, n, p)
 
         enc_stop = time.time()
         enc = enc_stop - enc_start
 
         Rdict = []
-        for i in range(N):
-            Rdict.append(np.zeros((m / r_a, p / r_b), dtype=np.int_))
         Crtn = []
         serv_comp = [None] * N
         ul_stop = [None] * N
         for i in range(N):
             Crtn.append(np.zeros((m / r_a, p / r_b), dtype=np.int_))
-
+            Rdict.append(np.zeros((m / r_a, p / r_b), dtype=np.int_))
         req_a = [None] * N
         req_b = [None] * N
         req_c = [None] * N
@@ -130,16 +125,17 @@ def ass_m(N, l, r_a, r_b, k, rt, field, barrier, verific, together, A, B, m, n, 
 
         final_res = []
 
-        for k_tmp in range(r_b):
-            final_res += res[k_tmp * (r_a + l): (k_tmp + 1) * (r_a + l) - l]
+        if m >= p:
+            for k_tmp in range(r_b):
+                final_res += res[k_tmp * (r_a + l): (k_tmp + 1) * (r_a + l) - l]
+        else:
+            for k_tmp in range(r_a):
+                final_res += res[k_tmp * (r_b + l): (k_tmp + 1) * (r_b + l) - l]
 
         dec_done = time.time()
         dec_secondpart = dec_done - dec_pause
         dec_firstpart = dec_pause - dec_start
         dec = dec_firstpart + dec_secondpart
-
-        print("first_part: ", dec_firstpart)
-        print("second_part: ", dec_secondpart)
 
         if barrier:
             communicators.comm.Barrier()
@@ -159,8 +155,12 @@ def ass_m(N, l, r_a, r_b, k, rt, field, barrier, verific, together, A, B, m, n, 
 
         if verific:
             Cver = []
-            for bb in Bp:
-                Cver += [(aa * bb.getT()) % field for aa in Ap]
+            if m >=p:
+                for bb in Bp:
+                    Cver += [(aa * bb.getT()) % field for aa in Ap]
+            else:
+                for aa in Ap:
+                    Cver += [(aa * bb.getT()) % field for bb in Bp]
 
             print ([np.array_equal(final_res[i], Cver[i]) for i in range(len(Cver))])
 
@@ -172,8 +172,15 @@ def ass_m(N, l, r_a, r_b, k, rt, field, barrier, verific, together, A, B, m, n, 
 
 def ass_sl(N, r_a, r_b, field, barrier, m, n, p):
     if 0 < communicators.prev_comm.rank < N + 1:
+
+        if m < p:
+            tmp = r_a
+            r_a = r_b
+            r_b = tmp
+
         Ai = np.empty_like(np.matrix([[0] * n for i in range(m / r_a)]))
         Bi = np.empty_like(np.matrix([[0] * n for i in range(p / r_b)]))
+
         recv_a = communicators.comm.Irecv(Ai, source=0, tag=15)
         recv_b = communicators.comm.Irecv(Bi, source=0, tag=29)
 

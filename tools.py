@@ -3,10 +3,51 @@ import finite_field_inv as ffi
 import finite_field_comp as ff
 import numpy as np
 import fft_fields
-import scipy.io as sio
+#import scipy.io as sio
 import communicators
-from mpi4py import MPI
+#from mpi4py import MPI
 import sys
+import time
+
+
+def strassen(A, B, LEAF_SIZE):
+    n = len(A)
+
+    if n <= LEAF_SIZE:
+        return A * B
+    top, down = np.split(A, 2)
+    a11, a12 = np.split(top, 2, axis=1)
+    a21, a22 = np.split(down, 2, axis=1)
+
+    top, down = np.split(B, 2)
+    b11, b12 = np.split(top, 2, axis=1)
+    b21, b22 = np.split(down, 2, axis=1)
+
+    # Calculating p1 to p7:
+    p1 = strassen(a11+a22, b11+b22, LEAF_SIZE) # p1 = (a11+a22) * (b11+b22)
+
+    p2 = strassen(a21+a22, b11, LEAF_SIZE)  # p2 = (a21+a22) * (b11)
+
+    p3 = strassen(a11, b12 - b22, LEAF_SIZE)  # p3 = (a11) * (b12 - b22)
+
+    p4 = strassen(a22, b21 - b11, LEAF_SIZE)  # p4 = (a22) * (b21 - b11)
+
+    p5 = strassen(a11+a12, b22, LEAF_SIZE)  # p5 = (a11+a12) * (b22)
+
+    p6 = strassen(a21-a11, b11+b12, LEAF_SIZE)  # p6 = (a21-a11) * (b11+b12)
+
+    p7 = strassen(a12-a22, b21+b22, LEAF_SIZE)  # p7 = (a12-a22) * (b21+b22)
+
+    # calculating c21, c21, c11 e c22:
+    c12 = p3 + p5  # c12 = p3 + p5
+    c21 = p2 + p4  # c21 = p2 + p4
+    c11 = p1 + p4 - p5 + p7  # c11 = p1 + p4 - p5 + p7
+    c22 = p1 + p3 - p2 + p6  # c22 = p1 + p3 - p2 + p6
+
+    top = np.concatenate((c11, c12), axis=1)
+    down = np.concatenate((c21, c22), axis=1)
+    C = np.concatenate((top, down))
+    return C
 
 
 def check_array(lst, j, r, N):
@@ -237,6 +278,13 @@ def encode_A(left_part, i_plus_an, A, field, N, l, r):
     Zik = [[np.matrix(np.random.random_integers(0, field-1, (A.shape[0], A.shape[1]))) for k in range(l)] for i in range(r)]
     return [encode_An(left_part[n], i_plus_an[n], A, field, l, r, Zik) for n in range(N)]
 
+def test_encode_A(left_part, i_plus_an, A, field, N, l, r):
+    start = time.time()
+    Zik = [[np.matrix(np.random.random_integers(0, field-1, (A.shape[0], A.shape[1]))) for k in range(l)] for i in range(r)]
+    stop = time.time()
+    return [encode_An(left_part[n], i_plus_an[n], A, field, l, r, Zik) for n in range(N)], stop - start
+
+
 def reverse_encode_B(left_part, i_plus_an, B, field, N, l, r):
     Zik = [[np.matrix(np.random.random_integers(0, field-1, (B.shape[0], B.shape[1]))) for k in range(l)] for i in range(r)]
     return [reverse_encode_Bn(left_part[n], i_plus_an[n], B, field, l, r, Zik) for n in range(N)]
@@ -288,6 +336,13 @@ def encode_B(Bn, i_plus_an, field, l, r, N):
     Zik = [[np.matrix(np.random.random_integers(0, field-1, (Bn[0].shape[0], Bn[0].shape[1]))) for k in range(l)] for i in
            range(r)]
     return [encode_Bn(Bn, i_plus_an[n], field, l, r, Zik) for n in range(N)]
+
+def test_encode_B(Bn, i_plus_an, field, l, r, N):
+    start = time.time()
+    Zik = [[np.matrix(np.random.random_integers(0, field-1, (Bn[0].shape[0], Bn[0].shape[1]))) for k in range(l)] for i in
+           range(r)]
+    stop = time.time()
+    return [encode_Bn(Bn, i_plus_an[n], field, l, r, Zik) for n in range(N)], stop - start
 
 def reverse_encode_A(An, i_plus_an, field, l, r, N):
     Zik = [[np.matrix(np.random.random_integers(0, field-1, (An[0].shape[0], An[0].shape[1]))) for k in range(l)] for i in
@@ -708,12 +763,22 @@ def getBenc(Bp, Kb, N, field, l, r_a, r_b, x):
     return [sum([Bp[j] * pow(x[i], j * (r_a + l), field) for j in range(r_b)]) % field + sum(
         [Kb[k] * pow(x[i], k + r_a + (r_b - 1) * (r_a + l), field) for k in range(l)]) % field for i in range(N)]
 
+
+
+def getReversedAenc(Ap, Ka, N, field, l, r_a, r_b, x):
+    return [sum([Ap[j] * pow(x[i], j * (r_b + l), field) for j in range(r_a)]) % field + sum(
+        [Ka[k] * pow(x[i], k + r_b + (r_a - 1) * (r_b + l), field) for k in range(l)]) % field for i in range(N)]
+
+
+def getReversedBenc(Bp, Kb, N, field, l, r_b, x):
+    return [sum([Bp[j] * pow(x[i], j, field) for j in range(r_b)]) % field + sum(
+        [Kb[k] * pow(x[i], k + r_b, field) for k in range(l)]) % field for i in range(N)]
+
+
+
 def getNewAenc(Ap, Ka, N, field, l, r_a, r_b, x):
     return [sum([Bp[j] * pow(x[i], j * (r_a + l), field) for j in range(r_b)]) % field + sum(
         [Kb[k] * pow(x[i], k + r_a + (r_b - 1) * (r_a + l), field) for k in range(l)]) % field for i in range(N)]
-
-
-
 
 
 def inverse_n(n, rt, field):

@@ -193,20 +193,20 @@ function work_with_experiment(q, Field, m, n, p, ordner, nomer, coeff, title)
   clear title
   fig = figure();
 
-  subplot(3,3,1)
-  plot(x, gasp_enc, 'Color', 'b');
-  hold on;
-  plot(x, ass_enc, 'Color', 'y');
-  plot(x, scs_enc, 'Color', 'r');
-  plot(x, uscsa_enc, 'Color', 'g');
-  plot(x, gscsa_enc, 'Color', 'magenta')
+  #subplot(3,3,1)
+  #plot(x, gasp_enc, 'Color', 'b');
+  #hold on;
+  #plot(x, ass_enc, 'Color', 'y');
+  #plot(x, scs_enc, 'Color', 'r');
+  #plot(x, uscsa_enc, 'Color', 'g');
+  #plot(x, gscsa_enc, 'Color', 'magenta')
  # legend({'gasp','ass', 'scs'});
-  xlabel ("Size of p");
-  ylabel ("Time [s]");
-  title("Encoding");
-  hold off;
+  #xlabel ("p");
+  #ylabel ("Time [sec]");
+  #title("Encoding");
+  #hold off;
 
-  subplot(3,3,2);
+  subplot(3,3,1);
   plot(x, gasp_ul, 'Color', 'b');
   hold on;
   plot(x, ass_ul, 'Color', 'y');
@@ -214,12 +214,12 @@ function work_with_experiment(q, Field, m, n, p, ordner, nomer, coeff, title)
   plot(x, uscsa_ul, 'Color', 'g');
   plot(x, gscsa_ul, 'Color', 'magenta')
  # legend({'gasp','ass', 'scs'});
-  xlabel ("Size of p");
-  ylabel ("Time [s]");
+  xlabel ("p");
+  ylabel ("Time [sec]");
   title("Upload");
   hold off;
 
-  subplot(3,3,3);
+  subplot(3,3,2);
   plot(x, gasp_comp, 'Color', 'b');
   hold on;
   plot(x, ass_comp, 'Color', 'y');
@@ -227,26 +227,26 @@ function work_with_experiment(q, Field, m, n, p, ordner, nomer, coeff, title)
   plot(x, uscsa_comp, 'Color', 'g');
   plot(x, gscsa_comp, 'Color', 'magenta')
   #legend({'gasp','ass', 'scs'});
-  xlabel ("Size of p");
-  ylabel ("Time [s]");
+  xlabel ("p");
+  ylabel ("Time [sec]");
   title("Computation");
   hold off;
 
 
-  subplot(3,3,4)
+  subplot(3,3,3)
   plot(x, gasp_dl, 'Color', 'b')
   hold on;
   plot(x, ass_dl, 'Color', 'y')
   plot(x, scs_dl, 'Color', 'r')
   plot(x, uscsa_dl, 'Color', 'g')
   plot(x, gscsa_dl, 'Color', 'magenta')
-  xlabel ("Size of p");
-  ylabel ("Time [s]");
+  xlabel ("p");
+  ylabel ("Time [sec]");
   title("Download");
   hold off;
 
 
-  subplot(3,3,5);
+  subplot(3,3,4);
   plot(x, gasp_dec, 'Color', 'b');
   hold on;
   plot(x, ass_dec, 'Color', 'y');
@@ -254,8 +254,8 @@ function work_with_experiment(q, Field, m, n, p, ordner, nomer, coeff, title)
   plot(x, uscsa_dec, 'Color', 'g');
   plot(x, gscsa_dec, 'Color', 'magenta')
  # legend({'gasp','ass', 'scs'});
-  xlabel ("Size of p");
-  ylabel ("Time [s]");
+  xlabel ("p");
+  ylabel ("Time [sec]");
   title("Decoding");
   hold off;
 
@@ -266,7 +266,7 @@ function work_with_experiment(q, Field, m, n, p, ordner, nomer, coeff, title)
   res_gscsa = gscsa_dl + gscsa_ul + gscsa_dec + gscsa_comp;
 
 
-  subplot(3,3,6);
+  subplot(3,3,5);
   plot(x, res_gasp, 'Color', 'b');
   hold on;
   plot(x, res_ass, 'Color', 'y');
@@ -274,30 +274,30 @@ function work_with_experiment(q, Field, m, n, p, ordner, nomer, coeff, title)
   plot(x, res_uscsa, 'Color', 'g');
   plot(x, res_gscsa, 'Color', 'magenta')
  # legend({'gasp','ass', 'scs'});
-  xlabel ("Size [s]");
-  ylabel ("Time of p");
+  xlabel ("Time [sec]");
+  ylabel ("p");
   title("Total");
   hold off;
   #saveas(fig, res);
 
-  subplot(3,3,7);
-  p1 = plot(x, x, 'Color', 'b');
-  hold on;
-  p2 = plot(x, ass_comp, 'Color', 'y');
-  p3 = plot(x, scs_comp, 'Color', 'r');
-  p4 = plot(x, uscsa_comp, 'Color', 'g');
-  p5 = plot(x, gscsa_comp, 'Color', 'magenta')
-  legend({'gasp','ass', 'scsa', 'uscsa', 'gscsa'});
-  set(p1, 'visible', 'off');
-  set(p2, 'visible', 'off');
-  set(p3, 'visible', 'off');
-  set(p4, 'visible', 'off');
-  set(p5, 'visible', 'off');
-  set(gca, 'visible', 'off');
+  #subplot(3,3,6);
+  #p1 = plot(x, x, 'Color', 'b');
+  #hold on;
+  #p2 = plot(x, ass_comp, 'Color', 'y');
+  #p3 = plot(x, scs_comp, 'Color', 'r');
+  #p4 = plot(x, uscsa_comp, 'Color', 'g');
+  #p5 = plot(x, gscsa_comp, 'Color', 'magenta')
+  #legend({'gasp','ass', 'scsa', 'uscsa', 'gscsa'});
+  #set(p1, 'visible', 'off');
+  #set(p2, 'visible', 'off');
+  #set(p3, 'visible', 'off');
+  #set(p4, 'visible', 'off');
+  #set(p5, 'visible', 'off');
+  #set(gca, 'visible', 'off');
  # xlabel ("Size of p");
  # ylabel ("Time [s]");
  # title("Slaves");
-  hold off;
+  #hold off;
 endfunction
 
 function [title, q, Field, m, n, p, nomer, coeff] = load_title(ordner)
@@ -325,7 +325,7 @@ function res = rround(val)
 endfunction
 
 #ordner = argv(){1};
-ordner = "test_enc";
+ordner = "NEW_NEW_RESULT_332_small_n";
 [title, q, Field, m, n, p, nomer, coeff] = load_title(ordner)
 #q = str2num(argv(){1});
 #Field = str2num(argv(){2});

@@ -7,17 +7,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="73f13a6c-7882-4fd9-8c75-98a6e854723e" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/change_all_schemes.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ec_gscsa.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ec_scsa.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ec_uscsa.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/encoding_example.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/job_project.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/job_project.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/change_mnp.py" beforeDir="false" afterPath="$PROJECT_DIR$/change_mnp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gasp_sh.py" beforeDir="false" afterPath="$PROJECT_DIR$/gasp_sh.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gscsa_same_field.py" beforeDir="false" afterPath="$PROJECT_DIR$/gscsa_same_field.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/same_field_choose_ra_rb.py" beforeDir="false" afterPath="$PROJECT_DIR$/same_field_choose_ra_rb.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/encoding_computation.py" beforeDir="false" afterPath="$PROJECT_DIR$/encoding_computation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/graphs/change_mnp.m" beforeDir="false" afterPath="$PROJECT_DIR$/graphs/change_mnp.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/graphs/octave-workspace" beforeDir="false" afterPath="$PROJECT_DIR$/graphs/octave-workspace" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sh_ass.py" beforeDir="false" afterPath="$PROJECT_DIR$/sh_ass.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sh_gscsa.py" beforeDir="false" afterPath="$PROJECT_DIR$/sh_gscsa.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sh_scs.py" beforeDir="false" afterPath="$PROJECT_DIR$/sh_scs.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sh_uscsa.py" beforeDir="false" afterPath="$PROJECT_DIR$/sh_uscsa.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/uscsa_same_field.py" beforeDir="false" afterPath="$PROJECT_DIR$/uscsa_same_field.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -57,7 +61,7 @@
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../graphs/change_mnp.m" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/multiplication_example.py" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -84,7 +88,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.gasp_sh">
+  <component name="RunManager" selected="Python.enc_example">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="job_project" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -99,6 +103,28 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="enc_example" type="PythonConfigurationType" factoryName="Python">
+      <module name="job_project" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="$PROJECT_DIR$/../PycharmProjects/neuro_netzwerke/venv/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/encoding_example.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -129,6 +155,28 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="multiplication_example" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="job_project" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="$PROJECT_DIR$/../PycharmProjects/neuro_netzwerke/venv/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/multiplication_example.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="primer1" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="job_project" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -151,6 +199,12 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Python.primer1" />
+      <item itemvalue="Python.enc_example" />
+      <item itemvalue="Python.multiplication_example" />
+      <item itemvalue="Python.gasp_sh" />
+    </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.gasp_sh" />
@@ -230,7 +284,16 @@
       <workItem from="1571770474506" duration="10212000" />
       <workItem from="1571911346176" duration="6775000" />
       <workItem from="1572012823089" duration="777000" />
-      <workItem from="1572188349407" duration="3889000" />
+      <workItem from="1572188349407" duration="5695000" />
+      <workItem from="1572201302315" duration="18446000" />
+      <workItem from="1572250854041" duration="2974000" />
+      <workItem from="1572348691109" duration="3620000" />
+      <workItem from="1572528177691" duration="2626000" />
+      <workItem from="1572534180313" duration="80000" />
+      <workItem from="1572781733499" duration="429000" />
+      <workItem from="1572782363410" duration="15944000" />
+      <workItem from="1572801980568" duration="11605000" />
+      <workItem from="1572823331156" duration="8317000" />
     </task>
     <task id="LOCAL-00001" summary="Bugs">
       <created>1555778471876</created>
@@ -365,6 +428,7 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/job_project$gasp_sh.coverage" NAME="gasp_sh Coverage Results" MODIFIED="1559477886437" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Job_project$enc_example.coverage" NAME="enc_example Coverage Results" MODIFIED="1572792432177" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="masterDetails">
     <states>

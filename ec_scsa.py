@@ -4,61 +4,99 @@ import time
 import sys
 import communicators
 
+d_cross = None
+left_part = None
+i_plus_an = None
+an = None
+Zik_a = None
+Zik_b = None
+summe_a = []
+summe_b = []
+
+
 def schema1(A, B, l, r, N, left_part, i_plus_an, field):
     Bn = np.split(B, r)
 
-    Aenc = encode_A(left_part, i_plus_an, A, field, N, l, r)
-    Benc = encode_B(Bn, i_plus_an, field, l, r, N)
-    return [A], Bn, Aenc, Benc
+    start = time.time()
+    Aenc = [[left_part[n][i] * ((A + summe_a[n][i]) % field) for i in range(r)] for n in range(N)]
+    Benc = [[(Bn[i] + summe_b[n][i]) for i in range(r)] for n in range(N)]
+
+#    Aenc, time_a = test_encode_A(left_part, i_plus_an, A, field, N, l, r)
+ #   Benc, time_b = test_encode_B(Bn, i_plus_an, field, l, r, N)
+
+
+
+    stop = time.time()
+
+    random = 0.0
+
+    return [A], Bn, Aenc, Benc, stop - start, random
 
 def schema2(A, B, l, r, N, left_part, i_plus_an, field):
     An = np.split(A, r)
+
+    start = time.time()
+
     Aenc = reverse_encode_A(An, i_plus_an, field, l, r, N)
     Benc = reverse_encode_B(left_part, i_plus_an, B, field, N, l, r)
-    return An, [B], Aenc, Benc
 
-def scs_m(N, l, r, field, barrier, verific, together, A, B, m, p, flazhok):
+    stop = time.time()
+    return An, [B], Aenc, Benc, stop - start
+
+def scs_m(N, l, r, field, barrier, verific, together, A, B, m, p, flazhok, i):
     if communicators.prev_comm.rank == 0:  # Master
 
         if N > 19:
             print "Too many instances"
             sys.exit(100)
 
+        global Zik_a, Zik_b, d_cross, left_part, i_plus_an, an, summe_a, summe_b
+        tools_for_enc_start = time.time()
 
-        dec_start = time.time()
+        if i == 0:
+            print "lol"
+            d_cross, left_part, i_plus_an, an = make_matrix_d_cross(N, field, r, l)
+            Zik_a = [[np.matrix(np.random.random_integers(0, field - 1, (A.shape[0], A.shape[1]))) for k in range(l)] for
+                   i in range(r)]
+            Zik_b = [[np.matrix(np.random.random_integers(0, field - 1, (B.shape[0] / r, B.shape[1]))) for k in range(l)] for
+                   i in range(r)]
 
-        d_cross, left_part, i_plus_an, an = make_matrix_d_cross(N, field, r, l)
+            summe_a = []
+            summe_b = []
 
+            for n in range(N):
+                summe_n = []
+                summe_n_b = []
+                for i in range(r):
+                    summe_n.append(sum([(pow(i_plus_an[n][i], k, field) * Zik_a[i][k - 1]) % field for k in range(1, l + 1)]) % field)
+                    summe_n_b.append(sum([(pow(i_plus_an[n][i], k, field) * Zik_b[i][k - 1]) % field for k in range(1, l + 1)]) % field)
+                summe_a.append(summe_n)
+                summe_b.append(summe_n_b)
 
-        dec_pause = time.time()
-        dec_firstpart = dec_pause - dec_start
-
-        enc_start = time.time()
+        tools_for_enc_stop = time.time()
+        tools_for_enc_time = tools_for_enc_stop - tools_for_enc_start
+        random = None
 
         if flazhok:
             if r == 1:
-                An, Bn, Aenc, Benc = schema1(A, B, l, r, N, left_part, i_plus_an, field)
+                An, Bn, Aenc, Benc, enc_time = schema1(A, B, l, r, N, left_part, i_plus_an, field)
             else:
                 if m <= p:
-                    An, Bn, Aenc, Benc = schema1(A, B, l, r, N, left_part, i_plus_an, field)
+                    An, Bn, Aenc, Benc, enc_time, random = schema1(A, B, l, r, N, left_part, i_plus_an, field)
                 else:
-                    An, Bn, Aenc, Benc = schema2(A, B, l, r, N, left_part, i_plus_an, field)
+                    An, Bn, Aenc, Benc, enc_time = schema2(A, B, l, r, N, left_part, i_plus_an, field)
         else:
             if r == 1:
-                An, Bn, Aenc, Benc = schema2(A, B, l, r, N, left_part, i_plus_an, field)
+                An, Bn, Aenc, Benc, enc_time = schema2(A, B, l, r, N, left_part, i_plus_an, field)
             else:
                 if m <= p:
-                    An, Bn, Aenc, Benc = schema2(A, B, l, r, N, left_part, i_plus_an, field)
+                    An, Bn, Aenc, Benc, enc_time = schema2(A, B, l, r, N, left_part, i_plus_an, field)
                 else:
-                    An, Bn, Aenc, Benc = schema1(A, B, l, r, N, left_part, i_plus_an, field)
+                    An, Bn, Aenc, Benc, enc_time = schema1(A, B, l, r, N, left_part, i_plus_an, field)
 
-        enc_stop = time.time()
-
-        enc = enc_stop - enc_start
 
         Crtn = []
         serv_comp = [None] * N
-        ul_stop = [None] * N
 
         for i in range(N):
             if flazhok:
@@ -83,7 +121,6 @@ def scs_m(N, l, r, field, barrier, verific, together, A, B, m, p, flazhok):
         req_c = [None] * N
 
         if together:
-            ul_start = time.time()
             for i in range(N):
                 for j in range(r):
                     req_a[i + j * N] = communicators.comm.Isend([Aenc[i][j], MPI.INT], dest=i + 1, tag=15)
@@ -96,20 +133,13 @@ def scs_m(N, l, r, field, barrier, verific, together, A, B, m, p, flazhok):
             if barrier:
                 communicators.comm.Barrier()
 
-            dl_start = time.time()
             MPI.Request.Waitall(req_c)
 
-            dl_stop = time.time()
-            dl = dl_stop - dl_start
-
         else:
-            ul_start = [None] * N
 
-            dl = [None] * N
             req_ab = [None] * 2 * N * r
 
             for i in range(N):
-                ul_start[i] = time.time()
                 for j in range(r):
                     communicators.comm.Isend([Aenc[i][j], MPI.INT], dest=i + 1, tag=15)
                     req_ab[i + (j + r) * N] = communicators.comm.Isend([Benc[i][j], MPI.INT], dest=i + 1, tag=29)
@@ -118,58 +148,34 @@ def scs_m(N, l, r, field, barrier, verific, together, A, B, m, p, flazhok):
             if barrier:
                 communicators.comm.Barrier()
 
-            dl_start = time.time()
-
             for i in range(N):
                 j = MPI.Request.Waitany(req_c)
                 tmp = time.time()
-                dl[j] = tmp - dl_start
-
-        dec_pause = time.time()
 
         res = decode_message(d_cross, Crtn, field)
 
         final_res = res[0:r]
-
-        dec_done = time.time()
-
-        dec_secondpart = dec_done - dec_pause
-        dec = dec_firstpart + dec_secondpart
-
-        print("first_part: ", dec_firstpart)
-        print("second_part: ", dec_secondpart)
 
         if barrier:
             communicators.comm.Barrier()
 
         for i in range(N):
             serv_comp[i] = communicators.comm.recv(source=i + 1, tag=64)
-        for i in range(N):
-            ul_stop[i] = communicators.comm.recv(source=i + 1, tag=70)
-
-        if together:
-            ul_stop_latest = max(ul_stop)
-            ul = ul_stop_latest - ul_start
-        else:
-            ul = [None] * N
-            for i in range(N):
-                ul[i] = ul_stop[i] - ul_start[i]
 
         if verific:
             Cver = []
             for bb in Bn:
                 Cver += [(aa * bb.getT()) % field for aa in An]
 
-          #  Cver = [(A * bb.getT()) % field for bb in Bn[:r]]
             print ([np.array_equal(final_res[i], Cver[i]) for i in range(len(Cver))])
 
         if barrier:
             communicators.comm.Barrier()
 
-        return enc, dec, dl, ul, serv_comp
+        return tools_for_enc_time, enc_time, serv_comp, random
 
 
-def scs_sl(N, r, field, barrier, m, n, p, flazhok):
+def scs_sl(N, r, field, barrier, m, n, p, flazhok, base):
     if 0 < communicators.prev_comm.rank < N + 1:
         Ai = []
         Bi = []
@@ -220,8 +226,6 @@ def scs_sl(N, r, field, barrier, m, n, p, flazhok):
                         Bij = np.empty_like(np.matrix([[0] * n for i in range(p / r)]))
 
 
-
-
             recv_a[j] = communicators.comm.Irecv(Aij, source=0, tag=15)
             recv_b[j] = communicators.comm.Irecv(Bij, source=0, tag=29)
             Ai.append(Aij)
@@ -233,8 +237,12 @@ def scs_sl(N, r, field, barrier, m, n, p, flazhok):
         servcomp_start = time.time()
 
         for j in range(r):
-            Ci += (Ai[j] * (Bi[j].getT()))
+            Ci += strassen(Ai[j], (Bi[j].getT()), base)
             Ci = Ci % field
+
+  #      for j in range(r):
+  #          Ci += Ai[j] * (Bi[j].getT())
+  #          Ci = Ci % field
 
         servcomp_done = time.time()
 

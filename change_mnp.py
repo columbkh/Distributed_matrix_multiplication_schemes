@@ -1,4 +1,4 @@
-from uscsa_same_field import *
+from encoding_computation import *
 
 
 def do_multiple_tests(r_a, r_b, l, field, q, m, n, p, verific, together, number, coeff):
