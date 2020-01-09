@@ -1,9 +1,10 @@
-from uscsa_same_field import *
+from a3s_vs_a3sfft import *
 
 
-def do_multiple_tests(r_a, r_b, l, field, q, m, n, p, verific, together, number, coeff):
+def do_multiple_tests(N, l, field, q, m, n, p, verific, together, number, coeff):
     write_title_to_octavemnp(q, field, m, n, p, number, coeff)
-    set_communicators(r_a, r_b, l, field)
+    set_communicatorsNl(N, l, field)
+    set_communicatorsNlgasp(N, l, field)
 
     for i in range(number):
         if MPI.COMM_WORLD.rank == 0:
@@ -13,7 +14,7 @@ def do_multiple_tests(r_a, r_b, l, field, q, m, n, p, verific, together, number,
             print "n: ", n
             print "p: ", p
             print "--------------------------------------------------------------------------"
-        do_test(r_a, r_b, l, field, q, m, n, p, verific, together)
+        do_test(N, l, field, q, m, n, p, verific, together)
         m = get_rounded(m * coeff)
         p = get_rounded(p * coeff)
         n = get_rounded(n * coeff)
@@ -22,8 +23,7 @@ def do_multiple_tests(r_a, r_b, l, field, q, m, n, p, verific, together, number,
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process some integers.')
     parser.add_argument('--Field', type=int, help='Finite Field')
-    parser.add_argument('--r_a', type=int, help='divide A on K')
-    parser.add_argument('--r_b', type=int, help='divide B on L')
+    parser.add_argument('--N', type=int, help='Number of workers')
     parser.add_argument('--l', type=int, help='number of colluding workers')
     parser.add_argument('--verific', help='Enable Verification', action="store_true")
     parser.add_argument('--all_together', help='Compute all together', action="store_true")
@@ -45,8 +45,7 @@ if __name__ == "__main__":
     else:
         together = False
 
-    r_a = args.r_a
-    r_b = args.r_b
+    N = args.N
     l = args.l
     field = args.Field
     q = args.Q
@@ -58,5 +57,5 @@ if __name__ == "__main__":
     number = args.Number
     coeff = args.Coeff
 
-    do_multiple_tests(r_a, r_b, l, field, q, m, n, p, verific, together, number, coeff)
+    do_multiple_tests(N, l, field, q, m, n, p, verific, together, number, coeff)
 

@@ -31,6 +31,11 @@ def multMatrWithff(matr, x):
 
 
 def matrix2ffmatrix(matr):
+  #  print "matr", matr
+   # for matr_str in matr:
+   #     print "matr_str", matr_str
+   #     for mat in matr_str:
+    #        print "mat ", mat
     return [[field(mat) for mat in mat_str] for mat_str in matr]
 
 

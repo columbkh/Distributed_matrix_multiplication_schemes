@@ -37,7 +37,6 @@ else:
             if pos.l > tmp:
                 tmp = pos.l
             possb = pos
-        # print possb
 
         r_a = possb.r_a
         r_b = possb.r_b

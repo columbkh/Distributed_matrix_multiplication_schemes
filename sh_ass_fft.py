@@ -3,22 +3,34 @@ from mpi4py import MPI
 import time
 import communicators
 
-def schema1(Ap, Bp, Ka, Kb, N, field, l, r_a, r_b, x, m, n, p):
-    Aenc = getAenc(Ap, Ka, N, field, l, r_a, x)
+def schema1(Ap, Bp, Ka, Kb, N, field, l, r_a, r_b, x, m, n, p, k):
+    data = Ap + Ka + [np.matrix(np.zeros((m / r_a, n), np.int32)) for i in range((r_a+l)*r_b-1)]
+
+    Aenc = fast_fourier_transform(k, data, x[1], field)
+    Aenc += getRestAenc(Ap, Ka, field, l, r_a, x[k:])
+ #   Aenc_old = getAenc(Ap, Ka, N, field, l, r_a, x)
     Benc = getBenc(Bp, Kb, N, field, l, r_a, r_b, x)
+
     return Aenc, Benc
 
-def schema2(Ap, Bp, Ka, Kb, N, field, l, r_a, r_b, x, m, n, p):
+def schema2(Ap, Bp, Ka, Kb, N, field, l, r_a, r_b, x, m, n, p, k):
+    data = Bp + Kb + [np.matrix(np.zeros((p / r_b, n), np.int32)) for i in range((r_b+l)*r_a-1)]
+
+    Benc = fast_fourier_transform(k, data, x[1], field)
+    Benc += getRestReversedBenc(Bp, Kb, field, l, r_b, x[k:])
+
     Aenc = getReversedAenc(Ap, Ka, N, field, l, r_a, r_b, x)
-    Benc = getReversedBenc(Bp, Kb, N, field, l, r_b, x)
+  #  Benc = getReversedBenc(Bp, Kb, N, field, l, r_b, x)
     return Aenc, Benc
 
 
-def ass_m(N, l, r_a, r_b, k, rt, field, barrier, verific, together, A, B, m, n, p):
+def ass_fft_m(N, l, r_a, r_b, k, rt, field, barrier, verific, together, A, B, m, n, p):
 
     if communicators.prev_comm.rank == 0:
 
         enc_start = time.time()
+
+        print "rt ", rt
 
         if m < p:
             tmp = r_a
@@ -27,7 +39,6 @@ def ass_m(N, l, r_a, r_b, k, rt, field, barrier, verific, together, A, B, m, n, 
 
         Ap = np.split(A, r_a)
         Bp = np.split(B, r_b)
-
         Ka = [np.matrix(np.random.random_integers(0, 255, (m / r_a, n))) for i in range(l)]
         Kb = [np.matrix(np.random.random_integers(0, 255, (p / r_b, n))) for i in range(l)]
 
@@ -37,11 +48,12 @@ def ass_m(N, l, r_a, r_b, k, rt, field, barrier, verific, together, A, B, m, n, 
             while is_power2(t):
                 t += 1
             x.append(t)
+            t += 1
 
         if m >= p:
-            Aenc, Benc = schema1(Ap, Bp, Ka, Kb, N, field, l, r_a, r_b, x, m, n, p)
+            Aenc, Benc = schema1(Ap, Bp, Ka, Kb, N, field, l, r_a, r_b, x, m, n, p, k)
         else:
-            Aenc, Benc = schema2(Ap, Bp, Ka, Kb, N, field, l, r_a, r_b, x, m, n, p)
+            Aenc, Benc = schema2(Ap, Bp, Ka, Kb, N, field, l, r_a, r_b, x, m, n, p, k)
 
         enc_stop = time.time()
         enc = enc_stop - enc_start
@@ -117,13 +129,10 @@ def ass_m(N, l, r_a, r_b, k, rt, field, barrier, verific, together, A, B, m, n, 
             missing = set(range(k)) - set(lst)
 
         dec_start = time.time()
+
         interpol(missing, Crtn, field, k, lst, x)
-
-        inv_matr = get_dec_matr(x[:k], field)
         dec_pause = time.time()
-        res = decode_message(inv_matr, Crtn[:k], field)
-
-
+        res = inverse_fft(k, Crtn[:k], rt, field)
 
         final_res = []
 
@@ -166,15 +175,6 @@ def ass_m(N, l, r_a, r_b, k, rt, field, barrier, verific, together, A, B, m, n, 
 
             print ([np.array_equal(final_res[i], Cver[i]) for i in range(len(Cver))])
 
-     #       print "verification"
-     #       for cver in Cver:
-     #           print cver
-
-     #       print "------------------------------------------"
-
-      #      print "final res"
-      #      for fr in final_res:
-      #          print fr
 
         if barrier:
             communicators.comm.Barrier()
@@ -182,7 +182,7 @@ def ass_m(N, l, r_a, r_b, k, rt, field, barrier, verific, together, A, B, m, n, 
         return enc, dec, dl, ul, serv_comp
 
 
-def ass_sl(N, r_a, r_b, field, barrier, m, n, p):
+def ass_fft_sl(N, r_a, r_b, field, barrier, m, n, p):
     if 0 < communicators.prev_comm.rank < N + 1:
 
         if m < p:

@@ -182,9 +182,6 @@ def gscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p, flazhok):
         dec_secondpart = dec_done - dec_pause
         dec = dec_firstpart + dec_secondpart
 
-        print("first_part: ", dec_firstpart)
-        print("second_part: ", dec_secondpart)
-
         if barrier:
             communicators.comm.Barrier()
 

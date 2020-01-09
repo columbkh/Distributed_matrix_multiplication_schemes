@@ -6,10 +6,8 @@ import communicators
 
 def schema1(A, B, l, r, N, left_part, i_plus_an, field):
     Bn = np.split(B, r)
-    start = time.time()
+
     Aenc = encode_A(left_part, i_plus_an, A, field, N, l, r)
-    stop = time.time()
-    print "Gesamte Zeit: ", stop - start
     Benc = encode_B(Bn, i_plus_an, field, l, r, N)
     return [A], Bn, Aenc, Benc
 
@@ -19,7 +17,7 @@ def schema2(A, B, l, r, N, left_part, i_plus_an, field):
     Benc = reverse_encode_B(left_part, i_plus_an, B, field, N, l, r)
     return An, [B], Aenc, Benc
 
-def scs_m(N, l, r, field, barrier, verific, together, A, B, m, p, flazhok):
+def win_scs_m(N, l, r, field, barrier, verific, together, A, B, m, p, flazhok):
     if communicators.prev_comm.rank == 0:  # Master
 
         if N > 19:
@@ -168,7 +166,7 @@ def scs_m(N, l, r, field, barrier, verific, together, A, B, m, p, flazhok):
         return enc, dec, dl, ul, serv_comp
 
 
-def scs_sl(N, r, field, barrier, m, n, p, flazhok):
+def win_scs_sl(N, r, field, barrier, m, n, p, flazhok):
     if 0 < communicators.prev_comm.rank < N + 1:
         Ai = []
         Bi = []
@@ -232,11 +230,11 @@ def scs_sl(N, r, field, barrier, m, n, p, flazhok):
         servcomp_start = time.time()
 
         for j in range(r):
-            Ci += (Ai[j] * (Bi[j].getT()))
+            Ci += strassen_winograd(Ai[j], Bi[j].getT())
             Ci = Ci % field
 
-        servcomp_done = time.time()
 
+        servcomp_done = time.time()
         servcomp = servcomp_done - servcomp_start
 
         if barrier:

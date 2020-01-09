@@ -14,6 +14,7 @@ def gasp_m(r_a, r_b, l, field, barrier, verific, together, A, B, m, n, p):
         else:
             inv_matr, an, ter, N, a, b = create_GASP_small(r_a, r_b, l, field)
 
+
         dec_pause = time.time()
         dec_firstpart = dec_pause - dec_start
 
@@ -21,7 +22,6 @@ def gasp_m(r_a, r_b, l, field, barrier, verific, together, A, B, m, n, p):
         Bp = np.split(B, r_b)
 
         enc_start = time.time()
-
         Ka = [np.matrix(np.random.random_integers(0, 255, (m / r_a, n))) for i in range(l)]
         Kb = [np.matrix(np.random.random_integers(0, 255, (p / r_b, n))) for i in range(l)]
 
@@ -35,7 +35,6 @@ def gasp_m(r_a, r_b, l, field, barrier, verific, together, A, B, m, n, p):
         enc = enc_stop - enc_start
 
         if N > 19:
-            print "Too many instances"
             sys.exit(100)
 
         Crtn = []
@@ -48,24 +47,29 @@ def gasp_m(r_a, r_b, l, field, barrier, verific, together, A, B, m, n, p):
         req_b = [None] * N
         req_c = [None] * N
 
+
         if together:
             ul_start = time.time()
             for i in range(N):
-                req_a[i] = communicators.comm.Isend([Aenc[i], MPI.INT], dest=i + 1, tag=15)
-                req_b[i] = communicators.comm.Isend([Benc[i], MPI.INT], dest=i + 1, tag=29)
-                req_c[i] = communicators.comm.Irecv([Crtn[i], MPI.INT], source=i + 1, tag=42)
+                req_a[i] = communicators.gasp_comm.Isend([Aenc[i], MPI.INT], dest=i + 1, tag=15)
+                req_b[i] = communicators.gasp_comm.Isend([Benc[i], MPI.INT], dest=i + 1, tag=29)
+                req_c[i] = communicators.gasp_comm.Irecv([Crtn[i], MPI.INT], source=i + 1, tag=42)
 
             MPI.Request.Waitall(req_a)
             MPI.Request.Waitall(req_b)
 
+
             if barrier:
-                communicators.comm.Barrier()
+                communicators.gasp_comm.Barrier()
+
 
             dl_start = time.time()
             MPI.Request.Waitall(req_c)
 
+
             dl_stop = time.time()
             dl = dl_stop - dl_start
+
 
         else:
             ul_start = [None] * N
@@ -73,12 +77,12 @@ def gasp_m(r_a, r_b, l, field, barrier, verific, together, A, B, m, n, p):
             req_ab = [None] * 2 * N
             for i in range(N):
                 ul_start[i] = time.time()
-                req_ab[i] = communicators.comm.Isend([Aenc[i], MPI.INT], dest=i + 1, tag=15)
-                req_ab[i + N] = communicators.comm.Isend([Benc[i], MPI.INT], dest=i + 1, tag=29)
-                req_c[i] = communicators.comm.Irecv([Crtn[i], MPI.INT], source=i + 1, tag=42)
+                req_ab[i] = communicators.gasp_comm.Isend([Aenc[i], MPI.INT], dest=i + 1, tag=15)
+                req_ab[i + N] = communicators.gasp_comm.Isend([Benc[i], MPI.INT], dest=i + 1, tag=29)
+                req_c[i] = communicators.gasp_comm.Irecv([Crtn[i], MPI.INT], source=i + 1, tag=42)
 
             if barrier:
-                communicators.comm.Barrier()
+                communicators.gasp_comm.Barrier()
 
             dl_start = time.time()
 
@@ -101,17 +105,14 @@ def gasp_m(r_a, r_b, l, field, barrier, verific, together, A, B, m, n, p):
         dec_secondpart = dec_done - dec_pause
         dec = dec_firstpart + dec_secondpart
 
-        print("first_part: ", dec_firstpart)
-        print("second_part: ", dec_secondpart)
-
 
         if barrier:
-            communicators.comm.Barrier()
+            communicators.gasp_comm.Barrier()
 
         for i in range(N):
-            serv_comp[i] = communicators.comm.recv(source=i + 1, tag=64)
+            serv_comp[i] = communicators.gasp_comm.recv(source=i + 1, tag=64)
         for i in range(N):
-            ul_stop[i] = communicators.comm.recv(source=i + 1, tag=70)
+            ul_stop[i] = communicators.gasp_comm.recv(source=i + 1, tag=70)
 
         if together:
             ul_stop_latest = max(ul_stop)
@@ -129,7 +130,7 @@ def gasp_m(r_a, r_b, l, field, barrier, verific, together, A, B, m, n, p):
             print ([np.array_equal(final_res[i], Cver[i]) for i in range(len(Cver))])
 
         if barrier:
-            communicators.comm.Barrier()
+            communicators.gasp_comm.Barrier()
 
         return enc, dec, dl, ul, serv_comp
 
@@ -138,8 +139,8 @@ def gasp_sl(r_a, r_b, N, field, barrier, m, n, p):
     if 0 < communicators.prev_comm.rank < N + 1:
         Ai = np.empty_like(np.matrix([[0] * n for i in range(m / r_a)]))
         Bi = np.empty_like(np.matrix([[0] * n for i in range(p / r_b)]))
-        recv_a = communicators.comm.Irecv(Ai, source=0, tag=15)
-        recv_b = communicators.comm.Irecv(Bi, source=0, tag=29)
+        recv_a = communicators.gasp_comm.Irecv(Ai, source=0, tag=15)
+        recv_b = communicators.gasp_comm.Irecv(Bi, source=0, tag=29)
 
         recv_a.wait()
         recv_b.wait()
@@ -153,16 +154,16 @@ def gasp_sl(r_a, r_b, N, field, barrier, m, n, p):
         servcomp = servcomp_done - servcomp_start
 
         if barrier:
-            communicators.comm.Barrier()
+            communicators.gasp_comm.Barrier()
 
-        req_c = communicators.comm.Isend(Ci, dest=0, tag=42)
+        req_c = communicators.gasp_comm.Isend(Ci, dest=0, tag=42)
         req_c.Wait()
 
         if barrier:
-            communicators.comm.Barrier()
+            communicators.gasp_comm.Barrier()
 
-        communicators.comm.send(servcomp, dest=0, tag=64)
-        communicators.comm.send(servcomp_start, dest=0, tag=70)
+        communicators.gasp_comm.send(servcomp, dest=0, tag=64)
+        communicators.gasp_comm.send(servcomp_start, dest=0, tag=70)
 
         if barrier:
-            communicators.comm.Barrier()
+            communicators.gasp_comm.Barrier()

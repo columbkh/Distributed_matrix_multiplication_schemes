@@ -3,11 +3,244 @@ import finite_field_inv as ffi
 import finite_field_comp as ff
 import numpy as np
 import fft_fields
-#import scipy.io as sio
 import communicators
-#from mpi4py import MPI
 import sys
 import time
+import scipy.io as sio
+from mpi4py import MPI
+
+
+def a2ffa(arr):
+    return ffi.array2ffarray(arr)
+
+
+def m2ffm(C):
+    return ffi.matrix2ffmatrix(C)
+
+
+def divide(arr, el):
+    return np.array([[arr_el / el for arr_el in row] for row in arr], dtype=type(el))
+
+
+def subtract(arr1, arr2):
+    return np.array([[el1 - el2 for el1, el2 in zip(u,v)] for u, v in zip(arr1, arr2)], dtype=type(arr1[0, 0]))
+
+
+def add(arr1, arr2):
+    return np.array([[el1 + el2 for el1, el2 in zip(u,v)] for u, v in zip(arr1, arr2)], dtype=type(arr1[0, 0]))
+
+
+def multiply_f(arr, el):
+    return np.array([[arr_el * el for arr_el in row] for row in arr], dtype=type(el))
+
+
+def horner_scheme(poly, x):
+    res = ffi.field(0)
+    shape = poly[-1].shape
+    res_nff = np.array([[0 for el in range(shape[1])] for stroka in range(shape[0])])
+    res = np.array(m2ffm(res_nff.tolist()), dtype=type(ffi.field(0)))
+    x_ff = ffi.field(x)
+    for coef in poly:
+        res = add(multiply_f(res, x_ff), coef)
+    return res
+
+
+def standard_eval(poly, x, field):
+    shape = poly[-1].shape
+    res_nff = np.array([[0 for el in range(shape[1])] for stroka in range(shape[0])])
+    res = np.array(m2ffm(res_nff.tolist()), dtype=type(ffi.field(0)))
+  #  np.array(m2ffm(aa.tolist()), dtype=type(ffi.field(0)))
+    for i in range(len(poly)):
+        x_ff = ffi.field(pow(x, len(poly) - i - 1, field))
+        res = add(res, multiply_f(poly[i], x_ff))
+    return res
+
+
+def second_order(poly, x, field):
+    half_floor = math.floor((len(poly) - 1) / 2.0)
+    half_ceil = math.ceil((len(poly) - 1) / 2.0)
+    x_2 = ffi.field(pow(x, 2, field))
+    x_ff = ffi.field(x)
+
+    shape = poly[-1].shape
+    res_nff = np.array([[0 for el in range(shape[1])] for stroka in range(shape[0])])
+    f_x = np.array(m2ffm(res_nff.tolist()), dtype=type(ffi.field(0)))
+    g_x = np.array(m2ffm(res_nff.tolist()), dtype=type(ffi.field(0)))
+
+    for i in range(int(2*half_ceil + 1))[1::2]:
+        f_x = add(multiply_f(f_x, x_2), poly[i])
+
+    for i in range(int(2*half_floor + 1))[0::2]:
+        g_x = add(multiply_f(g_x, x_2), poly[i])
+    g_x = multiply_f(g_x, x_ff)
+
+    x_pos = add(f_x, g_x)
+    x_neg = subtract(f_x, g_x)
+    return x_pos, x_neg
+
+
+def cutoff_criterium(m, k, n):
+    return 1.0 <= 4.0 * (4.0/n + 4.0/m + 7.0/k)
+
+def strassen_winograd(A, B):
+    n, k = A.shape
+    k, m = B.shape
+
+    if cutoff_criterium(m, k, n):
+        return A * B
+
+  #  if n <= LEAF_SIZE_N or k <= LEAF_SIZE_K or m<= LEAF_SIZE_M:
+  #      return A * B
+    if (m % 2 != 0) and (n % 2 != 0) and (k % 2 != 0):
+        Atop, Adown = np.split(A, [n-1])
+        A11, A12 = np.split(Atop, [k-1], axis=1)
+        A21, A22 = np.split(Adown, [k-1], axis=1)
+
+        Btop, Bdown = np.split(B, [k-1])
+        B11, B12 = np.split(Btop, [m-1], axis=1)
+        B21, B22 = np.split(Bdown, [m-1], axis=1)
+
+        C11 = strassen_winograd(A11, B11)
+        a12_b21 = np.dot(A12, B21)
+        C11 += a12_b21
+        C12 = np.dot(A11, B12) + np.dot(A12, B22)
+        C21 = np.dot(A21, B11) + np.dot(A22, B21)
+        C22 = np.dot(A21, B12) + np.dot(A22, B22)
+
+        top_c = np.concatenate((C11, C12), axis=1)
+        down_c = np.concatenate((C21, C22), axis=1)
+        C = np.concatenate((top_c, down_c))
+        return C
+
+    if (n % 2 != 0) and (k % 2 != 0) and (m % 2 == 0):
+        Atop, Adown = np.split(A, [n - 1])
+        A11, A12 = np.split(Atop, [k - 1], axis=1)
+        A21, A22 = np.split(Adown, [k - 1], axis=1)
+
+        B11, B21 = np.split(B, [k - 1])
+
+        C11 = strassen_winograd(A11, B11)
+        a12_b21 = np.dot(A12, B21)
+        C11 += a12_b21
+        C21 = np.dot(A21, B11) + np.dot(A22, B21)
+
+        C = np.concatenate((C11, C21))
+        return C
+
+    if (m % 2 != 0) and (k % 2 != 0) and (n % 2 == 0):
+        A11, A12 = np.split(A, [k - 1], axis=1)
+        Btop, Bdown = np.split(B, [k - 1])
+        B11, B12 = np.split(Btop, [m - 1], axis=1)
+        B21, B22 = np.split(Bdown, [m - 1], axis=1)
+
+        C11 = strassen_winograd(A11, B11)
+        a12_b21 = np.dot(A12, B21)
+        C11 += a12_b21
+        C12 = np.dot(A11, B12) + np.dot(A12, B22)
+
+        C = np.concatenate((C11, C12), axis=1)
+        return C
+
+    if (m % 2 != 0) and (n % 2 != 0) and (k % 2 == 0):
+        A11, A21 = np.split(A, [n-1])
+        B11, B12 = np.split(B, [m - 1], axis=1)
+
+        C11 = strassen_winograd(A11, B11)
+        C12 = np.dot(A11, B12)
+        C21 = np.dot(A21, B11)
+        C22 = np.dot(A21, B12)
+
+        top_c = np.concatenate((C11, C12), axis=1)
+        down_c = np.concatenate((C21, C22), axis=1)
+        C = np.concatenate((top_c, down_c))
+        return C
+
+    if (n % 2 != 0) and (m % 2 == 0) and (k % 2 == 0):
+        A11, A21 = np.split(A, [n-1])
+
+        C11 = strassen_winograd(A11, B)
+        C21 = np.dot(A21, B)
+
+        C = np.concatenate((C11, C21))
+        return C
+
+    if (m % 2 != 0) and (n % 2 == 0) and (k % 2 == 0):
+        B11, B12 = np.split(B, [m - 1], axis=1)
+
+        C11 = strassen_winograd(A, B11)
+        C12 = np.dot(A, B12)
+
+        C = np.concatenate((C11, C12), axis=1)
+        return C
+
+    if (k % 2 != 0) and (m % 2 == 0) and (n % 2 == 0):
+        A11, A12 = np.split(A, [k - 1], axis=1)
+        B11, B21 = np.split(B, [k - 1])
+
+        C = strassen_winograd(A11, B11)
+        a12_b21 = np.dot(A12, B21)
+        C += a12_b21
+
+        return C
+
+
+    top, down = np.split(A, 2)
+    a11, a12 = np.split(top, 2, axis=1)
+    a21, a22 = np.split(down, 2, axis=1)
+
+    top, down = np.split(B, 2)
+    b11, b12 = np.split(top, 2, axis=1)
+    b21, b22 = np.split(down, 2, axis=1)
+
+    # Calculating p1 to p7:
+    s1 = a21 + a22
+
+    s2 = s1 - a11
+
+    s3 = a11 - a21
+
+    s4 = a12 - s2
+
+    t1 = b12 - b11
+
+    t2 = b22 - t1
+
+    t3 = b22 - b12
+
+    t4 = b21 - t2
+
+    p1 = strassen_winograd(a11, b11) # p1 = (a11+a22) * (b11+b22)
+
+    p2 = strassen_winograd(a12, b21)  # p2 = (a21+a22) * (b11)
+
+    p3 = strassen_winograd(s1, t1)  # p3 = (a11) * (b12 - b22)
+
+    p4 = strassen_winograd(s2, t2)  # p4 = (a22) * (b21 - b11)
+
+    p5 = strassen_winograd(s3, t3)  # p5 = (a11+a12) * (b22)
+
+    p6 = strassen_winograd(s4, b22)  # p6 = (a21-a11) * (b11+b12)
+
+    p7 = strassen_winograd(a22, t4)  # p7 = (a12-a22) * (b21+b22)
+
+    u1 = p1 + p2
+
+    u2 = p1 + p4
+
+    u3 = u2 + p5
+
+    u4 = u3 + p7
+
+    u5 = u3 + p3
+
+    u6 = u2 + p3
+
+    u7 = u6 + p6
+
+    top = np.concatenate((u1, u7), axis=1)
+    down = np.concatenate((u4, u5), axis=1)
+    C = np.concatenate((top, down))
+    return C
 
 
 def strassen(A, B, LEAF_SIZE):
@@ -57,6 +290,43 @@ def check_array(lst, j, r, N):
             return False
     return True
 
+def set_communicatorsNlgasp(N, l, field):
+    if not is_prime_number(field):
+        print "Field is not prime"
+        sys.exit(100)
+    else:
+        possb = get_for_fixedNl(N, l)
+        if possb is False:
+            print "No possabilities"
+            sys.exit(100)
+        else:
+            r_a = possb.r_a
+            r_b = possb.r_b
+
+    if l >= min(r_a, r_b):
+        inv_matr, an, ter, N_1, a, b = create_GASP_big(r_a, r_b, l, field)
+    else:
+        inv_matr, an, ter, N_1, a, b = create_GASP_small(r_a, r_b, l, field)
+
+
+    communicators.prev_comm = MPI.COMM_WORLD
+    if N_1 + 1 < communicators.prev_comm.Get_size():
+        instances = [i for i in range(N_1 + 1, communicators.prev_comm.Get_size())]
+        new_group = communicators.prev_comm.group.Excl(instances)
+        communicators.gasp_comm = communicators.prev_comm.Create(new_group)
+    else:
+        communicators.gasp_comm = communicators.prev_comm
+
+
+def set_communicatorsNl(N, l, field):
+    communicators.prev_comm = MPI.COMM_WORLD
+    if N + 1 < communicators.prev_comm.Get_size():
+        instances = [i for i in range(N + 1, communicators.prev_comm.Get_size())]
+        new_group = communicators.prev_comm.group.Excl(instances)
+        communicators.comm = communicators.prev_comm.Create(new_group)
+    else:
+        communicators.comm = communicators.prev_comm
+
 
 def set_communicators(r_a, r_b, l, field):
     if l >= min(r_a, r_b):
@@ -86,11 +356,25 @@ def set_communicators(r_a, r_b, l, field):
 
 def interpol(missing, Crtn, field, kr, lst, var):
     for i in missing:
+        print "missing", i
         coeff = [1] * kr
         for j in range(kr):
             for k in set(lst) - set([lst[j]]):
                 coeff[j] = (coeff[j] * (var[i] - var[k]) * pow(var[lst[j]] - var[k], field - 2, field)) % field
         Crtn[i] = sum([Crtn[lst[j]] * coeff[j] for j in range(kr)]) % field
+
+
+def lol_interpol(missing, Crtn, field, kr, lst, var):
+    realCrtn = filter(lambda a: a != Crtn[lst[0]], Crtn)
+    print "crtn", Crtn
+    print "rc", realCrtn
+    for i in missing:
+        print "missing", i
+        coeff = [1] * kr
+        for j in range(kr):
+            for k in set(lst) - set([lst[j]]):
+                coeff[j] = (coeff[j] * (var[i] - var[k]) * pow(var[lst[j]] - var[k], field - 2, field)) % field
+        Crtn[i] = sum([realCrtn[lst[j]] * coeff[j] for j in range(kr)]) % field
 
 
 def write_title_to_octavemnp(q, field, m, n, p, number, coeffinc):
@@ -270,12 +554,15 @@ def uscsa_make_matrix_d_cross(N, field, q, f, l):
 
 def encode_An(lpart, i_plus, A, field, l, r, Zik):
     return [
-        lpart[i] * ((A + sum([(pow(i_plus[i], k, field) * Zik[i][k - 1]) % field for k in range(1, l + 1)])) % field)
+        lpart[i] * ((A + sum([(pow(i_plus[i], k, field) * Zik[i][k - 1]) % field for k in range(1, l + 1)])) % field) % field
         for i in range(r)]
 
 
 def encode_A(left_part, i_plus_an, A, field, N, l, r):
+    start = time.time()
     Zik = [[np.matrix(np.random.random_integers(0, field-1, (A.shape[0], A.shape[1]))) for k in range(l)] for i in range(r)]
+    stop = time.time()
+    print "Zik: ", stop - start
     return [encode_An(left_part[n], i_plus_an[n], A, field, l, r, Zik) for n in range(N)]
 
 def test_encode_A(left_part, i_plus_an, A, field, N, l, r):
@@ -400,7 +687,9 @@ def getBencGASP(Bp, field, N, b, an):
 
 
 def make_a_n(N):
-    return [3 * i + 1 for i in range(N)]
+    #return [3 * i + 1 for i in range(N)]
+    return [i for i in range(N)]
+
 
 
 def make_matrix(ter, N, field):
@@ -569,11 +858,14 @@ def haha_thats_funny(field, k):
 
 
 def find_rt_any_d(field, k, d):
+  #  print "d: ", d
     ordin = find_or(d, field)
     a = []
+  #  print "ordin: ", ordin
     for i in range(1, ordin):
         s = lcm(i, ordin) / i
         if s == k:
+         #   print "~i: ", i
             a.append(pow(d, i, field))
     return a
 
@@ -713,6 +1005,7 @@ def multiply(numbers):
 def get_all_possb_for_fixedN(N):
     lmax = get_lmax(N)
     possbs = []
+    print lmax
     for l in range(1, lmax):
         r_b = get_rb(N, l)
         r_a = get_ra(N, l, r_b)
@@ -722,6 +1015,14 @@ def get_all_possb_for_fixedN(N):
             possbs.append(possb)
     return possbs
 
+def get_for_fixedNl(N, l):
+    r_b = get_rb(N, l)
+    r_a = get_ra(N, l, r_b)
+    cand = (r_a + l) * (r_b + 1) - 1
+    if is_power2(cand):
+        return Params(N, l, r_a, r_b)
+    else:
+        return False
 
 def get_nofft_for_fixedN(N, l):
     if l != 0:
@@ -752,6 +1053,15 @@ def get_all_possabilities(Nmax):
         possbs = get_all_possb_for_fixedN(worker_count)
         all_possbs = all_possbs + possbs
     return all_possbs
+
+
+def getRestAenc(Ap, Ka, field, l, r_a, x):
+    return [sum([Ap[j] * pow(xx, j, field) for j in range(r_a)]) % field + sum(
+        [Ka[k] * pow(xx, k + r_a, field) for k in range(l)]) % field for xx in x]
+
+def getRestReversedBenc(Bp, Kb, field, l, r_b, x):
+    return [sum([Bp[j] * pow(xx, j, field) for j in range(r_b)]) % field + sum(
+        [Kb[k] * pow(xx, k + r_b, field) for k in range(l)]) % field for xx in x]
 
 
 def getAenc(Ap, Ka, N, field, l, r_a, x):

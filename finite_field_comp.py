@@ -6,6 +6,7 @@ A module for finite arithmetic.
 
 #Import generators.
 from __future__ import generators
+import numpy as np
 
 
 __version__ = '1.0'
@@ -215,7 +216,9 @@ def build_div(ring):
 if __name__ == "__main__":
 	field = Field(65537)
 	print field
-	print "65536 + 65535", field.meth["__add__"](65535, 65536);
+	a = np.array([[field(1),field(2),field(3)], [field(4),field(5),field(6)]], dtype=type(field(10)))
+	print [[el / field(1)for el in row] for row in a];
+	print a / field(1)
 
 #Some test code.
 #if __name__ == "__main__":
