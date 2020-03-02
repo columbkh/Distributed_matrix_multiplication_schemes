@@ -6,8 +6,12 @@ import communicators
 
 def schema1(A, B, l, r, N, left_part, i_plus_an, field):
     Bn = np.split(B, r)
-
-    Aenc = encode_A(left_part, i_plus_an, A, field, N, l, r)
+    shape = A[-1].shape
+    field_matr = np.array([[field for el in range(shape[1])] for stroka in range(shape[0])])
+    f_x = np.array([[0 for el in range(shape[1])] for stroka in range(shape[0])], dtype='int64')
+    g_x = np.array([[0 for el in range(shape[1])] for stroka in range(shape[0])], dtype='int64')
+    Aenc = so_encode_A(left_part, i_plus_an, A, field, N, l, r, field_matr, f_x, g_x)
+    Aenc_cmp = encode_A(left_part, i_plus_an, A, field, N, l, r)
     Benc = encode_B(Bn, i_plus_an, field, l, r, N)
     return [A], Bn, Aenc, Benc
 
@@ -27,8 +31,7 @@ def win_scs_m(N, l, r, field, barrier, verific, together, A, B, m, p, flazhok):
 
         dec_start = time.time()
 
-        d_cross, left_part, i_plus_an, an = make_matrix_d_cross(N, field, r, l)
-
+        d_cross, left_part, i_plus_an, an = make_matrix_d_cross_so(N, field, r, l)
 
         dec_pause = time.time()
         dec_firstpart = dec_pause - dec_start
@@ -158,6 +161,8 @@ def win_scs_m(N, l, r, field, barrier, verific, together, A, B, m, p, flazhok):
                 Cver += [(aa * bb.getT()) % field for aa in An]
 
           #  Cver = [(A * bb.getT()) % field for bb in Bn[:r]]
+        #    print Cver
+        #    print final_res
             print ([np.array_equal(final_res[i], Cver[i]) for i in range(len(Cver))])
 
         if barrier:

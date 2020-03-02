@@ -138,19 +138,25 @@ def do_test(r_a, r_b, l, field, q, m, n, p, verific, together):
    # if p % lcm_p != 0:
    #     p = (p // lcm_p) * lcm_p
 
-    tmp = lcm(r, qq)
-    dev = lcm(tmp, f)
+    #tmp = lcm(r, qq)
+    #dev = lcm(tmp, f)
 
-    tmp_m = lcm(r_a, r_a_ass)
-    tmp_p = lcm(r_b, r_b_ass)
-    lcm_m = lcm(dev, tmp_m)
-    lcm_p = lcm(dev, tmp_p)
+    #tmp_m = lcm(r_a, r_a_ass)
+    #tmp_p = lcm(r_b, r_b_ass)
+    #lcm_m = lcm(dev, tmp_m)
+    #lcm_p = lcm(dev, tmp_p)
 
 
-    if m % lcm_m != 0:
-        m = (m // lcm_m) * lcm_m
-    if p % lcm_p != 0:
-        p = (p // lcm_p) * lcm_p
+   # if m % lcm_m != 0:
+   #     m = (m // lcm_m) * lcm_m
+   # if p % lcm_p != 0:
+    #    p = (p // lcm_p) * lcm_p
+
+    if m % r_a_ass != 0:
+        m = (m // r_a_ass) * r_a_ass
+    if p % r_b_ass != 0:
+        p = (p // r_b_ass) * r_b_ass
+
 
 
     if MPI.COMM_WORLD.rank == 0:
@@ -175,19 +181,19 @@ def do_test(r_a, r_b, l, field, q, m, n, p, verific, together):
         if MPI.COMM_WORLD.rank == 0:
             A = np.matrix(np.random.random_integers(0, 255, (m, n)))
             B = np.matrix(np.random.random_integers(0, 255, (p, n)))
-     #   do_gasp(r_a, r_b, l, N, field, True, verific, together, A, B, m, n, p, i, gasp)
-     #   do_ass(N, l, r_a_ass, r_b_ass, k, rt, field, True, verific, together, A, B, m, n, p, i, ass)
-        do_scs(N, l, r, field, True, verific, together, A, B, m, n, p, i, scs, True)
-        do_scs(N, l, r, field, True, verific, together, A, B, m, n, p, i, scs_ruck, False)
+       # do_gasp(r_a, r_b, l, N, field, True, verific, together, A, B, m, n, p, i, gasp)
+        do_ass(N, l, r_a_ass, r_b_ass, k, rt, field, True, verific, together, A, B, m, n, p, i, ass)
+        #do_scs(N, l, r, field, True, verific, together, A, B, m, n, p, i, scs, True)
+        #do_scs(N, l, r, field, True, verific, together, A, B, m, n, p, i, scs_ruck, False)
 
      #   do_uscsa(N, l, f, qq, field, True, verific, together, A, B, m, n, p, i, uscsa)
      #   do_gscsa(N, l, f, qq, field, True, verific, together, A, B, m, n, p, i, gscsa)
 
     if MPI.COMM_WORLD.rank == 0:
     #    write_to_octave(gasp, "gasp" + experiment_name)
-    #    write_to_octave(ass, "ass" + experiment_name)
-        write_to_octave(scs, "scs" + experiment_name)
-        write_to_octave(scs_ruck, "scs_ruck" + experiment_name)
+        write_to_octave(ass, "ass" + experiment_name)
+     #   write_to_octave(scs, "scs" + experiment_name)
+     #   write_to_octave(scs_ruck, "scs_ruck" + experiment_name)
     #    write_to_octave(uscsa, "uscsa" + experiment_name)
     #    write_to_octave(gscsa, "gscsa" + experiment_name)
 

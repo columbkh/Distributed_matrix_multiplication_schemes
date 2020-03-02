@@ -8,8 +8,8 @@ if __name__ == "__main__":
     print "Polynom Evaluations"
     poly = [12, 6, 2, 1, 12, -17, -24, 5, 45, 1]
     poly_ff = a2ffa(poly)
-    alphas = [34, 12, 67, 3, 1, 89]
-
+    alphas_nff = [34, 12, 67, 3, 1, 89]
+    alphas = a2ffa(alphas_nff)
     A = np.matrix(np.random.random_integers(0, field-1, (1200, 100)))
     An = np.split(A, 30)
 

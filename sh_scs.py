@@ -6,10 +6,7 @@ import communicators
 
 def schema1(A, B, l, r, N, left_part, i_plus_an, field):
     Bn = np.split(B, r)
-    start = time.time()
     Aenc = encode_A(left_part, i_plus_an, A, field, N, l, r)
-    stop = time.time()
-    print "Gesamte Zeit: ", stop - start
     Benc = encode_B(Bn, i_plus_an, field, l, r, N)
     return [A], Bn, Aenc, Benc
 
@@ -30,7 +27,6 @@ def scs_m(N, l, r, field, barrier, verific, together, A, B, m, p, flazhok):
         dec_start = time.time()
 
         d_cross, left_part, i_plus_an, an = make_matrix_d_cross(N, field, r, l)
-
 
         dec_pause = time.time()
         dec_firstpart = dec_pause - dec_start
@@ -86,6 +82,7 @@ def scs_m(N, l, r, field, barrier, verific, together, A, B, m, p, flazhok):
 
         if together:
             ul_start = time.time()
+            print "ul start ", ul_start
             for i in range(N):
                 for j in range(r):
                     req_a[i + j * N] = communicators.comm.Isend([Aenc[i][j], MPI.INT], dest=i + 1, tag=15)
@@ -165,6 +162,8 @@ def scs_m(N, l, r, field, barrier, verific, together, A, B, m, p, flazhok):
         if barrier:
             communicators.comm.Barrier()
 
+        print 'UL: ', ul
+
         return enc, dec, dl, ul, serv_comp
 
 
@@ -230,6 +229,8 @@ def scs_sl(N, r, field, barrier, m, n, p, flazhok):
         MPI.Request.Waitall(recv_b)
 
         servcomp_start = time.time()
+        if communicators.prev_comm.rank == 1:
+            print "ul end ", servcomp_start
 
         for j in range(r):
             Ci += (Ai[j] * (Bi[j].getT()))

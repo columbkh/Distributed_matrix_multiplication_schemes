@@ -52,7 +52,8 @@ if __name__ == "__main__":
 
     while True:
         x = input("Put your x")
-        start = time.time()
+        start \
+                = time.time()
         st = standard_eval(poly_ff, x)
         st_inv = standard_eval(poly_ff, -x)
         stop = time.time()

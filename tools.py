@@ -4,11 +4,21 @@ import finite_field_comp as ff
 import numpy as np
 import fft_fields
 import communicators
+import random
 import sys
 import time
 import scipy.io as sio
 from mpi4py import MPI
 
+def make_x_for_a3s_so(N, field):
+    x = []
+    for i in range(int(math.floor(N/2))):
+        xi = random.randint(1, field-1)
+        x.append(xi)
+        x.append(field-xi)
+    if N % 2 != 0:
+        x.append(random.randint(1, field-1))
+    return x
 
 def a2ffa(arr):
     return ffi.array2ffarray(arr)
@@ -34,49 +44,52 @@ def multiply_f(arr, el):
     return np.array([[arr_el * el for arr_el in row] for row in arr], dtype=type(el))
 
 
-def horner_scheme(poly, x):
-    res = ffi.field(0)
+
+def horner_scheme(poly, x, field):
     shape = poly[-1].shape
-    res_nff = np.array([[0 for el in range(shape[1])] for stroka in range(shape[0])])
-    res = np.array(m2ffm(res_nff.tolist()), dtype=type(ffi.field(0)))
-    x_ff = ffi.field(x)
+    res = np.array([[0 for el in range(shape[1])] for stroka in range(shape[0])])
     for coef in poly:
-        res = add(multiply_f(res, x_ff), coef)
+        res = (res * x + coef) % field
     return res
 
 
 def standard_eval(poly, x, field):
     shape = poly[-1].shape
-    res_nff = np.array([[0 for el in range(shape[1])] for stroka in range(shape[0])])
-    res = np.array(m2ffm(res_nff.tolist()), dtype=type(ffi.field(0)))
-  #  np.array(m2ffm(aa.tolist()), dtype=type(ffi.field(0)))
+    res = np.array([[0 for el in range(shape[1])] for stroka in range(shape[0])])
     for i in range(len(poly)):
-        x_ff = ffi.field(pow(x, len(poly) - i - 1, field))
-        res = add(res, multiply_f(poly[i], x_ff))
+        res = (res + poly[i] * pow(x, len(poly) - i - 1, field)) % field
     return res
 
 
-def second_order(poly, x, field):
-    half_floor = math.floor((len(poly) - 1) / 2.0)
-    half_ceil = math.ceil((len(poly) - 1) / 2.0)
-    x_2 = ffi.field(pow(x, 2, field))
-    x_ff = ffi.field(x)
+def second_order(poly, x, field, f_x, g_x, field_matr):
+    f_array = poly[::-1][0::2][::-1]
+    g_array = poly[::-1][1::2][::-1]
 
-    shape = poly[-1].shape
-    res_nff = np.array([[0 for el in range(shape[1])] for stroka in range(shape[0])])
-    f_x = np.array(m2ffm(res_nff.tolist()), dtype=type(ffi.field(0)))
-    g_x = np.array(m2ffm(res_nff.tolist()), dtype=type(ffi.field(0)))
+    x_2 = pow(x, 2, field)
+    i = 0
 
-    for i in range(int(2*half_ceil + 1))[1::2]:
-        f_x = add(multiply_f(f_x, x_2), poly[i])
+    for f in f_array:
+        i = i + 1
+        f_x = (f_x * x_2 + f)
+        if i == 5:
+            f_x = f_x % field
+            i = 0
 
-    for i in range(int(2*half_floor + 1))[0::2]:
-        g_x = add(multiply_f(g_x, x_2), poly[i])
-    g_x = multiply_f(g_x, x_ff)
+    f_x = f_x % field
+    i = 0
+    for g in g_array:
+        i = i + 1
+        g_x = (g_x * x_2 + g)
+        if i == 4:
+            g_x = g_x % field
+            i = 0
+    g_x = g_x * x % field
 
-    x_pos = add(f_x, g_x)
-    x_neg = subtract(f_x, g_x)
+    x_pos = (f_x + g_x) % field
+    x_neg = (f_x + field_matr - g_x) % field
+
     return x_pos, x_neg
+
 
 
 def cutoff_criterium(m, k, n):
@@ -523,6 +536,18 @@ def make_matrix_d_cross(N, field, r, l):
     return d_cross_inv, np.asarray(d_cross_left_part), i_plus_an, an
 
 
+def make_matrix_d_cross_so(N, field, r, l):
+    an = make_a_n_for_so(N, r, field)
+    delta = make_delta(field, an, r)
+    delta_ff = arr2ffarray(delta, field)
+    i_plus_an = [[i + ai for i in range(1, r + 1)] for ai in an]
+    d_cross_left_part = make_d_cross_left_part(delta_ff, i_plus_an, N, field)
+    d_cross_right_part = make_d_cross_right_part(delta_ff, an, N, field, l)
+    d_cross = [d_cross_left_part[count] + d_cross_right_part[count] for count in range(N)]
+    d_cross_inv = get_inv(d_cross, field)
+    return d_cross_inv, np.asarray(d_cross_left_part), i_plus_an, an
+
+
 def uscsa_make_matrix_d_cross_left_part_matrix(left_part, f, q):
     return [[matr[t // f][t % f] for t in range(f * q)] for matr in left_part]
 
@@ -552,6 +577,57 @@ def uscsa_make_matrix_d_cross(N, field, q, f, l):
     return d_cross_inv, np.asarray(d_cross_left_part), j_plus_i_plus_an, i_plus_an, an, delta
 
 
+def so_encode_A(left_part, i_plus_an, A, field, N, l, r, field_matr, f_x, g_x):
+    Zik = [[np.matrix(np.random.random_integers(0, field - 1, (A.shape[0], A.shape[1]))) for k in range(l)] for i in
+           range(r)]
+    coded_matr = []
+    all_coded_matr = []
+
+    for n in range(N)[r::r+1]:
+        resp = so_encode_An(left_part[n], i_plus_an[n], A, field, l, r, Zik, N, n, f_x, g_x, field_matr)
+        coded_matr.append(resp)
+
+    if N % (r+1) != 0:
+        coded_matr.append(so_encode_An(left_part[N-1], i_plus_an[N-1], A, field, l, r, Zik, N, N-1, f_x, g_x, field_matr))
+
+    T = N % (r+1)
+
+    for n in range(N):
+        if (n % (r+1) == r) or (n == N-1):
+            all_coded_matr.append(coded_matr[n // (r+1)][0])
+        elif (N - 1 - n) < T:
+            t = N - 2 - n
+            enc_matr = partly_encode_An(left_part[n], i_plus_an[n], A, field, l, r, Zik, t)
+            enc_matr.insert(t, coded_matr[-1][1][t])
+            all_coded_matr.append(enc_matr)
+        else:
+            t = n % (r + 1)
+            enc_matr = partly_encode_An(left_part[n], i_plus_an[n], A, field, l, r, Zik, r-1-t)
+            enc_matr.insert(r - (n % r) - 1, coded_matr[n // (r + 1)][1][r - (n % r) - 1])
+            all_coded_matr.append(enc_matr)
+
+    for n in range(N):
+        for i in range(r):
+            all_coded_matr[n][i] = (left_part[n][i] * all_coded_matr[n][i]) % field
+    return all_coded_matr
+
+
+def partly_encode_An(lpart, i_plus, A, field, l, r, Zik, n):
+    return [(A + sum([(pow(i_plus[i], k, field) * Zik[i][k - 1]) % field for k in range(1, l + 1)])) % field for i in range(0, n)] \
+           + [(A + sum([(pow(i_plus[i], k, field) * Zik[i][k - 1]) % field for k in range(1, l + 1)])) % field for i in range(n+1, r)]
+
+
+def so_encode_An(lpart, i_plus, A, field, l, r, Zik, N, n, f_x, g_x, field_matr):
+    AA = []
+    BB = []
+    for i in range(r):
+        poly = Zik[i][::-1] + [A]
+        a, b = second_order(poly, i_plus[i], field, f_x, g_x, field_matr)
+        AA.append(a)
+        BB.append(b)
+    return AA, BB
+
+
 def encode_An(lpart, i_plus, A, field, l, r, Zik):
     return [
         lpart[i] * ((A + sum([(pow(i_plus[i], k, field) * Zik[i][k - 1]) % field for k in range(1, l + 1)])) % field) % field
@@ -562,8 +638,8 @@ def encode_A(left_part, i_plus_an, A, field, N, l, r):
     start = time.time()
     Zik = [[np.matrix(np.random.random_integers(0, field-1, (A.shape[0], A.shape[1]))) for k in range(l)] for i in range(r)]
     stop = time.time()
-    print "Zik: ", stop - start
     return [encode_An(left_part[n], i_plus_an[n], A, field, l, r, Zik) for n in range(N)]
+
 
 def test_encode_A(left_part, i_plus_an, A, field, N, l, r):
     start = time.time()
@@ -576,39 +652,48 @@ def reverse_encode_B(left_part, i_plus_an, B, field, N, l, r):
     Zik = [[np.matrix(np.random.random_integers(0, field-1, (B.shape[0], B.shape[1]))) for k in range(l)] for i in range(r)]
     return [reverse_encode_Bn(left_part[n], i_plus_an[n], B, field, l, r, Zik) for n in range(N)]
 
+
 def reverse_encode_Bn(lpart, i_plus, B, field, l, r, Zik):
     return [
         lpart[i] * ((B + sum([(pow(i_plus[i], k, field) * Zik[i][k - 1]) % field for k in range(1, l + 1)])) % field)
         for i in range(r)]
 
+
 def uscsa_encode_A(left_part, i_plus_an, Aj, field, N, l, f, q, delta):
     Zik = [[np.matrix(np.random.random_integers(0, field-1, (Aj[0].shape[0], Aj[0].shape[1]))) for k in range(l)] for i in range(q)]
     return [uscsa_encode_An(left_part[n], i_plus_an[n], Aj, field, l, q, f, Zik, delta[n]) for n in range(N)]
+
 
 def reverse_uscsa_encode_B(left_part, i_plus_an, Bj, field, N, l, f, q, delta):
     Zik = [[np.matrix(np.random.random_integers(0, field-1, (Bj[0].shape[0], Bj[0].shape[1]))) for k in range(l)] for i in range(q)]
     return [reverse_uscsa_encode_Bn(left_part[n], i_plus_an[n], Bj, field, l, q, f, Zik, delta[n]) for n in range(N)]
 
+
 def uscsa_encode_An(lpart, i_plus, Aj, field, l, q, f, Zik, delta):
     return [(sum([(lpart[i][j] * Aj[j]) % field for j in range(f)]) % field + (delta * sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) % field
                                                                                 for k in range(1, l + 1)])) % field) % field for i in range(q)]
+
 
 def reverse_uscsa_encode_Bn(lpart, i_plus, Bj, field, l, q, f, Zik, delta):
     return [(sum([(lpart[i][j] * Bj[j]) % field for j in range(f)]) % field + (delta * sum([(pow(i_plus[i], k - 1, field) * Zik[i][k - 1]) % field
                                                                                 for k in range(1, l + 1)])) % field) % field for i in range(q)]
 
+
 def gscsa_encode_A(left_part, i_plus_an, Aj, field, N, l, f, q, delta):
     Zik = [[np.matrix(np.random.random_integers(0, field-1, (Aj[0].shape[0], Aj[0].shape[1]))) for k in range(l)] for i in range(q)]
     return [gscsa_encode_An(left_part[n], i_plus_an[n], Aj, field, l, q, f, Zik, delta[n]) for n in range(N)]
+
 
 def gscsa_encode_An(lpart, i_plus, Aj, field, l, q, f, Zik, delta):
     return [(sum([(lpart[i][j] * Aj[i*f + j]) % field for j in range(f)]) % field + (delta * sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) % field
                                                                                   for k in range(1, l + 1)])) % field) % field for i in range(q)]
 
+
 def reverse_gscsa_encode_B(left_part, i_plus_an, Bj, field, N, l, f, q, delta):
     Zik = [[np.matrix(np.random.random_integers(0, field - 1, (Bj[0].shape[0], Bj[0].shape[1]))) for k in range(l)] for
            i in range(q)]
     return [reverse_gscsa_encode_Bn(left_part[n], i_plus_an[n], Bj, field, l, q, f, Zik, delta[n]) for n in range(N)]
+
 
 def reverse_gscsa_encode_Bn(lpart, i_plus, Aj, field, l, q, f, Zik, delta):
     return [(sum([(lpart[i][j] * Aj[i*f + j]) % field for j in range(f)]) % field + (delta * sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) % field
@@ -619,10 +704,12 @@ def encode_Bn(Bn, i_plus, field, l, r, Zik):
     return [(Bn[i] + sum([(pow(i_plus[i], k, field) * Zik[i][k - 1]) % field for k in range(1, l + 1)])) % field for i
             in range(r)]
 
+
 def encode_B(Bn, i_plus_an, field, l, r, N):
     Zik = [[np.matrix(np.random.random_integers(0, field-1, (Bn[0].shape[0], Bn[0].shape[1]))) for k in range(l)] for i in
            range(r)]
     return [encode_Bn(Bn, i_plus_an[n], field, l, r, Zik) for n in range(N)]
+
 
 def test_encode_B(Bn, i_plus_an, field, l, r, N):
     start = time.time()
@@ -631,27 +718,33 @@ def test_encode_B(Bn, i_plus_an, field, l, r, N):
     stop = time.time()
     return [encode_Bn(Bn, i_plus_an[n], field, l, r, Zik) for n in range(N)], stop - start
 
+
 def reverse_encode_A(An, i_plus_an, field, l, r, N):
     Zik = [[np.matrix(np.random.random_integers(0, field-1, (An[0].shape[0], An[0].shape[1]))) for k in range(l)] for i in
            range(r)]
     return [reverse_encode_An(An, i_plus_an[n], field, l, r, Zik) for n in range(N)]
 
+
 def reverse_encode_An(An, i_plus, field, l, r, Zik):
     return [(An[i] + sum([(pow(i_plus[i], k, field) * Zik[i][k - 1]) % field for k in range(1, l + 1)])) % field for i
             in range(r)]
+
 
 def uscsa_encode_B(Bn, i_plus_an, field, l, q, f, N, left_term):
     Zik = [[np.matrix(np.random.random_integers(0, field-1, (Bn[0].shape[0], Bn[0].shape[1]))) for k in range(l)] for i in
            range(q)]
     return [uscsa_encode_Bn(Bn, i_plus_an[n], left_term[n], field, l, q, Zik) for n in range(N)]
 
+
 def reverse_uscsa_encode_A(An, i_plus_an, field, l, q, f, N, left_term):
     Zik = [[np.matrix(np.random.random_integers(0, field-1, (An[0].shape[0], An[0].shape[1]))) for k in range(l)] for i in
            range(q)]
     return [reverse_uscsa_encode_An(An, i_plus_an[n], left_term[n], field, l, q, Zik) for n in range(N)]
 
+
 def uscsa_encode_Bn(Bn, i_plus, lterm, field, l, q, Zik):
     return [(Bn[i] + multiply(lterm[i]) * sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) * field for k in range(1, l + 1)])) % field for i in range(q)]
+
 
 def reverse_uscsa_encode_An(An, i_plus, lterm, field, l, q, Zik):
     return [(An[i] + multiply(lterm[i]) * sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) * field for k in range(1, l + 1)])) % field for i in range(q)]
@@ -677,7 +770,6 @@ def reverse_gscsa_encode_An(An, i_plus, lterm, field, l, q, Zik):
     return [(An[0] + multiply(lterm[i]) * sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) * field for k in range(1, l + 1)])) % field for i in range(q)]
 
 
-
 def getAencGASP(Ap, field, N, a, an):
     return [sum([Ap[j] * pow(an[i], a[j], field) for j in range(len(a))]) for i in range(N)]
 
@@ -687,9 +779,25 @@ def getBencGASP(Bp, field, N, b, an):
 
 
 def make_a_n(N):
-    #return [3 * i + 1 for i in range(N)]
     return [i for i in range(N)]
 
+
+def make_a_n_for_so(N, r, field):
+    an = []
+    tmp = 0
+    for i in range(N):
+        an.append(tmp)
+        tmp = tmp + 2
+        if (i % (r+1) == r) or (i == N-1):
+            an[i] = field - an[i]
+
+
+  #  for i in range(N):
+   #     if i % 2 == 0:
+   #         an.append(i/2)
+   #     else:
+   #         an.append(-r-(i+1)/2)
+    return an
 
 
 def make_matrix(ter, N, field):
@@ -1064,6 +1172,23 @@ def getRestReversedBenc(Bp, Kb, field, l, r_b, x):
         [Kb[k] * pow(xx, k + r_b, field) for k in range(l)]) % field for xx in x]
 
 
+def getAencSO(Ap, Ka, N, field, l, r_a, x, f_x, g_x, field_matr):
+    result = []
+    coeff = Ka + Ap
+    for i in range(N-1)[::2]:
+        a, b = second_order(coeff, x[i], field, f_x, g_x, field_matr)
+        result.append(a)
+        result.append(b)
+    if N % 2 == 1:
+        res = sum([Ap[r_a - j - 1] * pow(x[N - 1], j, field) for j in range(r_a)]) % field + sum(
+            [Ka[l - k - 1] * pow(x[N - 1], k + r_a, field) for k in range(l)]) % field
+
+        result.append(
+            res
+        )
+    return result
+
+
 def getAenc(Ap, Ka, N, field, l, r_a, x):
     return [sum([Ap[j] * pow(x[i], j, field) for j in range(r_a)]) % field + sum(
         [Ka[k] * pow(x[i], k + r_a, field) for k in range(l)]) % field for i in range(N)]
@@ -1083,6 +1208,23 @@ def getReversedAenc(Ap, Ka, N, field, l, r_a, r_b, x):
 def getReversedBenc(Bp, Kb, N, field, l, r_b, x):
     return [sum([Bp[j] * pow(x[i], j, field) for j in range(r_b)]) % field + sum(
         [Kb[k] * pow(x[i], k + r_b, field) for k in range(l)]) % field for i in range(N)]
+
+
+def getReversedBencSO(Bp, Kb, N, field, l, r_b, x, f_x, g_x, field_matr):
+    result = []
+    coeff = Kb + Bp
+    for i in range(N - 1)[::2]:
+        a, b = second_order(coeff, x[i], field, f_x, g_x, field_matr)
+        result.append(a)
+        result.append(b)
+    if N % 2 == 1:
+        res = sum([Bp[r_b - j - 1] * pow(x[N - 1], j, field) for j in range(r_b)]) % field + sum(
+            [Kb[l - k - 1] * pow(x[N - 1], k + r_b, field) for k in range(l)]) % field
+
+        result.append(
+            res
+        )
+    return result
 
 
 

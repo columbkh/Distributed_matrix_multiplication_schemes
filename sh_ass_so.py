@@ -4,17 +4,34 @@ import time
 import communicators
 
 def schema1(Ap, Bp, Ka, Kb, N, field, l, r_a, r_b, x, m, n, p):
-    Aenc = getAenc(Ap, Ka, N, field, l, r_a, x)
+    Ap_so = Ap[::-1]
+    Ka_so = Ka[::-1]
+
+    shape = Ap_so[-1].shape
+    field_matr = np.array([[field for el in range(shape[1])] for stroka in range(shape[0])])
+    f_x = np.array([[0 for el in range(shape[1])] for stroka in range(shape[0])], dtype='int64')
+    g_x = np.array([[0 for el in range(shape[1])] for stroka in range(shape[0])], dtype='int64')
+  #  Aenc = getAenc(Ap, Ka, N, field, l, r_a, x)
+    Aenc_so = getAencSO(Ap_so, Ka_so, N, field, l, r_a, x, f_x, g_x, field_matr)
     Benc = getBenc(Bp, Kb, N, field, l, r_a, r_b, x)
-    return Aenc, Benc
+    return Aenc_so, Benc
 
 def schema2(Ap, Bp, Ka, Kb, N, field, l, r_a, r_b, x, m, n, p):
+    Bp_so = Bp[::-1]
+    Kb_so = Kb[::-1]
+    shape = Bp_so[-1].shape
+    field_matr = np.array([[field for el in range(shape[1])] for stroka in range(shape[0])])
+    f_x = np.array([[0 for el in range(shape[1])] for stroka in range(shape[0])], dtype='int64')
+    g_x = np.array([[0 for el in range(shape[1])] for stroka in range(shape[0])], dtype='int64')
+
     Aenc = getReversedAenc(Ap, Ka, N, field, l, r_a, r_b, x)
     Benc = getReversedBenc(Bp, Kb, N, field, l, r_b, x)
-    return Aenc, Benc
+
+    Benc_so = getReversedBencSO(Bp_so, Kb_so, N, field, l, r_b, x, f_x, g_x, field_matr)
+    return Aenc, Benc_so
 
 
-def ass_m(N, l, r_a, r_b, k, rt, field, barrier, verific, together, A, B, m, n, p):
+def ass_m_so(N, l, r_a, r_b, k, rt, field, barrier, verific, together, A, B, m, n, p):
 
     if communicators.prev_comm.rank == 0:
 
@@ -32,6 +49,7 @@ def ass_m(N, l, r_a, r_b, k, rt, field, barrier, verific, together, A, B, m, n, 
         Kb = [np.matrix(np.random.random_integers(0, 255, (p / r_b, n))) for i in range(l)]
 
         x = make_x_for_a3s_so(N, field)
+        #x = [pow(rt, i, field) for i in range(k)]
         t = 3
         for i in range(N - k):
             while is_power2(t):
@@ -182,7 +200,7 @@ def ass_m(N, l, r_a, r_b, k, rt, field, barrier, verific, together, A, B, m, n, 
         return enc, dec, dl, ul, serv_comp
 
 
-def ass_sl(N, r_a, r_b, field, barrier, m, n, p):
+def ass_sl_so(N, r_a, r_b, field, barrier, m, n, p):
     if 0 < communicators.prev_comm.rank < N + 1:
 
         if m < p:
