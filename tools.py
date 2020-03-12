@@ -91,9 +91,25 @@ def second_order(poly, x, field, f_x, g_x, field_matr):
     return x_pos, x_neg
 
 
+def second_order_no_hs(poly, x, field, f_x, g_x, field_matr):
+    f_array = poly[::-1][0::2]
+    g_array = poly[::-1][1::2]
+
+    x_2 = pow(x, 2, field)
+    i = 0
+
+    f_x = sum([f_array[i] * pow(x_2, i, field) for i in range(len(f_array))]) % field
+    g_x = (sum([g_array[i] * pow(x_2, i, field) for i in range(len(g_array))]) * x) % field
+
+    x_pos = (f_x + g_x) % field
+    x_neg = (f_x + field_matr - g_x) % field
+
+    return x_pos, x_neg
+
 
 def cutoff_criterium(m, k, n):
     return 1.0 <= 4.0 * (4.0/n + 4.0/m + 7.0/k)
+
 
 def strassen_winograd(A, B):
     n, k = A.shape
@@ -577,18 +593,37 @@ def uscsa_make_matrix_d_cross(N, field, q, f, l):
     return d_cross_inv, np.asarray(d_cross_left_part), j_plus_i_plus_an, i_plus_an, an, delta
 
 
-def so_encode_A(left_part, i_plus_an, A, field, N, l, r, field_matr, f_x, g_x):
+def uscsa_make_matrix_d_cross_so(N, field, q, f, l):
+    an = make_a_n_for_so(N, q, field)
+    delta = make_delta(field, an, f*q)
+    delta_ff = arr2ffarray(delta, field)
+    for ai in an:
+        print "ALPHA ", ai
+        print "j + (i-1)*f "
+        print np.asarray([[j + (i - 1) * f for j in range(1, f + 1)] for i in range(1, q + 1)])
+    j_plus_i_plus_an = [[[j + (i - 1) * f + ai for j in range(1, f + 1)] for i in range(1, q + 1)] for ai in an]
+    i_plus_an = [[i + ai for i in range(1, q + 1)] for ai in an]
+    d_cross_left_part = uscsa_make_matrix_d_cross_left_part(delta_ff, j_plus_i_plus_an, N, field, q, f)
+    d_cross_left_part_matrix = uscsa_make_matrix_d_cross_left_part_matrix(d_cross_left_part, f, q)
+    d_cross_right_part = uscsa_make_matrix_d_cross_right_part(delta_ff, an, N, field, l, f)
+    d_cross = [d_cross_left_part_matrix[count] + d_cross_right_part[count] for count in range(N)]
+    print "d_cross", np.asarray(d_cross)
+    d_cross_inv = get_inv(d_cross, field)
+    return d_cross_inv, np.asarray(d_cross_left_part), j_plus_i_plus_an, i_plus_an, an, delta
+
+
+def so_encode_A(left_part, i_plus_an, A, field, N, l, r, field_matr, f_x, g_x, hs):
     Zik = [[np.matrix(np.random.random_integers(0, field - 1, (A.shape[0], A.shape[1]))) for k in range(l)] for i in
            range(r)]
     coded_matr = []
     all_coded_matr = []
 
     for n in range(N)[r::r+1]:
-        resp = so_encode_An(left_part[n], i_plus_an[n], A, field, l, r, Zik, N, n, f_x, g_x, field_matr)
+        resp = so_encode_An(left_part[n], i_plus_an[n], A, field, l, r, Zik, N, n, f_x, g_x, field_matr, hs)
         coded_matr.append(resp)
 
     if N % (r+1) != 0:
-        coded_matr.append(so_encode_An(left_part[N-1], i_plus_an[N-1], A, field, l, r, Zik, N, N-1, f_x, g_x, field_matr))
+        coded_matr.append(so_encode_An(left_part[N-1], i_plus_an[N-1], A, field, l, r, Zik, N, N-1, f_x, g_x, field_matr, hs))
 
     T = N % (r+1)
 
@@ -617,12 +652,61 @@ def partly_encode_An(lpart, i_plus, A, field, l, r, Zik, n):
            + [(A + sum([(pow(i_plus[i], k, field) * Zik[i][k - 1]) % field for k in range(1, l + 1)])) % field for i in range(n+1, r)]
 
 
-def so_encode_An(lpart, i_plus, A, field, l, r, Zik, N, n, f_x, g_x, field_matr):
+def so_encode_An(lpart, i_plus, A, field, l, r, Zik, N, n, f_x, g_x, field_matr, hs):
     AA = []
     BB = []
     for i in range(r):
         poly = Zik[i][::-1] + [A]
-        a, b = second_order(poly, i_plus[i], field, f_x, g_x, field_matr)
+        a, b = second_order(poly, i_plus[i], field, f_x, g_x, field_matr) if hs \
+            else second_order_no_hs(poly, i_plus[i], field, f_x, g_x, field_matr)
+        AA.append(a)
+        BB.append(b)
+    return AA, BB
+
+
+def so_encode_B(i_plus_an, Bn, field, N, l, r, field_matr, f_x, g_x, hs):
+    Zik = [[np.matrix(np.random.random_integers(0, field - 1, (Bn[0].shape[0], Bn[0].shape[1]))) for k in range(l)] for i in range(r)]
+    coded_matr = []
+    all_coded_matr = []
+
+    for n in range(N)[r::r+1]:
+        resp = so_encode_Bn(i_plus_an[n], Bn, field, r, Zik, f_x, g_x, field_matr, hs)
+        coded_matr.append(resp)
+
+    if N % (r+1) != 0:
+        coded_matr.append(so_encode_Bn(i_plus_an[N-1], Bn, field, r, Zik, f_x, g_x, field_matr, hs))
+
+    T = N % (r+1)
+
+    for n in range(N):
+        if (n % (r+1) == r) or (n == N-1):
+            all_coded_matr.append(coded_matr[n // (r+1)][0])
+        elif (N - 1 - n) < T:
+            t = N - 2 - n
+            enc_matr = partly_encode_Bn(i_plus_an[n], Bn, field, l, r, Zik, t)
+            enc_matr.insert(t, coded_matr[-1][1][t])
+            all_coded_matr.append(enc_matr)
+        else:
+            t = n % (r + 1)
+            enc_matr = partly_encode_Bn(i_plus_an[n], Bn, field, l, r, Zik, r-1-t)
+            enc_matr.insert(r - (n % r) - 1, coded_matr[n // (r + 1)][1][r - (n % r) - 1])
+            all_coded_matr.append(enc_matr)
+
+    return all_coded_matr
+
+
+def partly_encode_Bn(i_plus, Bn, field, l, r, Zik, n):
+    return [(Bn[i] + sum([(pow(i_plus[i], k, field) * Zik[i][k - 1]) % field for k in range(1, l + 1)])) % field for i in range(0, n)] \
+           + [(Bn[i] + sum([(pow(i_plus[i], k, field) * Zik[i][k - 1]) % field for k in range(1, l + 1)])) % field for i in range(n+1, r)]
+
+
+def so_encode_Bn(i_plus, Bn, field, r, Zik, f_x, g_x, field_matr, hs):
+    AA = []
+    BB = []
+    for i in range(r):
+        poly = Zik[i][::-1] + [Bn[i]]
+        a, b = second_order(poly, i_plus[i], field, f_x, g_x, field_matr) if hs\
+            else second_order_no_hs(poly, i_plus[i], field, f_x, g_x, field_matr)
         AA.append(a)
         BB.append(b)
     return AA, BB
@@ -660,8 +744,62 @@ def reverse_encode_Bn(lpart, i_plus, B, field, l, r, Zik):
 
 
 def uscsa_encode_A(left_part, i_plus_an, Aj, field, N, l, f, q, delta):
-    Zik = [[np.matrix(np.random.random_integers(0, field-1, (Aj[0].shape[0], Aj[0].shape[1]))) for k in range(l)] for i in range(q)]
+    Zik = [[np.matrix(np.random.random_integers(0, 0, (Aj[0].shape[0], Aj[0].shape[1]))) for k in range(l)] for i in range(q)]
     return [uscsa_encode_An(left_part[n], i_plus_an[n], Aj, field, l, q, f, Zik, delta[n]) for n in range(N)]
+
+
+def uscsa_so_encode_A(left_part, i_plus_an, Aj, field, N, l, f, q, delta, field_matr, f_x, g_x):
+    Zik = [[np.matrix(np.random.random_integers(0, field - 1, (Aj[0].shape[0], Aj[0].shape[1]))) for k in range(l)] for i in
+           range(q)]
+    coded_matr = []
+    all_coded_matr = []
+
+ #   print [uscsa_encode_An(left_part[n], i_plus_an[n], Aj, field, l, q, f, Zik, delta[n]) for n in range(N)]
+
+    for n in range(N)[q::q+1]:
+        resp = uscsa_so_encode_An(i_plus_an[n], field, q, Zik, f_x, g_x, field_matr)
+    #    print "enc so", resp
+        coded_matr.append(resp)
+
+    if N % (q+1) != 0:
+        tmp = uscsa_so_encode_An(i_plus_an[N - 1], field, q, Zik, f_x, g_x, field_matr)
+   #     print "enc so", tmp
+        coded_matr.append(tmp)
+
+    T = N % (q+1)
+
+    for n in range(N):
+#        print "n ", n
+        if (n % (q+1) == q) or (n == N-1):
+            all_coded_matr.append(coded_matr[n // (q+1)][0])
+        elif (N - 1 - n) < T:
+            t = N - 2 - n
+            enc_matr = uscsa_partly_encode_An(i_plus_an[n], field, l, q, Zik, t)
+            enc_matr.insert(t, coded_matr[-1][1][t])
+            all_coded_matr.append(enc_matr)
+        else:
+            t = n % (q + 1)
+ #           print "partly enc ", q-1-t
+  #          print "insert ", q - (n % q)
+            enc_matr = uscsa_partly_encode_An(i_plus_an[n], field, l, q, Zik, q-1-t)
+            enc_matr.insert(q-1-t, coded_matr[n // (q + 1)][1][q-1-t])
+            all_coded_matr.append(enc_matr)
+
+
+
+    for n in range(N):
+        for i in range(q):
+            all_coded_matr[n][i] = (sum([(left_part[n][i][j] * Aj[j]) % field for j in range(f)]) % field + delta[n] * all_coded_matr[n][i]) % field
+
+    #print "second order "
+    #for matr in all_coded_matr:
+    #    print matr
+    return all_coded_matr
+
+
+def uscsa_partly_encode_An(i_plus, field, l, q, Zik, n):
+    return [(sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) % field for k in range(1, l + 1)])) % field for i in range(0, n)] \
+           + [(sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) % field for k in range(1, l + 1)])) % field for i in range(n+1, q)]
 
 
 def reverse_uscsa_encode_B(left_part, i_plus_an, Bj, field, N, l, f, q, delta):
@@ -669,7 +807,19 @@ def reverse_uscsa_encode_B(left_part, i_plus_an, Bj, field, N, l, f, q, delta):
     return [reverse_uscsa_encode_Bn(left_part[n], i_plus_an[n], Bj, field, l, q, f, Zik, delta[n]) for n in range(N)]
 
 
+def uscsa_so_encode_An(i_plus, field, q, Zik, f_x, g_x, field_matr):
+    AA = []
+    BB = []
+    for i in range(q):
+        poly = Zik[i][::-1]
+        a, b = second_order(poly, i_plus[i], field, f_x, g_x, field_matr)
+        AA.append(a)
+        BB.append(b)
+    return AA, BB
+
+
 def uscsa_encode_An(lpart, i_plus, Aj, field, l, q, f, Zik, delta):
+#    print "enc ", [sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) % field for k in range(1, l + 1)]) % field for i in range(q)]
     return [(sum([(lpart[i][j] * Aj[j]) % field for j in range(f)]) % field + (delta * sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) % field
                                                                                 for k in range(1, l + 1)])) % field) % field for i in range(q)]
 
@@ -731,8 +881,9 @@ def reverse_encode_An(An, i_plus, field, l, r, Zik):
 
 
 def uscsa_encode_B(Bn, i_plus_an, field, l, q, f, N, left_term):
-    Zik = [[np.matrix(np.random.random_integers(0, field-1, (Bn[0].shape[0], Bn[0].shape[1]))) for k in range(l)] for i in
+    Zik = [[np.matrix(np.random.random_integers(1, 1, (Bn[0].shape[0], Bn[0].shape[1]))) for k in range(l)] for i in
            range(q)]
+    print "Zik", Zik
     return [uscsa_encode_Bn(Bn, i_plus_an[n], left_term[n], field, l, q, Zik) for n in range(N)]
 
 
@@ -743,7 +894,9 @@ def reverse_uscsa_encode_A(An, i_plus_an, field, l, q, f, N, left_term):
 
 
 def uscsa_encode_Bn(Bn, i_plus, lterm, field, l, q, Zik):
-    return [(Bn[i] + multiply(lterm[i]) * sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) * field for k in range(1, l + 1)])) % field for i in range(q)]
+   # print [[(pow(i_plus[i], k-1, field) *) * field for k in range(1, l + 1)] for i in range(q)]
+    print "summe ", [sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) * field for k in range(1, l + 1)]) % field for i in range(q)]
+    return [(Bn[i] + multiply(lterm[i]) * sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) % field for k in range(1, l + 1)])) % field for i in range(q)]
 
 
 def reverse_uscsa_encode_An(An, i_plus, lterm, field, l, q, Zik):
@@ -784,7 +937,7 @@ def make_a_n(N):
 
 def make_a_n_for_so(N, r, field):
     an = []
-    tmp = 0
+    tmp = 1
     for i in range(N):
         an.append(tmp)
         tmp = tmp + 2
@@ -1172,11 +1325,13 @@ def getRestReversedBenc(Bp, Kb, field, l, r_b, x):
         [Kb[k] * pow(xx, k + r_b, field) for k in range(l)]) % field for xx in x]
 
 
-def getAencSO(Ap, Ka, N, field, l, r_a, x, f_x, g_x, field_matr):
+def getAencSO(Ap, Ka, N, field, l, r_a, x, f_x, g_x, field_matr, hs):
     result = []
     coeff = Ka + Ap
+    print "hs: ", hs
     for i in range(N-1)[::2]:
-        a, b = second_order(coeff, x[i], field, f_x, g_x, field_matr)
+        a, b = second_order(coeff, x[i], field, f_x, g_x, field_matr) if hs\
+            else second_order_no_hs(coeff, x[i], field, f_x, g_x, field_matr)
         result.append(a)
         result.append(b)
     if N % 2 == 1:
@@ -1210,11 +1365,12 @@ def getReversedBenc(Bp, Kb, N, field, l, r_b, x):
         [Kb[k] * pow(x[i], k + r_b, field) for k in range(l)]) % field for i in range(N)]
 
 
-def getReversedBencSO(Bp, Kb, N, field, l, r_b, x, f_x, g_x, field_matr):
+def getReversedBencSO(Bp, Kb, N, field, l, r_b, x, f_x, g_x, field_matr, hs):
     result = []
     coeff = Kb + Bp
     for i in range(N - 1)[::2]:
-        a, b = second_order(coeff, x[i], field, f_x, g_x, field_matr)
+        a, b = second_order(coeff, x[i], field, f_x, g_x, field_matr) if hs\
+            else second_order_no_hs(coeff, x[i], field, f_x, g_x, field_matr)
         result.append(a)
         result.append(b)
     if N % 2 == 1:
@@ -1228,9 +1384,9 @@ def getReversedBencSO(Bp, Kb, N, field, l, r_b, x, f_x, g_x, field_matr):
 
 
 
-def getNewAenc(Ap, Ka, N, field, l, r_a, r_b, x):
-    return [sum([Bp[j] * pow(x[i], j * (r_a + l), field) for j in range(r_b)]) % field + sum(
-        [Kb[k] * pow(x[i], k + r_a + (r_b - 1) * (r_a + l), field) for k in range(l)]) % field for i in range(N)]
+#def getNewAenc(Ap, Ka, N, field, l, r_a, r_b, x):
+#    return [sum([Bp[j] * pow(x[i], j * (r_a + l), field) for j in range(r_b)]) % field + sum(
+#        [Kb[k] * pow(x[i], k + r_a + (r_b - 1) * (r_a + l), field) for k in range(l)]) % field for i in range(N)]
 
 
 def inverse_n(n, rt, field):

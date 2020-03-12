@@ -5,7 +5,6 @@ from scs_win import *
 from sh_uscsa import *
 from sh_gscsa import *
 from sh_ass_so import *
-from so_uscsa import *
 import numpy as np
 import argparse
 
@@ -13,7 +12,7 @@ import argparse
 def do_scs(N, l, r, field, barrier, verific, together, A, B, m, n, p, i, scs, flazhok, hs):
     if MPI.COMM_WORLD.rank == 0:
         if flazhok:
-            print "scs winograd: Iteration", str(i)
+            print "scs winograd-second order, horner scheme - ", hs, ": Iteration", str(i)
             enc, dec, dl, ul, comp = win_scs_m(N, l, r, field, barrier, verific, together, A, B, m, p, True, hs)
             compute(enc, dec, dl, ul, comp, scs, i)
         else:
@@ -27,21 +26,13 @@ def do_scs(N, l, r, field, barrier, verific, together, A, B, m, n, p, i, scs, fl
             scs_sl(N, r, field, barrier, m, n, p, True)
 
 
-def do_uscsa(N, l, f, qq, field, barrier, verific, together, A, B, m, n, p, i, uscsa, flazhok, so):
+def do_uscsa(N, l, f, qq, field, barrier, verific, together, A, B, m, n, p, i, uscsa, flazhok):
     if MPI.COMM_WORLD.rank == 0:
-        if so:
-            print "uscsa second order: Iteration", str(i)
-            enc, dec, dl, ul, comp = so_uscsa_m(N, l, f, qq, field, barrier, verific, together, A, B, m, p, flazhok)
-            compute(enc, dec, dl, ul, comp, uscsa, i)
-        else:
-            print "uscsa: Iteration", str(i)
-            enc, dec, dl, ul, comp = uscsa_m(N, l, f, qq, field, barrier, verific, together, A, B, m, p, flazhok)
-            compute(enc, dec, dl, ul, comp, uscsa, i)
+        print "uscsa: Iteration", str(i)
+        enc, dec, dl, ul, comp = uscsa_m(N, l, f, qq, field, barrier, verific, together, A, B, m, p, flazhok)
+        compute(enc, dec, dl, ul, comp, uscsa, i)
     else:
-        if so:
-            so_uscsa_sl(N, qq, f, field, barrier, m, n, p, flazhok)
-        else:
-            uscsa_sl(N, qq, f, field, barrier, m, n, p, flazhok)
+        uscsa_sl(N, qq, f, field, barrier, m, n, p, flazhok)
 
 
 def do_gscsa(N, l, f, qq, field, barrier, verific, together, A, B, m, n, p, i, gscsa, flazhok):
@@ -63,12 +54,12 @@ def do_gasp(r_a, r_b, l, N, field, barrier, verific, together, A, B, m, n, p, i,
 
 def do_ass(N, l, r_a_ass, r_b_ass, k, rt, field, barrier, verific, together, A, B, m, n, p, i, ass, flazhok, hs):
     if MPI.COMM_WORLD.rank == 0:
-        if flazhok:
+        if not flazhok:
             print "ass: Iteration", str(i)
             enc, dec, dl, ul, comp = ass_m(N, l, r_a_ass, r_b_ass, k, rt, field, barrier, verific, together, A, B, m, n, p)
             compute(enc, dec, dl, ul, comp, ass, i)
         else:
-            print "ass second order: Iteration", str(i)
+            print "ass second order, horner scheme - ", hs, ": Iteration", str(i)
             enc, dec, dl, ul, comp = ass_m_so(N, l, r_a_ass, r_b_ass, k, rt, field, barrier, verific, together, A, B, m, n, p, hs)
             compute(enc, dec, dl, ul, comp, ass, i)
 
@@ -80,12 +71,6 @@ def do_ass(N, l, r_a_ass, r_b_ass, k, rt, field, barrier, verific, together, A, 
 
 
 def compute(enc, dec, dl, ul, comp, scheme, i):
-    print "dl: ", dl
-    print "ul: ", ul
-    print "dec: ",dec
-    print "comp: ", comp
-    print "enc: ", enc
-
     if isinstance(dl, list):
         scheme[0][i] = sum(dl) / len(dl)
     else:
@@ -105,19 +90,18 @@ def compute(enc, dec, dl, ul, comp, scheme, i):
     scheme[4][i] = enc
 
 
-def do_test(r_a, r_b, l, field, q, m, n, p, verific, together):
+def do_test(r_a, r_b, l, field, q, m, n, p, qq, f, verific, together):
     A = None
     B = None
     gasp = None
     ass = None
     ass_so = None
+    ass_so_hs = None
     scs = None
-    scs_ruck = None
-    uscsa_ruck = None
+    scs_win_so = None
+    scs_win_so_hs = None
     uscsa = None
-    uscsa_so = None
     gscsa = None
-    gscsa_ruck = None
 
     experiment_name = "_Q_" + str(q) + "_m_" + str(m) + "_n_" + str(n) + "_p_" + str(p)
 
@@ -144,17 +128,6 @@ def do_test(r_a, r_b, l, field, q, m, n, p, verific, together):
 
     r = N - 2 * l
 
-  #  qq, f = factorize_root(N + 1 - 2 * l)
-  #  qq = qq - 1
-    qq = 3
-    f = 2
-
-    #qq = 4
-    #f = 3
-
-
-
-
     if MPI.COMM_WORLD.rank == 0:
         print "N: ", N
         print "r: ", r
@@ -174,18 +147,10 @@ def do_test(r_a, r_b, l, field, q, m, n, p, verific, together):
     lcm_m = lcm(dev, tmp_m)
     lcm_p = lcm(dev, tmp_p)
 
-#    if m % lcm_m != 0:
-#        m = (m // lcm_m) * lcm_m
-#    if p % lcm_p != 0:
-#        p = (p // lcm_p) * lcm_p
-
-    if m % f != 0:
-        m = (m // f) * f
-    if p % qq != 0:
-        p = (p // qq) * qq
-
-    #if p % r != 0:
-     #   p = (p // r) * r
+    if m % lcm_m != 0:
+        m = (m // lcm_m) * lcm_m
+    if p % lcm_p != 0:
+        p = (p // lcm_p) * lcm_p
 
 
     if MPI.COMM_WORLD.rank == 0:
@@ -200,76 +165,37 @@ def do_test(r_a, r_b, l, field, q, m, n, p, verific, together):
         gasp = [np.zeros(q) for count in range(5)]
         ass = [np.zeros(q) for count in range(5)]
         ass_so = [np.zeros(q) for count in range(5)]
+        ass_so_hs = [np.zeros(q) for count in range(5)]
         scs = [np.zeros(q) for count in range(5)]
-        scs_ruck = [np.zeros(q) for count in range(5)]
-        uscsa_ruck = [np.zeros(q) for count in range(5)]
+        scs_win_so = [np.zeros(q) for count in range(5)]
+        scs_win_so_hs = [np.zeros(q) for count in range(5)]
         uscsa = [np.zeros(q) for count in range(5)]
-        uscsa_so = [np.zeros(q) for count in range(5)]
         gscsa = [np.zeros(q) for count in range(5)]
-        gscsa_ruck = [np.zeros(q) for count in range(5)]
 
 
 
     for i in range(q):
         if MPI.COMM_WORLD.rank == 0:
-            A = np.matrix(np.random.random_integers(1, 1, (m, n)))
-            B = np.matrix(np.random.random_integers(0, 0, (p, n)))
-#        do_gasp(r_a, r_b, l, N, field, True, verific, together, A, B, m, n, p, i, gasp)
-#        do_ass(N, l, r_a_ass, r_b_ass, k, rt, field, True, verific, together, A, B, m, n, p, i, ass, True)
-#        do_ass(N, l, r_a_ass, r_b_ass, k, rt, field, True, verific, together, A, B, m, n, p, i, ass_so, False, False)
-  #      do_scs(N, l, r, field, True, verific, together, A, B, m, n, p, i, scs, True, False)
-#        do_scs(N, l, r, field, True, verific, together, A, B, m, n, p, i, scs_ruck, False)
-        do_uscsa(N, l, f, qq, field, True, verific, together, A, B, m, n, p, i, uscsa, True, False)
-        do_uscsa(N, l, f, qq, field, True, verific, together, A, B, m, n, p, i, uscsa_so, True, True)
-#        do_gscsa(N, l, f, qq, field, True, verific, together, A, B, m, n, p, i, gscsa, True)
-       # do_gscsa(N, l, f, qq, field, True, verific, together, A, B, m, n, p, i, gscsa_ruck, False)
-       # do_uscsa(N, l, f, qq, field, True, verific, together, A, B, m, n, p, i, uscsa_ruck, False)
+            A = np.matrix(np.random.random_integers(0, 255, (m, n)))
+            B = np.matrix(np.random.random_integers(0, 255, (p, n)))
+        do_gasp(r_a, r_b, l, N, field, True, verific, together, A, B, m, n, p, i, gasp)
+        do_ass(N, l, r_a_ass, r_b_ass, k, rt, field, True, verific, together, A, B, m, n, p, i, ass, False, False)
+        do_ass(N, l, r_a_ass, r_b_ass, k, rt, field, True, verific, together, A, B, m, n, p, i, ass_so, True, False)
+        do_ass(N, l, r_a_ass, r_b_ass, k, rt, field, True, verific, together, A, B, m, n, p, i, ass_so_hs, True, True)
+        do_scs(N, l, r, field, True, verific, together, A, B, m, n, p, i, scs, False, False)
+        do_scs(N, l, r, field, True, verific, together, A, B, m, n, p, i, scs_win_so, True, False)
+        do_scs(N, l, r, field, True, verific, together, A, B, m, n, p, i, scs_win_so_hs, True, True)
+        do_uscsa(N, l, f, qq, field, True, verific, together, A, B, m, n, p, i, uscsa, True)
+        do_gscsa(N, l, f, qq, field, True, verific, together, A, B, m, n, p, i, gscsa, True)
 
     if MPI.COMM_WORLD.rank == 0:
         write_to_octave(uscsa, "uscsa" + experiment_name)
-        write_to_octave(uscsa_so, "uscsa_so" + experiment_name)
- #       write_to_octave(gscsa, "gscsa" + experiment_name)
-   #     write_to_octave(scs_ruck, "scsa" + experiment_name)
-     #   write_to_octave(scs_ruck, "scsa_ruck" + experiment_name)
-  #      write_to_octave(gasp, "gasp" + experiment_name)
-   #     write_to_octave(ass, "ass" + experiment_name)
-     #   write_to_octave(ass_so, "ass_so" + experiment_name)
-        #write_to_octave(uscsa_ruck, "uscsa_ruck" + experiment_name)
-        #write_to_octave(gscsa_ruck, "gscsa_ruck" + experiment_name)
+        write_to_octave(gscsa, "gscsa" + experiment_name)
+        write_to_octave(scs, "scsa" + experiment_name)
+        write_to_octave(scs_win_so, "scsa_win_so" + experiment_name)
+        write_to_octave(scs_win_so_hs, "scsa_win_so_hs" + experiment_name)
+        write_to_octave(gasp, "gasp" + experiment_name)
+        write_to_octave(ass, "ass" + experiment_name)
+        write_to_octave(ass_so, "ass_so" + experiment_name)
+        write_to_octave(ass_so_hs, "ass_so_hs" + experiment_name)
 
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument('--Field', type=int, help='Finite Field')
-    parser.add_argument('--r_a', type=int, help='divide A on K')
-    parser.add_argument('--r_b', type=int, help='divide B on L')
-    parser.add_argument('--l', type=int, help='number of colluding workers')
-    # parser.add_argument('--barrier', help='Enable barrier', action="store_true")
-    parser.add_argument('--verific', help='Enable Verification', action="store_true")
-    parser.add_argument('--all_together', help='Compute all together', action="store_true")
-    parser.add_argument('--matr_size', type=int, help='Compute all together')
-    parser.add_argument('--Q', type=int, help='Number of iterations')
-
-    args = parser.parse_args()
-
-    if args.verific:
-        verific = True
-    else:
-        verific = False
-
-    if args.all_together:
-        together = True
-    else:
-        together = False
-
-    r_a = args.r_a
-    r_b = args.r_b
-    l = args.l
-    field = args.Field
-    q = args.Q
-
-    m = args.matr_size
-    n = args.matr_size
-    p = args.matr_size
-
-    do_test(r_a, r_b, l, field, q, m, n, p, verific, together)

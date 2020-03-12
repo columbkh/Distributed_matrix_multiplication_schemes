@@ -7,16 +7,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="73f13a6c-7882-4fd9-8c75-98a6e854723e" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/h_s_m_float.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/proba.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sh_ass_so.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/all_tests_v1.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/do_all_tests.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/so_uscsa.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gasp_sh.py" beforeDir="false" afterPath="$PROJECT_DIR$/gasp_sh.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/horner_schema_matr.py" beforeDir="false" afterPath="$PROJECT_DIR$/horner_schema_matr.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/horner_scheme.py" beforeDir="false" afterPath="$PROJECT_DIR$/horner_scheme.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/same_field_choose_ra_rb.py" beforeDir="false" afterPath="$PROJECT_DIR$/same_field_choose_ra_rb.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/outp.txt" beforeDir="false" afterPath="$PROJECT_DIR$/outp.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scs_win.py" beforeDir="false" afterPath="$PROJECT_DIR$/scs_win.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sh_ass.py" beforeDir="false" afterPath="$PROJECT_DIR$/sh_ass.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sh_ass_so.py" beforeDir="false" afterPath="$PROJECT_DIR$/sh_ass_so.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sh_scs.py" beforeDir="false" afterPath="$PROJECT_DIR$/sh_scs.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/uscsa_same_field.py" beforeDir="false" afterPath="$PROJECT_DIR$/uscsa_same_field.py" afterDir="false" />
@@ -502,6 +499,13 @@
       <workItem from="1583078767373" duration="1189000" />
       <workItem from="1583085004725" duration="683000" />
       <workItem from="1583101000890" duration="15093000" />
+      <workItem from="1583443780359" duration="18279000" />
+      <workItem from="1583484016039" duration="991000" />
+      <workItem from="1583779069948" duration="15940000" />
+      <workItem from="1583834197422" duration="1710000" />
+      <workItem from="1583836992823" duration="3965000" />
+      <workItem from="1583860439556" duration="4381000" />
+      <workItem from="1584003312660" duration="227000" />
     </task>
     <task id="LOCAL-00001" summary="Bugs">
       <created>1555778471876</created>
@@ -681,14 +685,18 @@
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
     <state x="818" y="226" width="340" height="652" key="RollbackChangesDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1583104297803" />
-    <state x="649" y="380" key="com.intellij.ide.util.TipDialog" timestamp="1583443783166">
+    <state x="649" y="408" width="689" height="317" key="com.intellij.ide.util.TipDialog" timestamp="1584003343607">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state x="649" y="380" key="com.intellij.ide.util.TipDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1583443783166" />
-    <state x="656" y="257" width="672" height="678" key="search.everywhere.popup" timestamp="1583104548970">
+    <state x="649" y="408" width="689" height="317" key="com.intellij.ide.util.TipDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1584003343607" />
+    <state x="516" y="149" width="944" height="806" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1583448527731">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state x="656" y="257" width="672" height="678" key="search.everywhere.popup/67.27.1853.1053@67.27.1853.1053" timestamp="1583104548970" />
+    <state x="516" y="149" width="944" height="806" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/67.27.1853.1053@67.27.1853.1053" timestamp="1583448527731" />
+    <state x="656" y="257" width="672" height="678" key="search.everywhere.popup" timestamp="1583860594245">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state x="656" y="257" width="672" height="678" key="search.everywhere.popup/67.27.1853.1053@67.27.1853.1053" timestamp="1583860594245" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -772,11 +780,6 @@
           <url>file://$PROJECT_DIR$/interpolation.py</url>
           <line>59</line>
           <option name="timeStamp" value="66" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/sh_scs.py</url>
-          <line>30</line>
-          <option name="timeStamp" value="67" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

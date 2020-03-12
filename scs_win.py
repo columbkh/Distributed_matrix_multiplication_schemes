@@ -4,16 +4,14 @@ import time
 import sys
 import communicators
 
-def schema1(A, B, l, r, N, left_part, i_plus_an, field):
+
+def schema1(A, B, l, r, N, left_part, i_plus_an, field, hs):
     Bn = np.split(B, r)
-    shape = A[-1].shape
-    field_matr = np.array([[field for el in range(shape[1])] for stroka in range(shape[0])])
-    f_x = np.array([[0 for el in range(shape[1])] for stroka in range(shape[0])], dtype='int64')
-    g_x = np.array([[0 for el in range(shape[1])] for stroka in range(shape[0])], dtype='int64')
-    Aenc = so_encode_A(left_part, i_plus_an, A, field, N, l, r, field_matr, f_x, g_x)
-    Aenc_cmp = encode_A(left_part, i_plus_an, A, field, N, l, r)
-    Benc = encode_B(Bn, i_plus_an, field, l, r, N)
+    Aenc = so_encode_A(left_part, i_plus_an, A, field, N, l, r, field, 0, 0, hs)
+    Benc = so_encode_B(i_plus_an, Bn, field, N, l, r, field, 0, 0, hs)
+    #so_encode_B(i_plus_an, Bn, field, N, l, r, field_matr, f_x, g_x)
     return [A], Bn, Aenc, Benc
+
 
 def schema2(A, B, l, r, N, left_part, i_plus_an, field):
     An = np.split(A, r)
@@ -21,7 +19,8 @@ def schema2(A, B, l, r, N, left_part, i_plus_an, field):
     Benc = reverse_encode_B(left_part, i_plus_an, B, field, N, l, r)
     return An, [B], Aenc, Benc
 
-def win_scs_m(N, l, r, field, barrier, verific, together, A, B, m, p, flazhok):
+
+def win_scs_m(N, l, r, field, barrier, verific, together, A, B, m, p, flazhok, hs):
     if communicators.prev_comm.rank == 0:  # Master
 
         if N > 19:
@@ -40,10 +39,10 @@ def win_scs_m(N, l, r, field, barrier, verific, together, A, B, m, p, flazhok):
 
         if flazhok:
             if r == 1:
-                An, Bn, Aenc, Benc = schema1(A, B, l, r, N, left_part, i_plus_an, field)
+                An, Bn, Aenc, Benc = schema1(A, B, l, r, N, left_part, i_plus_an, field, hs)
             else:
                 if m <= p:
-                    An, Bn, Aenc, Benc = schema1(A, B, l, r, N, left_part, i_plus_an, field)
+                    An, Bn, Aenc, Benc = schema1(A, B, l, r, N, left_part, i_plus_an, field, hs)
                 else:
                     An, Bn, Aenc, Benc = schema2(A, B, l, r, N, left_part, i_plus_an, field)
         else:
@@ -53,7 +52,7 @@ def win_scs_m(N, l, r, field, barrier, verific, together, A, B, m, p, flazhok):
                 if m <= p:
                     An, Bn, Aenc, Benc = schema2(A, B, l, r, N, left_part, i_plus_an, field)
                 else:
-                    An, Bn, Aenc, Benc = schema1(A, B, l, r, N, left_part, i_plus_an, field)
+                    An, Bn, Aenc, Benc = schema1(A, B, l, r, N, left_part, i_plus_an, field, hs)
 
         enc_stop = time.time()
 

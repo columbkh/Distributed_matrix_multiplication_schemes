@@ -23,7 +23,6 @@ def scs_m(N, l, r, field, barrier, verific, together, A, B, m, p, flazhok):
             print "Too many instances"
             sys.exit(100)
 
-
         dec_start = time.time()
 
         d_cross, left_part, i_plus_an, an = make_matrix_d_cross(N, field, r, l)
@@ -82,7 +81,6 @@ def scs_m(N, l, r, field, barrier, verific, together, A, B, m, p, flazhok):
 
         if together:
             ul_start = time.time()
-            print "ul start ", ul_start
             for i in range(N):
                 for j in range(r):
                     req_a[i + j * N] = communicators.comm.Isend([Aenc[i][j], MPI.INT], dest=i + 1, tag=15)
@@ -162,8 +160,6 @@ def scs_m(N, l, r, field, barrier, verific, together, A, B, m, p, flazhok):
         if barrier:
             communicators.comm.Barrier()
 
-        print 'UL: ', ul
-
         return enc, dec, dl, ul, serv_comp
 
 
@@ -229,8 +225,6 @@ def scs_sl(N, r, field, barrier, m, n, p, flazhok):
         MPI.Request.Waitall(recv_b)
 
         servcomp_start = time.time()
-        if communicators.prev_comm.rank == 1:
-            print "ul end ", servcomp_start
 
         for j in range(r):
             Ci += (Ai[j] * (Bi[j].getT()))
