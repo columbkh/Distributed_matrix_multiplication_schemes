@@ -9,13 +9,13 @@ def schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, del
     An = np.split(A, f)
     Bn = np.split(B, q)
 
-    Aenc = uscsa_encode_A(left_part, i_plus_an, An, field, N, l, f, q, delta)
+ #   Aenc = uscsa_encode_A(left_part, i_plus_an, An, field, N, l, f, q, delta)
     Aenc_so = uscsa_so_encode_A(left_part, i_plus_an, An, field, N, l, f, q, delta, field, 0, 0)
     Benc = uscsa_encode_B(Bn, i_plus_an, field, l, q, f, N, j_plus_i_plus_an)
 
    # print "Aenc ", Aenc
     # print "Aenc SO ", Aenc_so
-    return An, Bn, Aenc, Benc
+    return An, Bn, Aenc_so, Benc
 
 def schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta):
     An = np.split(A, q)
