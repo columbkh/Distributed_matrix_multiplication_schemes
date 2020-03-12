@@ -15,7 +15,6 @@ def schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, del
 
    # print "Aenc ", Aenc
     # print "Aenc SO ", Aenc_so
-    print "lol"
     return An, Bn, Aenc, Benc
 
 def schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta):
@@ -37,14 +36,14 @@ def so_uscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p, flazho
         dec_start = time.time()
 
         d_cross, left_part, j_plus_i_plus_an, i_plus_an, an, delta = uscsa_make_matrix_d_cross_so(N, field, q, f, l)
-        print "delta ", delta
-        print "an ", an
-        print "j + (i-1) * f + an"
-        for aa in j_plus_i_plus_an:
-            print "an"
-            for stroka in aa:
-                print np.prod(stroka) % field
-        print "d cross inv ", d_cross
+    #    print "delta ", delta
+    #    print "an ", an
+    #    print "j + (i-1) * f + an"
+     #   for aa in j_plus_i_plus_an:
+     #       print "an"
+      #      for stroka in aa:
+      #          print np.prod(stroka) % field
+      #  print "d cross inv ", d_cross
         dec_pause = time.time()
         dec_firstpart = dec_pause - dec_start
 
@@ -181,7 +180,7 @@ def so_uscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p, flazho
 
         final_res = res[0:q*f]
 
-        print "final res", final_res
+   #     print "final res", final_res
 
 
         dec_done = time.time()
@@ -246,7 +245,7 @@ def so_uscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p, flazho
                             for bb in Bn:
                                 Cver += [(aa * bb.getT()) % field for aa in An]
 
-            print "cver ", Cver
+    #        print "cver ", Cver
             print ([np.array_equal(final_res[i], Cver[i]) for i in range(len(Cver))])
 
         if barrier:
@@ -342,10 +341,10 @@ def so_uscsa_sl(N, q, f, field, barrier, m, n, p, flazhok):
 
             for j in range(q):
                 Ci += (Ai[j] * (Bi[j].getT())) % field
-                if communicators.prev_comm.rank == 4:
-                    print "A ", Ai[j]
-                    print "B ", Bi[j].getT()
-                    print "AB ", Ai[j] * (Bi[j].getT()) % field
+   #             if communicators.prev_comm.rank == 4:
+   #                 print "A ", Ai[j]
+   #                 print "B ", Bi[j].getT()
+   #                 print "AB ", Ai[j] * (Bi[j].getT()) % field
                 Ci = Ci % field
 
             servcomp_done = time.time()

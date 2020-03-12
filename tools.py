@@ -597,17 +597,12 @@ def uscsa_make_matrix_d_cross_so(N, field, q, f, l):
     an = make_a_n_for_so(N, q, field)
     delta = make_delta(field, an, f*q)
     delta_ff = arr2ffarray(delta, field)
-    for ai in an:
-        print "ALPHA ", ai
-        print "j + (i-1)*f "
-        print np.asarray([[j + (i - 1) * f for j in range(1, f + 1)] for i in range(1, q + 1)])
     j_plus_i_plus_an = [[[j + (i - 1) * f + ai for j in range(1, f + 1)] for i in range(1, q + 1)] for ai in an]
     i_plus_an = [[i + ai for i in range(1, q + 1)] for ai in an]
     d_cross_left_part = uscsa_make_matrix_d_cross_left_part(delta_ff, j_plus_i_plus_an, N, field, q, f)
     d_cross_left_part_matrix = uscsa_make_matrix_d_cross_left_part_matrix(d_cross_left_part, f, q)
     d_cross_right_part = uscsa_make_matrix_d_cross_right_part(delta_ff, an, N, field, l, f)
     d_cross = [d_cross_left_part_matrix[count] + d_cross_right_part[count] for count in range(N)]
-    print "d_cross", np.asarray(d_cross)
     d_cross_inv = get_inv(d_cross, field)
     return d_cross_inv, np.asarray(d_cross_left_part), j_plus_i_plus_an, i_plus_an, an, delta
 
@@ -881,9 +876,8 @@ def reverse_encode_An(An, i_plus, field, l, r, Zik):
 
 
 def uscsa_encode_B(Bn, i_plus_an, field, l, q, f, N, left_term):
-    Zik = [[np.matrix(np.random.random_integers(1, 1, (Bn[0].shape[0], Bn[0].shape[1]))) for k in range(l)] for i in
+    Zik = [[np.matrix(np.random.random_integers(0, field-1, (Bn[0].shape[0], Bn[0].shape[1]))) for k in range(l)] for i in
            range(q)]
-    print "Zik", Zik
     return [uscsa_encode_Bn(Bn, i_plus_an[n], left_term[n], field, l, q, Zik) for n in range(N)]
 
 
@@ -895,7 +889,7 @@ def reverse_uscsa_encode_A(An, i_plus_an, field, l, q, f, N, left_term):
 
 def uscsa_encode_Bn(Bn, i_plus, lterm, field, l, q, Zik):
    # print [[(pow(i_plus[i], k-1, field) *) * field for k in range(1, l + 1)] for i in range(q)]
-    print "summe ", [sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) * field for k in range(1, l + 1)]) % field for i in range(q)]
+  #  print "summe ", [sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) * field for k in range(1, l + 1)]) % field for i in range(q)]
     return [(Bn[i] + multiply(lterm[i]) * sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) % field for k in range(1, l + 1)])) % field for i in range(q)]
 
 
