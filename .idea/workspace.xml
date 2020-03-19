@@ -7,9 +7,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="36705a9a-379b-48e9-99dc-35966689ff55" name="to_github" comment="test setup" />
-    <list id="73f13a6c-7882-4fd9-8c75-98a6e854723e" name="Default Changelist" comment="Adjusted to PEP8: Step 3.1">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list id="73f13a6c-7882-4fd9-8c75-98a6e854723e" name="Default Changelist" comment="Adjusted to PEP8: Step 3.1" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
