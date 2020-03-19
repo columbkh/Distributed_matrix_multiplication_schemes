@@ -74,10 +74,6 @@ def gscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p, flazhok):
         enc = enc_stop - dec_start
 
 
-        #Aenc = gscsa_encode_A(left_part, i_plus_an, An, field, N, l, f, q)
-        #Benc = gscsa_encode_B(Bn, i_plus_an, field, l, q, f, N, j_plus_i_plus_an)
-
-
         Crtn = []
         serv_comp = [None] * N
         ul_stop = [None] * N
