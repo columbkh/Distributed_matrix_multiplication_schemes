@@ -31,8 +31,6 @@ def gscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p, flazhok):
             print "Too many instances"
             sys.exit(100)
 
-       # Bn = np.split(B, 1)
-       # An = np.split(A, f*q)
 
         dec_start = time.time()
 
