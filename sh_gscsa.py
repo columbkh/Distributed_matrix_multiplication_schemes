@@ -74,6 +74,7 @@ def gscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p, flazhok):
 
         enc_stop = time.time()
         enc = enc_stop - dec_start
+        print "proba"
 
 
         #Aenc = gscsa_encode_A(left_part, i_plus_an, An, field, N, l, f, q)
