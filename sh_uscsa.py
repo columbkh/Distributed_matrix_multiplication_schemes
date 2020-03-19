@@ -12,6 +12,25 @@ def schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, del
     Aenc = uscsa_encode_A(left_part, i_plus_an, An, field, N, l, f, q, delta)
     Benc = uscsa_encode_B(Bn, i_plus_an, field, l, q, f, N, j_plus_i_plus_an)
 
+
+    #print "Bn ", Bn
+
+
+   # for i in range(q):
+    #    Benc[4][i] = np.matrix([[np.prod(j_plus_i_plus_an[4][i]) % field,
+     #                         np.prod(j_plus_i_plus_an[4][i]) % field]])
+
+  #  print "Benc 4", Benc[4]
+  #  print "Aenc 4", Aenc[4]
+
+ #   for b in Benc:
+ #       print b
+
+  #  print "An ", An
+  #  print "Aenc "
+  #  for a in Aenc:
+  #      print a
+
     return An, Bn, Aenc, Benc
 
 def schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta):
@@ -33,6 +52,23 @@ def uscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p, flazhok):
         dec_start = time.time()
 
         d_cross, left_part, j_plus_i_plus_an, i_plus_an, an, delta = uscsa_make_matrix_d_cross(N, field, q, f, l)
+
+      #  print "rank ", np.linalg.matrix_rank(d_cross)
+      #  print "shape ", d_cross.shape
+
+   #     print "delta ", delta
+   #     print "an ", an
+   #     print "j + (i-1) * f + an"
+   #     for aa_ind, aa in enumerate(j_plus_i_plus_an):
+   #         if aa_ind == 4:
+   #             print "an", an[aa_ind]
+   #             for str_ind, stroka in enumerate(aa):
+   #                 print np.prod(stroka) % field
+        #        for k in range(l+1):
+         #           print ((np.prod(stroka) % field) * pow(i_plus_an[aa_ind][str_ind], k, field)) % field
+
+        #  print "d cross inv ", d_cross
+
 
         dec_pause = time.time()
         dec_firstpart = dec_pause - dec_start
@@ -329,6 +365,13 @@ def uscsa_sl(N, q, f, field, barrier, m, n, p, flazhok):
             for j in range(q):
                 Ci += (Ai[j] * (Bi[j].getT()))
                 Ci = Ci % field
+            #    if communicators.prev_comm.rank == 5:
+            #            print "A ", Ai[j]
+            #            print "B ", Bi[j].getT()
+            #            print "AB ", Ai[j] * (Bi[j].getT()) % field
+
+           # if communicators.prev_comm.rank == 5:
+             #   print "Ci ", Ci
 
             servcomp_done = time.time()
 

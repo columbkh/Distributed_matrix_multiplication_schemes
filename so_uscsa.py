@@ -5,17 +5,19 @@ import sys
 import communicators
 
 
-def schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta):
+def schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta, hs):
     An = np.split(A, f)
     Bn = np.split(B, q)
 
- #   Aenc = uscsa_encode_A(left_part, i_plus_an, An, field, N, l, f, q, delta)
-    Aenc_so = uscsa_so_encode_A(left_part, i_plus_an, An, field, N, l, f, q, delta, field, 0, 0)
-    Benc = uscsa_encode_B(Bn, i_plus_an, field, l, q, f, N, j_plus_i_plus_an)
 
-   # print "Aenc ", Aenc
-    # print "Aenc SO ", Aenc_so
-    return An, Bn, Aenc_so, Benc
+
+
+ #   Aenc = uscsa_encode_A(left_part, i_plus_an, An, field, N, l, f, q, delta)
+    Aenc_so = uscsa_so_encode_A(left_part, i_plus_an, An, field, N, l, f, q, delta, field, 0, 0, hs)
+ #   Benc = uscsa_encode_B(Bn, i_plus_an, field, l, q, f, N, j_plus_i_plus_an)
+    Benc_so = uscsa_so_encode_B(j_plus_i_plus_an, i_plus_an, Bn, field, N, l, f, q, field, 0, 0, hs)
+
+    return An, Bn, Aenc_so, Benc_so
 
 def schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta):
     An = np.split(A, q)
@@ -27,7 +29,7 @@ def schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, del
     return An, Bn, Aenc, Benc
 
 
-def so_uscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p, flazhok):
+def so_uscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p, flazhok, hs):
     if communicators.prev_comm.rank == 0:
         if N > 19:
             print "Too many instances"
@@ -36,29 +38,23 @@ def so_uscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p, flazho
         dec_start = time.time()
 
         d_cross, left_part, j_plus_i_plus_an, i_plus_an, an, delta = uscsa_make_matrix_d_cross_so(N, field, q, f, l)
-    #    print "delta ", delta
-    #    print "an ", an
-    #    print "j + (i-1) * f + an"
-     #   for aa in j_plus_i_plus_an:
-     #       print "an"
-      #      for stroka in aa:
-      #          print np.prod(stroka) % field
-      #  print "d cross inv ", d_cross
+      #  d_cross, left_part, j_plus_i_plus_an, i_plus_an, an, delta = uscsa_make_matrix_d_cross_so_tmp(N, field, q, f, l, ind)
+
         dec_pause = time.time()
         dec_firstpart = dec_pause - dec_start
 
         if flazhok:
             if m == p:
-                schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
+                schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta, hs)
             else:
                 if m > p:
                     if q <= f:
-                        An, Bn, Aenc, Benc = schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
+                        An, Bn, Aenc, Benc = schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta, hs)
                     else:
                         An, Bn, Aenc, Benc = schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
                 else:
                     if q >= f:
-                        An, Bn, Aenc, Benc = schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
+                        An, Bn, Aenc, Benc = schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta, hs)
                     else:
                         An, Bn, Aenc, Benc = schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
         else:
@@ -71,14 +67,14 @@ def so_uscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p, flazho
                                                      delta)
                     else:
                         An, Bn, Aenc, Benc = schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an,
-                                                     delta)
+                                                     delta, hs)
                 else:
                     if q >= f:
                         An, Bn, Aenc, Benc = schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an,
                                                      delta)
                     else:
                         An, Bn, Aenc, Benc = schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an,
-                                                     delta)
+                                                     delta, hs)
 
         enc_stop = time.time()
         enc = enc_stop - dec_start
@@ -180,7 +176,7 @@ def so_uscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p, flazho
 
         final_res = res[0:q*f]
 
-   #     print "final res", final_res
+       # print "final res", final_res
 
 
         dec_done = time.time()
@@ -245,7 +241,7 @@ def so_uscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p, flazho
                             for bb in Bn:
                                 Cver += [(aa * bb.getT()) % field for aa in An]
 
-    #        print "cver ", Cver
+        #    print "cver ", Cver
             print ([np.array_equal(final_res[i], Cver[i]) for i in range(len(Cver))])
 
         if barrier:
@@ -341,10 +337,10 @@ def so_uscsa_sl(N, q, f, field, barrier, m, n, p, flazhok):
 
             for j in range(q):
                 Ci += (Ai[j] * (Bi[j].getT())) % field
-   #             if communicators.prev_comm.rank == 4:
-   #                 print "A ", Ai[j]
-   #                 print "B ", Bi[j].getT()
-   #                 print "AB ", Ai[j] * (Bi[j].getT()) % field
+        #        if communicators.prev_comm.rank == 4:
+        #            print "A ", Ai[j]
+        #            print "B ", Bi[j].getT()
+        #            print "AB ", Ai[j] * (Bi[j].getT()) % field
                 Ci = Ci % field
 
             servcomp_done = time.time()

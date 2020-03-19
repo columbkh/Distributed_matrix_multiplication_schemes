@@ -15,17 +15,20 @@ def schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, del
 
     return An, Bn, Aenc, Benc
 
-def schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta):
+
+def schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta, hs):
 
     An = np.split(A, 1)
     Bn = np.split(B, f*q)
 
-    Aenc = reverse_gscsa_encode_A(An, i_plus_an, field, l, q, f, N, j_plus_i_plus_an)
-    Benc = reverse_gscsa_encode_B(left_part, i_plus_an, Bn, field, N, l, f, q, delta)
+    Aenc = reverse_gscsa_so_encode_A(j_plus_i_plus_an, i_plus_an, An, field, N, l, f, q, field, 0, 0, hs)
+  #  Aenc = reverse_gscsa_encode_A(An, i_plus_an, field, l, q, f, N, j_plus_i_plus_an)
+    Benc = reverse_gscsa_so_encode_B(left_part, i_plus_an, Bn, field, N, l, f, q, delta, field, 0, 0, hs)
 
     return An, Bn, Aenc, Benc
 
-def gscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p, flazhok):
+
+def so_gscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p, flazhok, hs):
     if communicators.prev_comm.rank == 0:
         if N > 19:
             print "Too many instances"
@@ -51,34 +54,29 @@ def gscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p, flazhok):
                     if 1 / f <= q:
                         An, Bn, Aenc, Benc = schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
                     else:
-                        An, Bn, Aenc, Benc = schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
+                        An, Bn, Aenc, Benc = schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta, hs)
                 else:
                     if 1 / f >= q:
                         An, Bn, Aenc, Benc = schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
                     else:
-                        An, Bn, Aenc, Benc = schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
+                        An, Bn, Aenc, Benc = schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta, hs)
         else:
             if m == p:
-                schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
+                schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta, hs)
             else:
                 if m > p:
                     if 1 / f <= q:
-                        An, Bn, Aenc, Benc = schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
+                        An, Bn, Aenc, Benc = schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta, hs)
                     else:
                         An, Bn, Aenc, Benc = schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
                 else:
                     if 1 / f >= q:
-                        An, Bn, Aenc, Benc = schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
+                        An, Bn, Aenc, Benc = schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta, hs)
                     else:
                         An, Bn, Aenc, Benc = schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
 
         enc_stop = time.time()
         enc = enc_stop - dec_start
-
-
-        #Aenc = gscsa_encode_A(left_part, i_plus_an, An, field, N, l, f, q)
-        #Benc = gscsa_encode_B(Bn, i_plus_an, field, l, q, f, N, j_plus_i_plus_an)
-
 
         Crtn = []
         serv_comp = [None] * N
@@ -248,7 +246,7 @@ def gscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p, flazhok):
 
         return enc, dec, dl, ul, serv_comp
 
-def gscsa_sl(N, q, f, field, barrier, m, n, p, flazhok):
+def so_gscsa_sl(N, q, f, field, barrier, m, n, p, flazhok):
     if 0 < communicators.prev_comm.rank < N + 1:
         Ai = []
         Bi = []

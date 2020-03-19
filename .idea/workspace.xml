@@ -7,14 +7,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="73f13a6c-7882-4fd9-8c75-98a6e854723e" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/all_tests_v1.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/do_all_tests.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/so_uscsa.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/all_tests_v2.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/so_gscsa.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/do_all_tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/do_all_tests.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/outp.txt" beforeDir="false" afterPath="$PROJECT_DIR$/outp.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scs_win.py" beforeDir="false" afterPath="$PROJECT_DIR$/scs_win.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sh_ass_so.py" beforeDir="false" afterPath="$PROJECT_DIR$/sh_ass_so.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sh_scs.py" beforeDir="false" afterPath="$PROJECT_DIR$/sh_scs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sh_gscsa.py" beforeDir="false" afterPath="$PROJECT_DIR$/sh_gscsa.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sh_uscsa.py" beforeDir="false" afterPath="$PROJECT_DIR$/sh_uscsa.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/so_uscsa.py" beforeDir="false" afterPath="$PROJECT_DIR$/so_uscsa.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/uscsa_same_field.py" beforeDir="false" afterPath="$PROJECT_DIR$/uscsa_same_field.py" afterDir="false" />
     </list>
@@ -506,6 +506,12 @@
       <workItem from="1583836992823" duration="3965000" />
       <workItem from="1583860439556" duration="4381000" />
       <workItem from="1584003312660" duration="227000" />
+      <workItem from="1584020630718" duration="3598000" />
+      <workItem from="1584024472022" duration="477000" />
+      <workItem from="1584096381797" duration="11267000" />
+      <workItem from="1584449102485" duration="8567000" />
+      <workItem from="1584535801439" duration="3479000" />
+      <workItem from="1584617130047" duration="5421000" />
     </task>
     <task id="LOCAL-00001" summary="Bugs">
       <created>1555778471876</created>
@@ -657,10 +663,10 @@
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
     <state x="715" y="357" width="547" height="390" key="#com.intellij.fileTypes.FileTypeChooser/67.27.1853.1053@67.27.1853.1053" timestamp="1578548686615" />
-    <state x="-15" y="174" width="1653" height="855" key="DiffContextDialog" timestamp="1583104425043">
+    <state x="67" y="174" width="1653" height="855" key="DiffContextDialog" timestamp="1584617784198">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state x="-15" y="174" width="1653" height="855" key="DiffContextDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1583104425043" />
+    <state x="67" y="174" width="1653" height="855" key="DiffContextDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1584617784198" />
     <state x="776" y="310" width="424" height="484" key="FileChooserDialogImpl" timestamp="1579780512724">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
@@ -685,18 +691,22 @@
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
     <state x="818" y="226" width="340" height="652" key="RollbackChangesDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1583104297803" />
-    <state x="649" y="408" width="689" height="317" key="com.intellij.ide.util.TipDialog" timestamp="1584003343607">
+    <state x="167" y="125" width="1643" height="855" maximized="true" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1584619723530">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state x="649" y="408" width="689" height="317" key="com.intellij.ide.util.TipDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1584003343607" />
+    <state x="167" y="125" width="1643" height="855" maximized="true" key="com.intellij.history.integration.ui.views.FileHistoryDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1584619723530" />
+    <state x="649" y="408" width="689" height="317" key="com.intellij.ide.util.TipDialog" timestamp="1584617132492">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state x="649" y="408" width="689" height="317" key="com.intellij.ide.util.TipDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1584617132492" />
     <state x="516" y="149" width="944" height="806" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1583448527731">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
     <state x="516" y="149" width="944" height="806" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/67.27.1853.1053@67.27.1853.1053" timestamp="1583448527731" />
-    <state x="656" y="257" width="672" height="678" key="search.everywhere.popup" timestamp="1583860594245">
+    <state x="656" y="257" width="672" height="678" key="search.everywhere.popup" timestamp="1584622321503">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state x="656" y="257" width="672" height="678" key="search.everywhere.popup/67.27.1853.1053@67.27.1853.1053" timestamp="1583860594245" />
+    <state x="656" y="257" width="672" height="678" key="search.everywhere.popup/67.27.1853.1053@67.27.1853.1053" timestamp="1584622321503" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -780,6 +790,11 @@
           <url>file://$PROJECT_DIR$/interpolation.py</url>
           <line>59</line>
           <option name="timeStamp" value="66" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/tools.py</url>
+          <line>778</line>
+          <option name="timeStamp" value="67" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

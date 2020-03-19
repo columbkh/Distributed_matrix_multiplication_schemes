@@ -1,4 +1,4 @@
-from all_tests_v1 import *
+from all_tests_v2 import *
 
 
 def do_multiple_tests(r_a, r_b, l, field, q, m, n, p, qq, f, verific, together, number, coeff):
