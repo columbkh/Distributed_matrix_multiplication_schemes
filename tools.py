@@ -108,7 +108,7 @@ def second_order_no_hs(poly, x, field, f_x, g_x, field_matr):
 
 
 def cutoff_criterium(m, k, n):
-    return 1.0 <= 4.0 * (4.0/n + 4.0/m + 7.0/k)
+    return 1.0 <= 22.0 * (4.0/n + 4.0/m + 7.0/k)
 
 
 def strassen_winograd(A, B):
@@ -381,6 +381,30 @@ def set_communicators(r_a, r_b, l, field):
         communicators.comm = communicators.prev_comm.Create(new_group)
     else:
         communicators.comm = communicators.prev_comm
+
+
+def set_communicators_gasp_gaspr(r_a, r_b, l, r, field):
+    if l >= min(r_a, r_b):
+        inv_matr, an, ter, N, a, b = create_GASP_big(r_a, r_b, l, field)
+    else:
+        inv_matr, an, ter, N, a, b = create_GASP_small(r_a, r_b, l, field)
+
+    inv_matr, an, ter, NN, a, b = create_GASP_r(r_a, r_b, l, r, field)
+
+    communicators.prev_comm = MPI.COMM_WORLD
+    if N + 1 < communicators.prev_comm.Get_size():
+        instances = [i for i in range(N + 1, communicators.prev_comm.Get_size())]
+        new_group = communicators.prev_comm.group.Excl(instances)
+        communicators.comm = communicators.prev_comm.Create(new_group)
+    else:
+        communicators.comm = communicators.prev_comm
+
+    if NN + 1 < communicators.prev_comm.Get_size():
+        instances = [i for i in range(NN + 1, communicators.prev_comm.Get_size())]
+        new_group_gr = communicators.prev_comm.group.Excl(instances)
+        communicators.gr_comm = communicators.prev_comm.Create(new_group_gr)
+    else:
+        communicators.gr_comm = communicators.prev_comm
 
 
 def interpol(missing, Crtn, field, kr, lst, var):
@@ -1134,6 +1158,57 @@ def create_GASP_small(K, L, T, field):
     ter, N = terms(a, b)
     inv_matr, an = make_matrix(ter, N, field)
     return inv_matr, an, ter, N, a, b
+
+
+def create_GASP_r(K, L, T, r, field):
+    if K >= L:
+        a = make_a_L_less_or_equal_K_r(K, L, T, r)
+        b = make_b_L_less_or_equal_K_r(K, L, T)
+    else:
+        b = make_a_K_less_L_r(K, L, T)
+        a = make_b_K_less_L_r(K, L, T, r)
+
+    ter, N = terms(a, b)
+    inv_matr, an = make_matrix(ter, N, field)
+    return inv_matr, an, ter, N, a, b
+
+
+def make_a_L_less_or_equal_K_r(K, L, T, r):
+    first_part = [k - 1 for k in range(1, K + 1)]
+    second_part = []
+    count = 0
+
+    for t in range(1, T+1):
+        for rr in range(r):
+            if count >= T:
+                break
+            second_part.append(K * L + K * (t - 1) + rr)
+            count += 1
+
+    return first_part + second_part
+
+
+def make_a_K_less_L_r(K, L, T):
+    return [K * (l - 1) for l in range(1, L + 1)] + [K * L + t - 1 for t in range(1, T + 1)]
+
+
+def make_b_L_less_or_equal_K_r(K, L, T):
+    return [K * (l - 1) for l in range(1, L + 1)] + [K * L + t - 1 for t in range(1, T + 1)]
+
+
+def make_b_K_less_L_r(K, L, T, r):
+    first_part = [k - 1 for k in range(1, K + 1)]
+    second_part = []
+    count = 0
+
+    for t in range(1, T + 1):
+        for rr in range(r):
+            if count >= T:
+                break
+            second_part.append(K * L + K * (t - 1) + rr)
+            count += 1
+
+    return first_part + second_part
 
 
 def make_a_L_less_or_equal_K_big(K, L, T):

@@ -7,17 +7,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="73f13a6c-7882-4fd9-8c75-98a6e854723e" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/all_tests_v2.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/so_gscsa.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/gasp_gaspr.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/gasp_vs_gaspr.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/gaspr_sh.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/do_all_tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/do_all_tests.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/all_tests_v2.py" beforeDir="false" afterPath="$PROJECT_DIR$/all_tests_v2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/communicators.py" beforeDir="false" afterPath="$PROJECT_DIR$/communicators.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gasp_sh.py" beforeDir="false" afterPath="$PROJECT_DIR$/gasp_sh.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/outp.txt" beforeDir="false" afterPath="$PROJECT_DIR$/outp.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sh_gscsa.py" beforeDir="false" afterPath="$PROJECT_DIR$/sh_gscsa.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sh_uscsa.py" beforeDir="false" afterPath="$PROJECT_DIR$/sh_uscsa.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/so_uscsa.py" beforeDir="false" afterPath="$PROJECT_DIR$/so_uscsa.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/uscsa_same_field.py" beforeDir="false" afterPath="$PROJECT_DIR$/uscsa_same_field.py" afterDir="false" />
     </list>
+    <list id="20794d18-dcdd-46d3-bd6d-0d50a7bb6408" name="meta_files" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -54,13 +54,13 @@
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
-    <option name="showExcludedFiles" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/proba.py" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -72,6 +72,7 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/graphs" />
     </key>
   </component>
@@ -336,24 +337,13 @@
       </list>
     </recent_temporary>
   </component>
-  <component name="ServiceViewManager">
-    <option name="viewStates">
-      <list>
-        <serviceView>
-          <treeState>
-            <expand />
-            <select />
-          </treeState>
-        </serviceView>
-      </list>
-    </option>
-  </component>
   <component name="SvnConfiguration">
     <configuration />
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="73f13a6c-7882-4fd9-8c75-98a6e854723e" name="Default Changelist" comment="" />
+      <changelist id="20794d18-dcdd-46d3-bd6d-0d50a7bb6408" name="meta_files" comment="" />
       <created>1555725591998</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
@@ -512,6 +502,23 @@
       <workItem from="1584449102485" duration="8567000" />
       <workItem from="1584535801439" duration="3479000" />
       <workItem from="1584617130047" duration="5421000" />
+      <workItem from="1584704156479" duration="27000" />
+      <workItem from="1584705485216" duration="10182000" />
+      <workItem from="1584716889776" duration="4115000" />
+      <workItem from="1584728342670" duration="698000" />
+      <workItem from="1584809770328" duration="274000" />
+      <workItem from="1584811720581" duration="1267000" />
+      <workItem from="1584814364536" duration="509000" />
+      <workItem from="1584883510960" duration="4802000" />
+      <workItem from="1584888401484" duration="4094000" />
+      <workItem from="1584966336598" duration="6000" />
+      <workItem from="1585138573920" duration="1371000" />
+      <workItem from="1585315260812" duration="1800000" />
+      <workItem from="1585916836377" duration="933000" />
+      <workItem from="1586346205506" duration="613000" />
+      <workItem from="1586355041238" duration="279000" />
+      <workItem from="1592472823741" duration="1756000" />
+      <workItem from="1592475056225" duration="5764000" />
     </task>
     <task id="LOCAL-00001" summary="Bugs">
       <created>1555778471876</created>
@@ -597,11 +604,18 @@
       <option name="project" value="LOCAL" />
       <updated>1559831504491</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Adjusted to PEP8: Step 3.1">
+      <created>1584814414246</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1584814414246</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="1" />
+    <option name="version" value="2" />
   </component>
   <component name="Vcs.Log.History.Properties">
     <option name="COLUMN_ORDER">
@@ -618,9 +632,7 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State>
-              <option name="COLUMN_ORDER" />
-            </State>
+            <State />
           </value>
         </entry>
       </map>
@@ -639,6 +651,7 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Bugs" />
@@ -655,58 +668,34 @@
     <option name="LAST_COMMIT_MESSAGE" value="Adjusted to PEP8: Step 3.1" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="451" y="210" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1579780516865">
+    <state x="558" y="126" width="860" height="852" key="CommitChangelistDialog2" timestamp="1584814413987">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state x="451" y="210" key="#com.intellij.execution.impl.EditConfigurationsDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1579780516865" />
-    <state x="715" y="357" width="547" height="390" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1578548686615">
-      <screen x="67" y="27" width="1853" height="1053" />
-    </state>
-    <state x="715" y="357" width="547" height="390" key="#com.intellij.fileTypes.FileTypeChooser/67.27.1853.1053@67.27.1853.1053" timestamp="1578548686615" />
+    <state x="558" y="126" width="860" height="852" key="CommitChangelistDialog2/67.27.1853.1053@67.27.1853.1053" timestamp="1584814413987" />
     <state x="67" y="174" width="1653" height="855" key="DiffContextDialog" timestamp="1584617784198">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
     <state x="67" y="174" width="1653" height="855" key="DiffContextDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1584617784198" />
-    <state x="776" y="310" width="424" height="484" key="FileChooserDialogImpl" timestamp="1579780512724">
+    <state x="482" y="187" key="SettingsEditor" timestamp="1584715854391">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state x="776" y="310" width="424" height="484" key="FileChooserDialogImpl/67.27.1853.1053@67.27.1853.1053" timestamp="1579780512724" />
-    <state width="1807" height="450" key="GridCell.Tab.0.bottom" timestamp="1579802706378">
+    <state x="482" y="187" key="SettingsEditor/67.27.1853.1053@67.27.1853.1053" timestamp="1584715854391" />
+    <state x="860" y="470" width="324" height="257" key="VCS.EditChangelistDialog" timestamp="1584706093415">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state width="1807" height="450" key="GridCell.Tab.0.bottom/67.27.1853.1053@67.27.1853.1053" timestamp="1579802706378" />
-    <state width="1807" height="450" key="GridCell.Tab.0.center" timestamp="1579802706378">
-      <screen x="67" y="27" width="1853" height="1053" />
-    </state>
-    <state width="1807" height="450" key="GridCell.Tab.0.center/67.27.1853.1053@67.27.1853.1053" timestamp="1579802706378" />
-    <state width="1807" height="450" key="GridCell.Tab.0.left" timestamp="1579802706377">
-      <screen x="67" y="27" width="1853" height="1053" />
-    </state>
-    <state width="1807" height="450" key="GridCell.Tab.0.left/67.27.1853.1053@67.27.1853.1053" timestamp="1579802706377" />
-    <state width="1807" height="450" key="GridCell.Tab.0.right" timestamp="1579802706378">
-      <screen x="67" y="27" width="1853" height="1053" />
-    </state>
-    <state width="1807" height="450" key="GridCell.Tab.0.right/67.27.1853.1053@67.27.1853.1053" timestamp="1579802706378" />
-    <state x="818" y="226" width="340" height="652" key="RollbackChangesDialog" timestamp="1583104297803">
-      <screen x="67" y="27" width="1853" height="1053" />
-    </state>
-    <state x="818" y="226" width="340" height="652" key="RollbackChangesDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1583104297803" />
+    <state x="860" y="470" width="324" height="257" key="VCS.EditChangelistDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1584706093415" />
     <state x="167" y="125" width="1643" height="855" maximized="true" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1584619723530">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
     <state x="167" y="125" width="1643" height="855" maximized="true" key="com.intellij.history.integration.ui.views.FileHistoryDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1584619723530" />
-    <state x="649" y="408" width="689" height="317" key="com.intellij.ide.util.TipDialog" timestamp="1584617132492">
+    <state x="649" y="408" width="689" height="317" key="com.intellij.ide.util.TipDialog" timestamp="1586355046049">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state x="649" y="408" width="689" height="317" key="com.intellij.ide.util.TipDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1584617132492" />
-    <state x="516" y="149" width="944" height="806" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1583448527731">
+    <state x="649" y="408" width="689" height="317" key="com.intellij.ide.util.TipDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1586355046049" />
+    <state x="656" y="257" width="672" height="678" key="search.everywhere.popup" timestamp="1592480676921">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state x="516" y="149" width="944" height="806" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/67.27.1853.1053@67.27.1853.1053" timestamp="1583448527731" />
-    <state x="656" y="257" width="672" height="678" key="search.everywhere.popup" timestamp="1584622321503">
-      <screen x="67" y="27" width="1853" height="1053" />
-    </state>
-    <state x="656" y="257" width="672" height="678" key="search.everywhere.popup/67.27.1853.1053@67.27.1853.1053" timestamp="1584622321503" />
+    <state x="656" y="257" width="672" height="678" key="search.everywhere.popup/67.27.1853.1053@67.27.1853.1053" timestamp="1592480676921" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -793,7 +782,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tools.py</url>
-          <line>778</line>
+          <line>802</line>
           <option name="timeStamp" value="67" />
         </line-breakpoint>
       </breakpoints>
@@ -801,14 +790,14 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Job_project$Interpolation.coverage" NAME="Interpolation Coverage Results" MODIFIED="1576164591943" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Job_project$encoding.coverage" NAME="encoding Coverage Results" MODIFIED="1575472461487" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/job_project$gasp_sh.coverage" NAME="gasp_sh Coverage Results" MODIFIED="1559477886437" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Job_project$enc_example.coverage" NAME="enc_example Coverage Results" MODIFIED="1572792432177" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Job_project$interpolation.coverage" NAME="interpolation Coverage Results" MODIFIED="1575246982000" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Job_project$Horner_vs_standard.coverage" NAME="Horner_vs_standard Coverage Results" MODIFIED="1578383894747" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Job_project$proba.coverage" NAME="proba Coverage Results" MODIFIED="1579802128584" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Job_project$multiplication_example.coverage" NAME="multiplication_example Coverage Results" MODIFIED="1574872024595" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Job_project$Horner_vs_standard.coverage" NAME="Horner_vs_standard Coverage Results" MODIFIED="1578383894747" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Job_project$encoding.coverage" NAME="encoding Coverage Results" MODIFIED="1575472461487" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Job_project$enc_example.coverage" NAME="enc_example Coverage Results" MODIFIED="1572792432177" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Job_project$field_comp.coverage" NAME="field_comp Coverage Results" MODIFIED="1576145019887" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Job_project$interpolation.coverage" NAME="interpolation Coverage Results" MODIFIED="1575246982000" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/job_project$gasp_sh.coverage" NAME="gasp_sh Coverage Results" MODIFIED="1559477886437" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="masterDetails">
     <states>

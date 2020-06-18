@@ -5,14 +5,11 @@ import sys
 import communicators
 
 
-def gasp_m(r_a, r_b, l, field, barrier, verific, together, A, B, m, n, p):
+def gaspr_m(r_a, r_b, l, field, barrier, verific, together, A, B, m, n, p, r):
     if communicators.prev_comm.rank == 0:
         dec_start = time.time()
 
-        if l >= min(r_a, r_b):
-            inv_matr, an, ter, N, a, b = create_GASP_big(r_a, r_b, l, field)
-        else:
-            inv_matr, an, ter, N, a, b = create_GASP_small(r_a, r_b, l, field)
+        inv_matr, an, ter, N, a, b = create_GASP_r(r_a, r_b, l, r, field)
 
         dec_pause = time.time()
         dec_firstpart = dec_pause - dec_start
@@ -51,15 +48,15 @@ def gasp_m(r_a, r_b, l, field, barrier, verific, together, A, B, m, n, p):
         if together:
             ul_start = time.time()
             for i in range(N):
-                req_a[i] = communicators.comm.Isend([Aenc[i], MPI.INT], dest=i + 1, tag=15)
-                req_b[i] = communicators.comm.Isend([Benc[i], MPI.INT], dest=i + 1, tag=29)
-                req_c[i] = communicators.comm.Irecv([Crtn[i], MPI.INT], source=i + 1, tag=42)
+                req_a[i] = communicators.gr_comm.Isend([Aenc[i], MPI.INT], dest=i + 1, tag=15)
+                req_b[i] = communicators.gr_comm.Isend([Benc[i], MPI.INT], dest=i + 1, tag=29)
+                req_c[i] = communicators.gr_comm.Irecv([Crtn[i], MPI.INT], source=i + 1, tag=42)
 
             MPI.Request.Waitall(req_a)
             MPI.Request.Waitall(req_b)
 
             if barrier:
-                communicators.comm.Barrier()
+                communicators.gr_comm.Barrier()
 
             dl_start = time.time()
             MPI.Request.Waitall(req_c)
@@ -73,12 +70,12 @@ def gasp_m(r_a, r_b, l, field, barrier, verific, together, A, B, m, n, p):
             req_ab = [None] * 2 * N
             for i in range(N):
                 ul_start[i] = time.time()
-                req_ab[i] = communicators.comm.Isend([Aenc[i], MPI.INT], dest=i + 1, tag=15)
-                req_ab[i + N] = communicators.comm.Isend([Benc[i], MPI.INT], dest=i + 1, tag=29)
-                req_c[i] = communicators.comm.Irecv([Crtn[i], MPI.INT], source=i + 1, tag=42)
+                req_ab[i] = communicators.gr_comm.Isend([Aenc[i], MPI.INT], dest=i + 1, tag=15)
+                req_ab[i + N] = communicators.gr_comm.Isend([Benc[i], MPI.INT], dest=i + 1, tag=29)
+                req_c[i] = communicators.gr_comm.Irecv([Crtn[i], MPI.INT], source=i + 1, tag=42)
 
             if barrier:
-                communicators.comm.Barrier()
+                communicators.gr_comm.Barrier()
 
             dl_start = time.time()
 
@@ -102,12 +99,12 @@ def gasp_m(r_a, r_b, l, field, barrier, verific, together, A, B, m, n, p):
         dec = dec_firstpart + dec_secondpart
 
         if barrier:
-            communicators.comm.Barrier()
+            communicators.gr_comm.Barrier()
 
         for i in range(N):
-            serv_comp[i] = communicators.comm.recv(source=i + 1, tag=64)
+            serv_comp[i] = communicators.gr_comm.recv(source=i + 1, tag=64)
         for i in range(N):
-            ul_stop[i] = communicators.comm.recv(source=i + 1, tag=70)
+            ul_stop[i] = communicators.gr_comm.recv(source=i + 1, tag=70)
 
         if together:
             ul_stop_latest = max(ul_stop)
@@ -126,17 +123,17 @@ def gasp_m(r_a, r_b, l, field, barrier, verific, together, A, B, m, n, p):
             print ([np.array_equal(final_res[i], Cver[i]) for i in range(len(Cver))])
 
         if barrier:
-            communicators.comm.Barrier()
+            communicators.gr_comm.Barrier()
 
         return enc, dec, dl, ul, serv_comp
 
 
-def gasp_sl(r_a, r_b, N, field, barrier, m, n, p):
+def gaspr_sl(r_a, r_b, N, field, barrier, m, n, p):
     if 0 < communicators.prev_comm.rank < N + 1:
         Ai = np.empty_like(np.matrix([[0] * n for i in range(m / r_a)]))
         Bi = np.empty_like(np.matrix([[0] * n for i in range(p / r_b)]))
-        recv_a = communicators.comm.Irecv(Ai, source=0, tag=15)
-        recv_b = communicators.comm.Irecv(Bi, source=0, tag=29)
+        recv_a = communicators.gr_comm.Irecv(Ai, source=0, tag=15)
+        recv_b = communicators.gr_comm.Irecv(Bi, source=0, tag=29)
 
         recv_a.wait()
         recv_b.wait()
@@ -150,16 +147,16 @@ def gasp_sl(r_a, r_b, N, field, barrier, m, n, p):
         servcomp = servcomp_done - servcomp_start
 
         if barrier:
-            communicators.comm.Barrier()
+            communicators.gr_comm.Barrier()
 
-        req_c = communicators.comm.Isend(Ci, dest=0, tag=42)
+        req_c = communicators.gr_comm.Isend(Ci, dest=0, tag=42)
         req_c.Wait()
 
         if barrier:
-            communicators.comm.Barrier()
+            communicators.gr_comm.Barrier()
 
-        communicators.comm.send(servcomp, dest=0, tag=64)
-        communicators.comm.send(servcomp_start, dest=0, tag=70)
+        communicators.gr_comm.send(servcomp, dest=0, tag=64)
+        communicators.gr_comm.send(servcomp_start, dest=0, tag=70)
 
         if barrier:
-            communicators.comm.Barrier()
+            communicators.gr_comm.Barrier()

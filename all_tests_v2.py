@@ -202,8 +202,8 @@ def do_test(r_a, r_b, l, field, q, m, n, p, qq, f, verific, together):
 
     for i in range(q):
         if MPI.COMM_WORLD.rank == 0:
-            A = np.matrix(np.random.random_integers(0, field-1, (m, n)))
-            B = np.matrix(np.random.random_integers(0, field-1, (p, n)))
+            A = np.matrix(np.random.random_integers(0, 255, (m, n)))
+            B = np.matrix(np.random.random_integers(0, 255, (p, n)))
         do_gasp(r_a, r_b, l, N, field, True, verific, together, A, B, m, n, p, i, gasp)
         do_ass(N, l, r_a_ass, r_b_ass, k, rt, field, True, verific, together, A, B, m, n, p, i, ass, False, False)
         do_ass(N, l, r_a_ass, r_b_ass, k, rt, field, True, verific, together, A, B, m, n, p, i, ass_so, True, False)
