@@ -17,7 +17,6 @@ def schema2(Ap, Bp, Ka, Kb, N, field, l, r_a, r_b, x, m, n, p, hs):
     Kb_so = Kb[::-1]
 
     Aenc = getReversedAenc(Ap, Ka, N, field, l, r_a, r_b, x)
-
     Benc_so = getReversedBencSO(Bp_so, Kb_so, N, field, l, r_b, x, 0, 0, field, hs)
     return Aenc, Benc_so
 

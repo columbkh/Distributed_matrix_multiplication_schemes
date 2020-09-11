@@ -31,7 +31,7 @@ def schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, del
 
 def so_uscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p, flazhok, hs):
     if communicators.prev_comm.rank == 0:
-        if N > 19:
+        if N > communicators.prev_comm.Get_size() - 1:
             print "Too many instances"
             sys.exit(100)
 
@@ -45,7 +45,7 @@ def so_uscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p, flazho
 
         if flazhok:
             if m == p:
-                schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta, hs)
+                An, Bn, Aenc, Benc = schema1(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta, hs)
             else:
                 if m > p:
                     if q <= f:
@@ -59,7 +59,7 @@ def so_uscsa_m(N, l, f, q, field, barrier, verific, together, A, B, m, p, flazho
                         An, Bn, Aenc, Benc = schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
         else:
             if m == p:
-                schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
+                An, Bn, Aenc, Benc = schema2(A, B, q, f, field, left_part, i_plus_an, N, l, j_plus_i_plus_an, delta)
             else:
                 if m > p:
                     if q <= f:

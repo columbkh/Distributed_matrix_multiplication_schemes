@@ -34,7 +34,7 @@ def gasp_m(r_a, r_b, l, field, barrier, verific, together, A, B, m, n, p):
         enc_stop = time.time()
         enc = enc_stop - enc_start
 
-        if N > 19:
+        if N > communicators.prev_comm.Get_size() - 1:
             print "Too many instances"
             sys.exit(100)
 

@@ -23,7 +23,7 @@ def schema2(A, B, l, r, N, left_part, i_plus_an, field):
 def win_scs_m(N, l, r, field, barrier, verific, together, A, B, m, p, flazhok, hs):
     if communicators.prev_comm.rank == 0:  # Master
 
-        if N > 19:
+        if N > communicators.prev_comm.Get_size() - 1:
             print "Too many instances"
             sys.exit(100)
 

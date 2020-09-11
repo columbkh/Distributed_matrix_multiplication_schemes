@@ -79,6 +79,7 @@ def do_test(r_a, r_b, l, r, field, q, m, n, p, verific, together):
     if MPI.COMM_WORLD.rank == 0:
         print "actual m: ", m
         print "actual p: ", p
+        print "number of computers: ", communicators.prev_comm.Get_size()
 
         print "r: ", r
 

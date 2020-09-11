@@ -7,14 +7,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="73f13a6c-7882-4fd9-8c75-98a6e854723e" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/gasp_gaspr.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gasp_vs_gaspr.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gaspr_sh.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/all_tests_v3.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/do_all_tests_v3.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/all_tests_v2.py" beforeDir="false" afterPath="$PROJECT_DIR$/all_tests_v2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/communicators.py" beforeDir="false" afterPath="$PROJECT_DIR$/communicators.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fft.py" beforeDir="false" afterPath="$PROJECT_DIR$/fft.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gasp_sh.py" beforeDir="false" afterPath="$PROJECT_DIR$/gasp_sh.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/outp.txt" beforeDir="false" afterPath="$PROJECT_DIR$/outp.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gasp_vs_gaspr.py" beforeDir="false" afterPath="$PROJECT_DIR$/gasp_vs_gaspr.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gaspr_sh.py" beforeDir="false" afterPath="$PROJECT_DIR$/gaspr_sh.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/title.mat" beforeDir="false" afterPath="$PROJECT_DIR$/results/title.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scs_win.py" beforeDir="false" afterPath="$PROJECT_DIR$/scs_win.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sh_ass_so.py" beforeDir="false" afterPath="$PROJECT_DIR$/sh_ass_so.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sh_gscsa.py" beforeDir="false" afterPath="$PROJECT_DIR$/sh_gscsa.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sh_scs.py" beforeDir="false" afterPath="$PROJECT_DIR$/sh_scs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sh_uscsa.py" beforeDir="false" afterPath="$PROJECT_DIR$/sh_uscsa.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/so_gscsa.py" beforeDir="false" afterPath="$PROJECT_DIR$/so_gscsa.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/so_uscsa.py" beforeDir="false" afterPath="$PROJECT_DIR$/so_uscsa.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools.py" afterDir="false" />
     </list>
     <list id="20794d18-dcdd-46d3-bd6d-0d50a7bb6408" name="meta_files" comment="" />
@@ -67,6 +75,7 @@
     <property name="node.js.path.for.package.tslint" value="project" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="nodejs_package_manager_path" value="npm" />
     <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
@@ -518,7 +527,22 @@
       <workItem from="1586346205506" duration="613000" />
       <workItem from="1586355041238" duration="279000" />
       <workItem from="1592472823741" duration="1756000" />
-      <workItem from="1592475056225" duration="5764000" />
+      <workItem from="1592475056225" duration="8378000" />
+      <workItem from="1592934235461" duration="596000" />
+      <workItem from="1593012869740" duration="1706000" />
+      <workItem from="1593521192725" duration="299000" />
+      <workItem from="1593613624474" duration="2805000" />
+      <workItem from="1593726273687" duration="1748000" />
+      <workItem from="1595172092921" duration="2155000" />
+      <workItem from="1595330487182" duration="2488000" />
+      <workItem from="1595352992178" duration="293000" />
+      <workItem from="1595346646605" duration="7368000" />
+      <workItem from="1595357843939" duration="1644000" />
+      <workItem from="1595366779053" duration="11643000" />
+      <workItem from="1595415971238" duration="668000" />
+      <workItem from="1596023072723" duration="5225000" />
+      <workItem from="1596816451363" duration="1072000" />
+      <workItem from="1597603740202" duration="5791000" />
     </task>
     <task id="LOCAL-00001" summary="Bugs">
       <created>1555778471876</created>
@@ -668,34 +692,30 @@
     <option name="LAST_COMMIT_MESSAGE" value="Adjusted to PEP8: Step 3.1" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="558" y="126" width="860" height="852" key="CommitChangelistDialog2" timestamp="1584814413987">
+    <state x="451" y="210" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1595375136652">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state x="558" y="126" width="860" height="852" key="CommitChangelistDialog2/67.27.1853.1053@67.27.1853.1053" timestamp="1584814413987" />
-    <state x="67" y="174" width="1653" height="855" key="DiffContextDialog" timestamp="1584617784198">
+    <state x="451" y="210" key="#com.intellij.execution.impl.EditConfigurationsDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1595375136652" />
+    <state x="67" y="174" width="1653" height="855" key="DiffContextDialog" timestamp="1592481407608">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state x="67" y="174" width="1653" height="855" key="DiffContextDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1584617784198" />
-    <state x="482" y="187" key="SettingsEditor" timestamp="1584715854391">
+    <state x="67" y="174" width="1653" height="855" key="DiffContextDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1592481407608" />
+    <state x="815" y="236" width="346" height="633" key="RollbackChangesDialog" timestamp="1592481410986">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state x="482" y="187" key="SettingsEditor/67.27.1853.1053@67.27.1853.1053" timestamp="1584715854391" />
-    <state x="860" y="470" width="324" height="257" key="VCS.EditChangelistDialog" timestamp="1584706093415">
+    <state x="815" y="236" width="346" height="633" key="RollbackChangesDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1592481410986" />
+    <state x="837" y="468" width="303" height="169" key="VCS.ChangelistChooser" timestamp="1592481447447">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state x="860" y="470" width="324" height="257" key="VCS.EditChangelistDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1584706093415" />
-    <state x="167" y="125" width="1643" height="855" maximized="true" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1584619723530">
+    <state x="837" y="468" width="303" height="169" key="VCS.ChangelistChooser/67.27.1853.1053@67.27.1853.1053" timestamp="1592481447447" />
+    <state x="885" y="156" width="618" height="783" key="find.popup" timestamp="1593616142511">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state x="167" y="125" width="1643" height="855" maximized="true" key="com.intellij.history.integration.ui.views.FileHistoryDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1584619723530" />
-    <state x="649" y="408" width="689" height="317" key="com.intellij.ide.util.TipDialog" timestamp="1586355046049">
+    <state x="885" y="156" width="618" height="783" key="find.popup/67.27.1853.1053@67.27.1853.1053" timestamp="1593616142511" />
+    <state x="656" y="257" width="672" height="678" key="search.everywhere.popup" timestamp="1595371695642">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state x="649" y="408" width="689" height="317" key="com.intellij.ide.util.TipDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1586355046049" />
-    <state x="656" y="257" width="672" height="678" key="search.everywhere.popup" timestamp="1592480676921">
-      <screen x="67" y="27" width="1853" height="1053" />
-    </state>
-    <state x="656" y="257" width="672" height="678" key="search.everywhere.popup/67.27.1853.1053@67.27.1853.1053" timestamp="1592480676921" />
+    <state x="656" y="257" width="672" height="678" key="search.everywhere.popup/67.27.1853.1053@67.27.1853.1053" timestamp="1595371695642" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -782,8 +802,18 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tools.py</url>
-          <line>802</line>
+          <line>821</line>
           <option name="timeStamp" value="67" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/tools.py</url>
+          <line>1544</line>
+          <option name="timeStamp" value="68" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/all_tests_v3.py</url>
+          <line>232</line>
+          <option name="timeStamp" value="69" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

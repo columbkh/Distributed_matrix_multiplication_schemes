@@ -1,5 +1,6 @@
 from gasp_sh import *
 from sh_ass import *
+from sh_ass_fft import *
 from sh_scs import *
 from sh_uscsa import *
 from sh_gscsa import *
@@ -70,6 +71,15 @@ def do_gasp(r_a, r_b, l, N, field, barrier, verific, together, A, B, m, n, p, i,
         gasp_sl(r_a, r_b, N, field, barrier, m, n, p)
 
 
+def do_ass_fft(N, l, r_a_ass, r_b_ass, k, rt, field, barrier, verific, together, A, B, m, n, p, i, ass):
+    if MPI.COMM_WORLD.rank == 0:
+        print "ass fft: Iteration", str(i)
+        enc, dec, dl, ul, comp = ass_fft_m(N, l, r_a_ass, r_b_ass, k, rt, field, barrier, verific, together, A, B, m, n, p)
+        compute(enc, dec, dl, ul, comp, ass, i)
+    else:
+        ass_fft_sl(N, r_a_ass, r_b_ass, field, barrier, m, n, p)
+
+
 def do_ass(N, l, r_a_ass, r_b_ass, k, rt, field, barrier, verific, together, A, B, m, n, p, i, ass, flazhok, hs):
     if MPI.COMM_WORLD.rank == 0:
         if not flazhok:
@@ -113,6 +123,7 @@ def do_test(r_a, r_b, l, field, q, m, n, p, qq, f, verific, together):
     B = None
     gasp = None
     ass = None
+    ass_fft = None
     ass_so = None
     ass_so_hs = None
     scs = None
@@ -149,6 +160,15 @@ def do_test(r_a, r_b, l, field, q, m, n, p, qq, f, verific, together):
             rt = find_var(field, k)
 
     r = N - 2 * l
+    qq, f = factorize_root(N + 1 - 2 * l)
+    qq = qq - 1
+    poss_fft = get_for_fixedNl(N, l)
+    N_fft = poss_fft.N
+    rass_fft = poss_fft.r_a
+    rbss_fft = poss_fft.r_b
+    k_fft = poss_fft.k
+    rts = find_rt(field, k)
+    rt_fft = rts[np.random.random_integers(0, len(rts) - 1)]
 
     if MPI.COMM_WORLD.rank == 0:
         print "N: ", N
@@ -161,7 +181,7 @@ def do_test(r_a, r_b, l, field, q, m, n, p, qq, f, verific, together):
         print "f: ", f
 
     tmp = lcm(r, qq)
-    dev = lcm(tmp, f)
+    dev = tmp * f
 
     tmp_m = lcm(r_a, r_a_ass)
     tmp = lcm(r, r_b_ass)
@@ -188,6 +208,7 @@ def do_test(r_a, r_b, l, field, q, m, n, p, qq, f, verific, together):
     if MPI.COMM_WORLD.rank == 0:
         gasp = [np.zeros(q) for count in range(5)]
         ass = [np.zeros(q) for count in range(5)]
+        ass_fft = [np.zeros(q) for count in range(5)]
         ass_so = [np.zeros(q) for count in range(5)]
         ass_so_hs = [np.zeros(q) for count in range(5)]
         scs = [np.zeros(q) for count in range(5)]
@@ -206,19 +227,21 @@ def do_test(r_a, r_b, l, field, q, m, n, p, qq, f, verific, together):
         if MPI.COMM_WORLD.rank == 0:
             A = np.matrix(np.random.random_integers(0, 255, (m, n)))
             B = np.matrix(np.random.random_integers(0, 255, (p, n)))
+
         do_gasp(r_a, r_b, l, N, field, True, verific, together, A, B, m, n, p, i, gasp)
         do_ass(N, l, r_a_ass, r_b_ass, k, rt, field, True, verific, together, A, B, m, n, p, i, ass, False, False)
+        do_ass_fft(N, l, rass_fft, rbss_fft, k, rt_fft, field, True, verific, together, A, B, m, n, p, i, ass_fft)
         do_ass(N, l, r_a_ass, r_b_ass, k, rt, field, True, verific, together, A, B, m, n, p, i, ass_so, True, False)
-        do_ass(N, l, r_a_ass, r_b_ass, k, rt, field, True, verific, together, A, B, m, n, p, i, ass_so_hs, True, True)
+        # # do_ass(N, l, r_a_ass, r_b_ass, k, rt, field, True, verific, together, A, B, m, n, p, i, ass_so_hs, True, True)
         do_scs(N, l, r, field, True, verific, together, A, B, m, n, p, i, scs, False, False)
         do_scs(N, l, r, field, True, verific, together, A, B, m, n, p, i, scs_win_so, True, False)
-        do_scs(N, l, r, field, True, verific, together, A, B, m, n, p, i, scs_win_so_hs, True, True)
+        # # do_scs(N, l, r, field, True, verific, together, A, B, m, n, p, i, scs_win_so_hs, True, True)
         do_uscsa(N, l, f, qq, field, True, verific, together, A, B, m, n, p, i, uscsa, True, False, False)
         do_uscsa(N, l, f, qq, field, True, verific, together, A, B, m, n, p, i, uscsa_so, True, True, False)
-        do_uscsa(N, l, f, qq, field, True, verific, together, A, B, m, n, p, i, uscsa_so_hs, True, True, True)
+        # # do_uscsa(N, l, f, qq, field, True, verific, together, A, B, m, n, p, i, uscsa_so_hs, True, True, True)
         do_gscsa(N, l, f, qq, field, True, verific, together, A, B, m, n, p, i, gscsa, True, False, False)
         do_gscsa(N, l, f, qq, field, True, verific, together, A, B, m, n, p, i, gscsa_so, True, True, False)
-        do_gscsa(N, l, f, qq, field, True, verific, together, A, B, m, n, p, i, gscsa_so_hs, True, True, True)
+        # # do_gscsa(N, l, f, qq, field, True, verific, together, A, B, m, n, p, i, gscsa_so_hs, True, True, True)
 
     if MPI.COMM_WORLD.rank == 0:
         write_to_octave(uscsa, "uscsa" + experiment_name)
@@ -232,6 +255,7 @@ def do_test(r_a, r_b, l, field, q, m, n, p, qq, f, verific, together):
         write_to_octave(scs_win_so_hs, "scsa_win_so_hs" + experiment_name)
         write_to_octave(gasp, "gasp" + experiment_name)
         write_to_octave(ass, "ass" + experiment_name)
+        write_to_octave(ass_fft, "ass_fft" + experiment_name)
         write_to_octave(ass_so, "ass_so" + experiment_name)
         write_to_octave(ass_so_hs, "ass_so_hs" + experiment_name)
 

@@ -357,6 +357,16 @@ def set_communicatorsNl(N, l, field):
         communicators.comm = communicators.prev_comm
 
 
+def set_comms_for_ass_fft(N):
+    communicators.prev_comm = MPI.COMM_WORLD
+    if N + 1 < communicators.prev_comm.Get_size():
+        instances = [i for i in range(N + 1, communicators.prev_comm.Get_size())]
+        new_group = communicators.prev_comm.group.Excl(instances)
+        communicators.comm = communicators.prev_comm.Create(new_group)
+    else:
+        communicators.comm = communicators.prev_comm
+
+
 def set_communicators(r_a, r_b, l, field):
     if l >= min(r_a, r_b):
         inv_matr, an, ter, N, a, b = create_GASP_big(r_a, r_b, l, field)
@@ -600,6 +610,14 @@ def uscsa_make_matrix_d_cross_right_part(delta_ff, an, N, field, l, f):
 
 def uscsa_make_matrix_d_cross_left_part(delta_ff, pluss, N, field, q, f):
     pluss_ff = [matr2ffmatrix(matr, field) for matr in pluss]
+    # print "this bitch ", pluss_ff
+    # for n in range(N):
+    #     for i in range(q):
+    #         for j in range(f):
+    #             print "j, i, n: ", j, i, n
+    #             print "value of plussff: ", pluss_ff[n][i][j]
+    #             print "delta value: ", delta_ff[n]
+    #             print "result: ", delta_ff[n] / pluss_ff[n][i][j]
     return [[[delta_ff[n] / pluss_ff[n][i][j] for j in range(f)] for i in range(q)] for n in range(N)]
 
 
@@ -619,13 +637,12 @@ def uscsa_make_matrix_d_cross(N, field, q, f, l):
 
 
 def uscsa_make_matrix_d_cross_so(N, field, q, f, l):
+    #an = make_a_n(N)
     an = make_a_n_for_so(N, q, field)
     delta = make_delta(field, an, f*q)
     delta_ff = arr2ffarray(delta, field)
     j_plus_i_plus_an = [[[(j + (i - 1) * f + ai) % field for j in range(1, f + 1)] for i in range(1, q + 1)] for ai in an]
     i_plus_an = [[i + ai for i in range(1, q + 1)] for ai in an]
-  #  print "an ", an
-  #  print "i plus an", j_plus_i_plus_an
     d_cross_left_part = uscsa_make_matrix_d_cross_left_part(delta_ff, j_plus_i_plus_an, N, field, q, f)
     d_cross_left_part_matrix = uscsa_make_matrix_d_cross_left_part_matrix(d_cross_left_part, f, q)
     d_cross_right_part = uscsa_make_matrix_d_cross_right_part(delta_ff, an, N, field, l, f)
@@ -1056,7 +1073,7 @@ def uscsa_encode_Bn(Bn, i_plus, lterm, field, l, q, Zik):
 
 
 def reverse_uscsa_encode_An(An, i_plus, lterm, field, l, q, Zik):
-    return [(An[i] + multiply(lterm[i]) * sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) % field for k in range(1, l + 1)])) % field for i in range(q)]
+    return [(An[i] + (multiply(lterm[i]) % field) * sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) % field for k in range(1, l + 1)])) % field for i in range(q)]
 
 
 def gscsa_encode_B(Bn, i_plus_an, field, l, q, f, N, left_term):
@@ -1066,7 +1083,7 @@ def gscsa_encode_B(Bn, i_plus_an, field, l, q, f, N, left_term):
 
 
 def gscsa_encode_Bn(Bn, i_plus, lterm, field, l, q, Zik):
-    return [(Bn[0] + multiply(lterm[i]) * sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) % field for k in range(1, l + 1)])) % field for i in range(q)]
+    return [(Bn[0] + (multiply(lterm[i]) % field) * sum([(pow(i_plus[i], k-1, field) * Zik[i][k-1]) % field for k in range(1, l + 1)])) % field for i in range(q)]
 
 
 def reverse_gscsa_encode_A(An, i_plus_an, field, l, q, f, N, left_term):
@@ -1080,11 +1097,11 @@ def reverse_gscsa_encode_An(An, i_plus, lterm, field, l, q, Zik):
 
 
 def getAencGASP(Ap, field, N, a, an):
-    return [sum([Ap[j] * pow(an[i], a[j], field) for j in range(len(a))]) for i in range(N)]
+    return [sum([(Ap[j] * pow(an[i], a[j], field)) % field for j in range(len(a))]) % field for i in range(N)]
 
 
 def getBencGASP(Bp, field, N, b, an):
-    return [sum([Bp[j] * pow(an[i], b[j], field) for j in range(len(b))]) for i in range(N)]
+    return [sum([(Bp[j] * pow(an[i], b[j], field)) % field for j in range(len(b))]) % field for i in range(N)]
 
 
 def make_a_n(N):
@@ -1093,7 +1110,7 @@ def make_a_n(N):
 
 def make_a_n_for_so(N, r, field):
     an = []
-    tmp = 7
+    tmp = 13
     for i in range(N):
         an.append(tmp)
         tmp = tmp + 2
@@ -1482,6 +1499,21 @@ def multiply(numbers):
         total *= x
     return total
 
+
+def get_all_possb_for_fixed_l(l):
+    possbs = []
+    for n in range(l+1, 100):
+        if l > get_lmax(n):
+            continue
+        r_b = get_rb(n, l)
+        r_a = get_ra(n, l, r_b)
+        cand = (r_a + l) * (r_b + 1) - 1
+        if is_power2(cand):
+            possb = Params(n, l, r_a, r_b)
+            possbs.append(possb)
+    return possbs
+
+
 def get_all_possb_for_fixedN(N):
     lmax = get_lmax(N)
     possbs = []
@@ -1495,6 +1527,7 @@ def get_all_possb_for_fixedN(N):
             possbs.append(possb)
     return possbs
 
+
 def get_for_fixedNl(N, l):
     r_b = get_rb(N, l)
     r_a = get_ra(N, l, r_b)
@@ -1503,6 +1536,7 @@ def get_for_fixedNl(N, l):
         return Params(N, l, r_a, r_b)
     else:
         return False
+
 
 def get_nofft_for_fixedN(N, l):
     if l != 0:
